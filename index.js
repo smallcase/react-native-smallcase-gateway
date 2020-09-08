@@ -55,7 +55,7 @@ const init = async (sdkToken) => {
  * @returns {Promise<transactionRes>}
  */
 const triggerTransaction = async (transactionId) => {
-  return SmallcaseGateway.triggerTransaction(transactionId);
+  return SmallcaseGatewayNative.triggerTransaction(transactionId);
 };
 
 const SmallcaseGateway = {
