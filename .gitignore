@@ -42,3 +42,4 @@ buck-out/
 *.keystore
 
 .vscode
+android/gradle.properties
