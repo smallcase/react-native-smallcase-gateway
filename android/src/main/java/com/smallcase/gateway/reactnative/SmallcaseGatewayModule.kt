@@ -64,7 +64,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         SmallcaseGatewaySdk.init(initReq, object : DataListener<InitialisationResponse> {
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 val err = createErrorJSON(errorCode, errorMessage)
-                promise.reject(Throwable(err))
+                promise.reject("error", err)
             }
 
             override fun onSuccess(response: InitialisationResponse) {
@@ -87,7 +87,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
                 override fun onError(errorCode: Int, errorMessage: String) {
                     val err = createErrorJSON(errorCode, errorMessage)
-                    promise.reject(Throwable(err))
+                    promise.reject("error", err)
                 }
             })
         } else {
@@ -96,7 +96,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun triggerLeadGen(params:ReadableMap){
+    fun triggerLeadGen(params: ReadableMap) {
         val activity = currentActivity;
         if (activity != null) {
             val data = HashMap<String, String>()
@@ -122,7 +122,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         }
     }
 
-    private fun resultToWritableMap(result : TransactionResult) : WritableMap {
+    private fun resultToWritableMap(result: TransactionResult): WritableMap {
         val writableMap: WritableMap = Arguments.createMap()
 
         writableMap.putString("data", result.data)
@@ -135,11 +135,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         return writableMap
     }
 
-    private fun createErrorJSON(errorCode: Int, errorMessage: String):String{
+    private fun createErrorJSON(errorCode: Int, errorMessage: String): WritableMap {
         val errObj = Arguments.createMap()
         errObj.putInt("errorCode", errorCode)
         errObj.putString("errorMessage", errorMessage)
 
-        return errObj.toString()
+        return errObj
     }
 }

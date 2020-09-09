@@ -43,7 +43,7 @@ const App = () => {
       await SmallcaseGateway.init(sdkToken);
       setLog((p) => p + '\n init success');
     } catch (err) {
-      setLog((p) => p + '\n error during init' + err.message);
+      setLog((p) => p + '\n error during init' + JSON.stringify(err.userInfo));
     }
   }, [sdkToken]);
 
@@ -54,7 +54,9 @@ const App = () => {
       setLog((p) => p + '\n transaction success');
       setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
     } catch (err) {
-      setLog((p) => p + '\n error during transaction' + err);
+      setLog(
+        (p) => p + '\n error during transaction' + JSON.stringify(err.userInfo),
+      );
     }
   }, [transactionId]);
 
