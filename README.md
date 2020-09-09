@@ -25,6 +25,22 @@ allprojects {
 
 Either replace `artifactory_user` and `artifactory_password` directly here or add them to your `gradle.properties`
 
+add these lines in `AndroidManifest.xml` in the main `<application />` tag
+
+```xml
+<activity android:name="com.smallcase.gateway.screens.transaction.activity.TransactionProcessActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.BROWSABLE" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <data
+      android:host="{YOUR_HOST_NAME}"
+      android:scheme="scgateway" />
+  </intent-filter>
+</activity>
+```
+
 ## Example Usage
 
 ```javascript
@@ -44,6 +60,9 @@ await SmallcaseGateway.init(sdkToken);
 
 // execute a transaction
 const res = await SmallcaseGateway.triggerTransaction(transactionId);
+
+// start lead generation flow
+SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 ```
 
 ## Debug / Contribution
