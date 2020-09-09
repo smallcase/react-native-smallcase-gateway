@@ -10,7 +10,6 @@ import com.smallcase.gateway.data.models.InitialisationResponse
 import com.smallcase.gateway.data.models.TransactionResult
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
-import com.smallcase.gateway.screens.transaction.activity.TransactionProcessActivity
 
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext!!) {
@@ -26,7 +25,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     fun setConfigEnvironment(
             envName: String,
             gateway: String,
-            isLeprachaunActive: Boolean,
+            isLeprechaunActive: Boolean,
             preProvidedBrokers: ReadableArray,
             promise: Promise) {
         Log.d(TAG, "setConfigEnvironment: start")
@@ -41,7 +40,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
             val protocol = getProtocol(envName)
 
-            val env = Environment(protocol, gateway, isLeprachaunActive, brokerList)
+            val env = Environment(protocol, gateway, isLeprechaunActive, brokerList)
 
             SmallcaseGatewaySdk.setConfigEnvironment(env, object : SmallcaseGatewayListeners {
                 override fun onGatewaySetupSuccessfull() {
@@ -64,11 +63,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         val initReq = InitRequest(sdkToken)
         SmallcaseGatewaySdk.init(initReq, object : DataListener<InitialisationResponse> {
             override fun onFailure(errorCode: Int, errorMessage: String) {
-                promise.reject(Throwable(errorMessage))
+                val err = createErrorJSON(errorCode, errorMessage)
+                promise.reject(Throwable(err))
             }
 
             override fun onSuccess(response: InitialisationResponse) {
-                Log.d(TAG, "init success: $response");
                 promise.resolve(true)
             }
 
@@ -87,11 +86,30 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                 }
 
                 override fun onError(errorCode: Int, errorMessage: String) {
-                    promise.reject(Throwable(errorMessage))
+                    val err = createErrorJSON(errorCode, errorMessage)
+                    promise.reject(Throwable(err))
                 }
             })
         } else {
             promise.reject(Throwable("no activity"))
+        }
+    }
+
+    @ReactMethod
+    fun triggerLeadGen(params:ReadableMap){
+        val activity = currentActivity;
+        if (activity != null) {
+            val data = HashMap<String, String>()
+            val keyIterator = params.keySetIterator()
+
+            while (keyIterator.hasNextKey()) {
+                val key = keyIterator.nextKey()
+                params.getString(key)?.let {
+                    data.put(key, it)
+                }
+            }
+
+            SmallcaseGatewaySdk.triggerLeadGen(activity, data)
         }
     }
 
@@ -115,5 +133,13 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         }
         writableMap.putString("transaction", result.transaction.name)
         return writableMap
+    }
+
+    private fun createErrorJSON(errorCode: Int, errorMessage: String):String{
+        val errObj = Arguments.createMap()
+        errObj.putInt("errorCode", errorCode)
+        errObj.putString("errorMessage", errorMessage)
+
+        return errObj.toString()
     }
 }

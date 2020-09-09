@@ -15,6 +15,12 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {boolean}  success     - success flag
  * @property {Number}   [errorCode] - error code
  * @property {string}   transaction - transaction name
+ *
+ * @typedef {Object} userDetails
+ * @property {String} name - name of user
+ * @property {String} email - email of user
+ * @property {String} contact - contact of user
+ * @property {String} pinCode - pin-code of user
  */
 
 const ENV = {
@@ -58,9 +64,20 @@ const triggerTransaction = async (transactionId) => {
   return SmallcaseGatewayNative.triggerTransaction(transactionId);
 };
 
+/**
+ * triggers the lead gen flow
+ *
+ * @param {userDetails} params
+ */
+const triggerLeadGen = (params) => {
+  const safeParams = typeof params === "object" ? params : {};
+  return SmallcaseGatewayNative.triggerLeadGen(safeParams);
+};
+
 const SmallcaseGateway = {
   ENV,
   init,
+  triggerLeadGen,
   triggerTransaction,
   setConfigEnvironment,
 };

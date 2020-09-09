@@ -15,7 +15,9 @@ const App = () => {
   const [log, setLog] = useState('');
   const [env, setEnv] = useState(GATEWAY_ENV.PROD);
 
-  const [sdkToken, setSdkToken] = useState('');
+  const [sdkToken, setSdkToken] = useState(
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE1OTk2Nzc5NjJ9.CqqzVqX7E_od-TFzaPKET51XUhSr0hdL-P3pwNQ6ZMM',
+  );
   const [transactionId, setTransactionId] = useState('');
 
   const updateEnv = useCallback(async () => {
@@ -41,7 +43,7 @@ const App = () => {
       await SmallcaseGateway.init(sdkToken);
       setLog((p) => p + '\n init success');
     } catch (err) {
-      setLog((p) => p + '\n error during init' + err);
+      setLog((p) => p + '\n error during init' + err.message);
     }
   }, [sdkToken]);
 
@@ -91,6 +93,16 @@ const App = () => {
         placeholder="transaction id"
       />
       <Button title="start transaction" onPress={startTransaction} />
+
+      <View style={styles.envContainer}>
+        <Button
+          title="Open lead gen"
+          onPress={() => {
+            SmallcaseGateway.triggerLeadGen();
+          }}
+        />
+      </View>
+
       <View style={styles.logBox}>
         <Button title="clear logs" onPress={() => setLog('')} />
         <Text>{log}</Text>
