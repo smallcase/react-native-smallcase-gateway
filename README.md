@@ -4,6 +4,21 @@
 
 `$ yarn add https://gitlab.com/smallcase/mobile/gateway/react-native-smallcase-gateway`
 
+## ios setup
+
+add these lines at the top of your `Podfile`
+
+```ruby
+# private podspec for smallcase
+source 'https://gitlab.com/smallcase/mobile/gateway/cocoapodspecs.git'
+
+# default source for all other pods
+source 'https://github.com/CocoaPods/Specs.git'
+```
+
+then run
+`cd ios; pod update`
+
 ## android setup
 
 Add these lines to your project level `build.gradle`
