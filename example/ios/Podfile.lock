@@ -238,6 +238,7 @@ PODS:
   - React-jsinspector (0.63.2)
   - react-native-smallcase-gateway (1.0.0):
     - React
+    - SCGateway (~> 2.0.2)
   - React-RCTActionSheet (0.63.2):
     - React-Core/RCTActionSheetHeaders (= 0.63.2)
   - React-RCTAnimation (0.63.2):
@@ -298,6 +299,7 @@ PODS:
     - React-Core (= 0.63.2)
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
+  - SCGateway (2.0.2)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -353,7 +355,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - boost-for-react-native
     - CocoaAsyncSocket
     - CocoaLibEvent
@@ -366,6 +368,8 @@ SPEC REPOS:
     - FlipperKit
     - OpenSSL-Universal
     - YogaKit
+  https://gitlab.com/smallcase/mobile/gateway/cocoapodspecs.git:
+    - SCGateway
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -450,7 +454,7 @@ SPEC CHECKSUMS:
   React-jsi: 54245e1d5f4b690dec614a73a3795964eeef13a8
   React-jsiexecutor: 8ca588cc921e70590820ce72b8789b02c67cce38
   React-jsinspector: b14e62ebe7a66e9231e9581279909f2fc3db6606
-  react-native-smallcase-gateway: 7d29d2c8623fff4359d4f90fc2633e2072e11fcb
+  react-native-smallcase-gateway: 5f876968a90ab9bb6bafa27efb41f72cd3a64b89
   React-RCTActionSheet: 910163b6b09685a35c4ebbc52b66d1bfbbe39fc5
   React-RCTAnimation: 9a883bbe1e9d2e158d4fb53765ed64c8dc2200c6
   React-RCTBlob: 39cf0ece1927996c4466510e25d2105f67010e13
@@ -461,9 +465,10 @@ SPEC CHECKSUMS:
   React-RCTText: 1b6773e776e4b33f90468c20fe3b16ca3e224bb8
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
+  SCGateway: 33ad2e25ef06be217a352f4f54e88f6574b6d8ed
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 311cf87a4a33d759b7ec994ec3735e03d4ededbf
+PODFILE CHECKSUM: 1440d0435b158d4e598042e9c0d4822095f4fef0
 
 COCOAPODS: 1.8.4

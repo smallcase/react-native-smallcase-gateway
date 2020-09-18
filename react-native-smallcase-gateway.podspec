@@ -22,7 +22,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React"
-  # ...
-  # s.dependency "..."
+  s.dependency 'SCGateway', '~> 2.0.2'
 end
 
