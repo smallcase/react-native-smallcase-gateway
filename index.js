@@ -7,6 +7,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @typedef {Object} envConfig
  * @property {string}        gatewayName     - unique name on consumer
  * @property {boolean}       isLeprechaun    - leprechaun mode toggle
+ * @property {boolean}       isAmoEnabled    - support AMO (subject to broker support)
  * @property {Array<string>} brokerList      - list of broker names
  * @property {'production' | 'staging' | 'development'}  environmentName - environment name
  *
@@ -34,12 +35,19 @@ const ENV = {
  * @param {envConfig} envConfig
  */
 const setConfigEnvironment = async (envConfig) => {
-  const { brokerList, gatewayName, isLeprechaun, environmentName } = envConfig;
+  const {
+    brokerList,
+    gatewayName,
+    isLeprechaun,
+    isAmoEnabled,
+    environmentName,
+  } = envConfig;
 
   await SmallcaseGatewayNative.setConfigEnvironment(
     environmentName,
     gatewayName,
     isLeprechaun,
+    isAmoEnabled,
     brokerList
   );
 };

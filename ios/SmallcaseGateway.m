@@ -12,6 +12,7 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
                  isLeprechaunActive: (BOOL *)isLeprechaunActive
+                 isAmoEnabled: (BOOL *)isAmoEnabled
                  preProvidedBrokers: (NSArray *)preProvidedBrokers
                  setConfigEnvironmentWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
@@ -31,7 +32,8 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                              initWithGatewayName:gateway
                              brokerConfig:preProvidedBrokers
                              apiEnvironment:environment
-                             isLeprechaunActive: isLeprechaunActive];
+                             isLeprechaunActive:isLeprechaunActive
+                             isAmoEnabled:isAmoEnabled];
 
     [SCGateway.shared setupWithConfig: config completion:^(BOOL success,NSError * error)
      {

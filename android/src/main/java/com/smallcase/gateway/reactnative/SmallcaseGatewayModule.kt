@@ -26,6 +26,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             envName: String,
             gateway: String,
             isLeprechaunActive: Boolean,
+            isAmoEnabled: Boolean,
             preProvidedBrokers: ReadableArray,
             promise: Promise) {
         Log.d(TAG, "setConfigEnvironment: start")
@@ -40,7 +41,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
             val protocol = getProtocol(envName)
 
-            val env = Environment(protocol, gateway, isLeprechaunActive, brokerList)
+            val env = Environment(protocol, gateway, isLeprechaunActive, isAmoEnabled, brokerList)
 
             SmallcaseGatewaySdk.setConfigEnvironment(env, object : SmallcaseGatewayListeners {
                 override fun onGatewaySetupSuccessfull() {

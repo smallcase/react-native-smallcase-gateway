@@ -65,6 +65,7 @@ import SmallcaseGateway from "react-native-smallcase-gateway";
 // configure environment
 await SmallcaseGateway.setConfigEnvironment({
   isLeprechaun: true,
+  isAmoEnabled: true,
   gatewayName: "smallcase-website",
   environmentName: SmallcaseGateway.ENV.PROD,
   brokerList: ["kite", "aliceblue", "trustline"],
@@ -91,6 +92,19 @@ SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 - remove `node_modules` from root directory
 
 - change directory to `example/`
+
+- add a file called `gradle.properties` in `example/android`and add
+
+```
+android.useAndroidX=true
+android.enableJetifier=true
+
+FLIPPER_VERSION=version_string
+
+artifactory_user=sampleUser
+artifactory_password=samplePassword
+```
+
 - run `yarn install`
 - run `yarn start` (important to get symlinks to work)
 - run `yarn android` to build example project for android
