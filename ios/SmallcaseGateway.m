@@ -105,9 +105,8 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.transaction options: 0];
 
                 NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
-                NSMutableDictionary *dict=[NSJSONSerialization JSONObjectWithData:[decodedResponse dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:nil];
 
-                [responseDict setObject:dict forKey:@"data"];
+                [responseDict setObject:decodedResponse forKey:@"data"];
                 [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
                 resolve(responseDict);
                 return;
