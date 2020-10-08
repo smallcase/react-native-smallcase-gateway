@@ -100,42 +100,98 @@ RCT_REMAP_METHOD(triggerTransaction,
             NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
             [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
 
+            // intent - transaction
             if ([response isKindOfClass: [ObjcTransactionIntentTransaction class]]) {
                 ObjcTransactionIntentTransaction *trxResponse = response;
-                NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.transaction options: 0];
+                [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
 
+                NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.transaction options: 0];
                 NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
 
                 [responseDict setObject:decodedResponse forKey:@"data"];
-                [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
                 resolve(responseDict);
                 return;
             }
 
+            // intent - connect
             if([response isKindOfClass: [ObjCTransactionIntentConnect class]]) {
                 ObjCTransactionIntentConnect *trxResponse = response;
                 [responseDict setValue:@"CONNECT"  forKey:@"transaction"];
 
-                if (trxResponse.authToken != nil)
-                {
+                if (trxResponse.authToken != nil) {
                     [responseDict setValue:trxResponse.authToken forKey:@"data"];
                 }
                 resolve(responseDict);
                 return;
             }
 
+            // intent - holdings import
             if([response isKindOfClass: [ObjcTransactionIntentHoldingsImport class]]) {
                 ObjcTransactionIntentHoldingsImport *trxResponse = response;
+                [responseDict setValue:@"HOLDING_IMPORT"  forKey:@"transaction"];
 
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
 
-                [responseDict setValue:@"HOLDING_IMPORT"  forKey:@"transaction"];
+
                 [responseDict setValue:dict forKey:@"data"];
                 resolve(responseDict);
+                return;
             }
 
+            // intent - fetch funds
+            if([response isKindOfClass: [ObjcTransactionIntentFetchFunds class]]) {
+                ObjcTransactionIntentFetchFunds *trxResponse = response;
+                [responseDict setValue:@"FETCH_FUNDS"  forKey:@"transaction"];
+
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
+                [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
+
+                [dict setValue:[NSNumber numberWithDouble:trxResponse.fund] forKey:@"fund"];
+
+                [responseDict setValue:dict forKey:@"data"];
+                resolve(responseDict);
+                return;
+            }
+
+            // intent - sip setup
+            if([response isKindOfClass: [ObjcTransactionIntentSipSetup class]]) {
+                ObjcTransactionIntentSipSetup *trxResponse = response;
+                [responseDict setValue:@"SIP_SETUP"  forKey:@"transaction"];
+
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
+                [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
+
+                [dict setValue: trxResponse.sipAction forKey:@"sipAction"];
+
+                [responseDict setValue:dict forKey:@"data"];
+                resolve(responseDict);
+                return;
+            }
+
+
+            // intent - authorize holdings
+            if([response isKindOfClass: [ObjcTransactionIntentAuthoriseHoldings class]]) {
+                ObjcTransactionIntentAuthoriseHoldings *trxResponse = response;
+                [responseDict setValue:@"AUTHORISE_HOLDINGS"  forKey:@"transaction"];
+
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
+                [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
+
+                [dict setValue: [NSNumber numberWithBool:trxResponse.status] forKey:@"status"];
+
+                [responseDict setValue:dict forKey:@"data"];
+                resolve(responseDict);
+                return;
+            }
+
+            // no matching intent type
+             NSError *err = [[NSError alloc] initWithDomain:@"com.smallcase.gateway" code:0 userInfo:@{@"Error reason": @"no matching response type"}];
+            reject(@"triggerTransaction", @"no matching response type", err);
         }];
     });
 }
@@ -147,3 +203,5 @@ RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)params)
     });
 }
 @end
+
+
