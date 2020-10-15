@@ -30,6 +30,15 @@ const ENV = {
   PROD: "production",
 };
 
+export const TRANSACTION_TYPE = {
+  connect: "CONNECT",
+  sipSetup: "SIP_SETUP",
+  fetchFunds: "FETCH_FUNDS",
+  transaction: "TRANSACTION",
+  holdingsImport: "HOLDINGS_IMPORT",
+  authorizeHoldings: "AUTHORISE_HOLDINGS",
+};
+
 /**
  * configure the sdk with
  * @param {envConfig} envConfig
@@ -86,6 +95,7 @@ const SmallcaseGateway = {
   ENV,
   init,
   triggerLeadGen,
+  TRANSACTION_TYPE,
   triggerTransaction,
   setConfigEnvironment,
 };
