@@ -83,17 +83,34 @@ SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 
 ## Debug / Contribution
 
-- make sure you have react native dev environment set up
+Make sure you have react native dev environment set up
+
+### ios
+
+- remove `node_modules` in the root directory
+- run `yarn install` in `example/`
+- run `pod update` in `example/ios`
+- open `SmallcaseGateway.xcworkspace` in xcode
+- run `yarn start` (important to get symlinks to work)
+- run in debug mode
+- in xcode, navigate to Pods > Development Pods > react-native-smallcase-gateway
+- you can now edit these file directly and test the results on the running app
+
+### android without example app
+
 - run `yarn install` in the root directory
 - change directory to `android/`
-- add a file called `gradle.properties` and add `artifactory_user` and `artifactory_password`
+- add a file called `gradle.properties`
+- add `artifactory_user` and `artifactory_password`
 - open this folder in android studio
 - let gradle sync complete
-- remove `node_modules` from root directory
+- you can now write code with just the android folder in context
 
-- change directory to `example/`
+### android with example app
 
-- add a file called `gradle.properties` in `example/android`and add
+- run `yarn install` in `example/`
+- add a file called `gradle.properties` in `example/android`
+- add these lines
 
 ```
 android.useAndroidX=true
@@ -105,6 +122,5 @@ artifactory_user=sampleUser
 artifactory_password=samplePassword
 ```
 
-- run `yarn install`
 - run `yarn start` (important to get symlinks to work)
 - run `yarn android` to build example project for android
