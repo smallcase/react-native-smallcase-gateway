@@ -50,7 +50,9 @@ const App = () => {
   const startTransaction = useCallback(async () => {
     setLog((p) => p + '\n starting transaction');
     try {
-      const res = await SmallcaseGateway.triggerTransaction(transactionId);
+      const res = await SmallcaseGateway.triggerTransaction(transactionId, {
+        test: 'test',
+      });
       setLog((p) => p + '\n transaction success');
       setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
     } catch (err) {

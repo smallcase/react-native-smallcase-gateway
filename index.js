@@ -1,4 +1,5 @@
 import { NativeModules } from "react-native";
+import { ENV, TRANSACTION_TYPE, ERROR_MSG } from "./constants";
 
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
@@ -23,21 +24,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
  */
-
-const ENV = {
-  STAG: " staging",
-  DEV: "development",
-  PROD: "production",
-};
-
-export const TRANSACTION_TYPE = {
-  connect: "CONNECT",
-  sipSetup: "SIP_SETUP",
-  fetchFunds: "FETCH_FUNDS",
-  transaction: "TRANSACTION",
-  holdingsImport: "HOLDINGS_IMPORT",
-  authorizeHoldings: "AUTHORISE_HOLDINGS",
-};
 
 /**
  * configure the sdk with
@@ -75,16 +61,18 @@ const init = async (sdkToken) => {
  * triggers a transaction with a transaction id
  *
  * @param {string} transactionId
+ * @param {Object} [utmParams]
  * @returns {Promise<transactionRes>}
  */
-const triggerTransaction = async (transactionId) => {
-  return SmallcaseGatewayNative.triggerTransaction(transactionId);
+const triggerTransaction = async (transactionId, utmParams) => {
+  const safeUtm = typeof utmParams === "object" ? utmParams : {};
+  return SmallcaseGatewayNative.triggerTransaction(transactionId, safeUtm);
 };
 
 /**
  * triggers the lead gen flow
  *
- * @param {userDetails} params
+ * @param {userDetails} [params]
  */
 const triggerLeadGen = (params) => {
   const safeParams = typeof params === "object" ? params : {};
@@ -94,6 +82,7 @@ const triggerLeadGen = (params) => {
 const SmallcaseGateway = {
   ENV,
   init,
+  ERROR_MSG,
   triggerLeadGen,
   TRANSACTION_TYPE,
   triggerTransaction,

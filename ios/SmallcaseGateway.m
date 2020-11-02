@@ -70,6 +70,7 @@ RCT_REMAP_METHOD(init,
                 NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
                 reject(@"init", @"Error during init", err);
+                return;
             }
             reject(@"init", @"Error during init", error);
         }
@@ -80,12 +81,16 @@ RCT_REMAP_METHOD(init,
 
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
+                 utmParams:(NSDictionary *)utmParams
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [SCGateway.shared triggerTransactionFlowWithTransactionId: transactionId presentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] completion:^(id response, NSError * error) {
-
+        [SCGateway.shared
+         triggerTransactionFlowWithTransactionId:transactionId
+         presentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
+         utmParams:utmParams
+         completion: ^(id response, NSError * error) {
             if (error != nil) {
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
@@ -190,7 +195,7 @@ RCT_REMAP_METHOD(triggerTransaction,
             }
 
             // no matching intent type
-             NSError *err = [[NSError alloc] initWithDomain:@"com.smallcase.gateway" code:0 userInfo:@{@"Error reason": @"no matching response type"}];
+            NSError *err = [[NSError alloc] initWithDomain:@"com.smallcase.gateway" code:0 userInfo:@{@"Error reason": @"no matching response type"}];
             reject(@"triggerTransaction", @"no matching response type", err);
         }];
     });
