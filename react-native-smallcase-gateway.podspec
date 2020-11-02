@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 
-  s.dependency "React"
+  s.dependency "React-Core"
   s.dependency 'SCGateway', '2.1.3'
 end
 
