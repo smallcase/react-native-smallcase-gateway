@@ -1,7 +1,7 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-source 'https://gitlab.com/smallcase/mobile/gateway/cocoapodspecs.git'
+source 'https://gitlab.com/scGatewayOS/cocoapodspecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
 
