@@ -38,12 +38,19 @@ const setConfigEnvironment = async (envConfig) => {
     environmentName,
   } = envConfig;
 
+  const safeIsLeprechaun = Boolean(isLeprechaun);
+  const safeIsAmoEnabled = Boolean(isAmoEnabled);
+  const safeBrokerList = Array.isArray(brokerList) ? brokerList : [];
+  const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
+  const safeEnvName =
+    typeof environmentName === "string" ? environmentName : ENV.PROD;
+
   await SmallcaseGatewayNative.setConfigEnvironment(
-    environmentName,
-    gatewayName,
-    isLeprechaun,
-    isAmoEnabled,
-    brokerList
+    safeEnvName,
+    safeGatewayName,
+    safeIsLeprechaun,
+    safeIsAmoEnabled,
+    safeBrokerList
   );
 };
 
@@ -54,7 +61,8 @@ const setConfigEnvironment = async (envConfig) => {
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
-  await SmallcaseGatewayNative.init(sdkToken);
+  const safeToken = typeof sdkToken === "string" ? sdkToken : "";
+  await SmallcaseGatewayNative.init(safeToken);
 };
 
 /**
