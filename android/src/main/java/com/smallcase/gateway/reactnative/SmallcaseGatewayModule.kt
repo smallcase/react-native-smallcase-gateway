@@ -97,8 +97,17 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     transactionId = transactionId,
                     transactionResponseListener = object : TransactionResponseListener {
                         override fun onSuccess(transactionResult: TransactionResult) {
-                            val res = resultToWritableMap(transactionResult)
-                            promise.resolve(res)
+                            if (transactionResult.success) {
+                                val res = resultToWritableMap(transactionResult)
+                                promise.resolve(res)
+                            } else {
+                                val err = createErrorJSON(
+                                        transactionResult.errorCode,
+                                        transactionResult.error
+                                )
+                                promise.reject("error", err)
+                            }
+
                         }
 
                         override fun onError(errorCode: Int, errorMessage: String) {
@@ -155,10 +164,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         return writableMap
     }
 
-    private fun createErrorJSON(errorCode: Int, errorMessage: String): WritableMap {
+    private fun createErrorJSON(errorCode: Int?, errorMessage: String?): WritableMap {
         val errObj = Arguments.createMap()
-        errObj.putInt("errorCode", errorCode)
-        errObj.putString("errorMessage", errorMessage)
+
+        errorCode?.let { errObj.putInt("errorCode", it) }
+        errorMessage?.let { errObj.putString("errorMessage", it) }
 
         return errObj
     }
