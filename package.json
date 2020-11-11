@@ -8,13 +8,13 @@
     "README.md",
     "android",
     "index.js",
-    "ios",
+    "ios ",
     "react-native-smallcase-gateway.podspec"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "yarn cz",
     "postinstall": "sh init-githooks.sh",
-    "release": "standard-version",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
     "release:major": "standard-version --release-as major"
