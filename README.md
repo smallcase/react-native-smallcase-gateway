@@ -1,5 +1,7 @@
 # react-native-smallcase-gateway
 
+[Complete Guide](https://developers.gateway.smallcase.com/docs/react-native-integration)
+
 ## Getting started
 
 `$ yarn add https://gitlab.com/smallcase/mobile/gateway/react-native-smallcase-gateway.git`
@@ -13,7 +15,10 @@ add these lines at the top of your `Podfile`
 source 'https://gitlab.com/scGatewayOS/cocoapodspecs.git'
 
 # default source for all other pods
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org'
+
+# update the ios version if it was previously below 11.0
+platform :ios, '11.0'
 ```
 
 then run
