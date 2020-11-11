@@ -5,10 +5,11 @@
   "description": "smallcase gateway bindings for react native",
   "main": "index.js",
   "files": [
-    "README.md",
     "android",
     "index.js",
-    "ios ",
+    "constants",
+    "README.md",
+    "constants.js",
     "react-native-smallcase-gateway.podspec"
   ],
   "scripts": {
