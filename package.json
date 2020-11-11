@@ -15,7 +15,7 @@
   "scripts": {
     "commit": "yarn cz",
     "postinstall": "sh init-githooks.sh",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
     "release:major": "standard-version --release-as major"
@@ -40,10 +40,13 @@
     "react-native": ">=0.60.0-rc.0 <1.0.x"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "commitizen": "^4.2.2",
     "cz-conventional-changelog": "^3.3.0",
+    "jest": "^26.6.3",
     "react": "^16.9.0",
     "react-native": "^0.61.5",
     "standard-version": "^9.0.0"
@@ -52,5 +55,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "babel-jest": "^26.6.3"
   }
 }
