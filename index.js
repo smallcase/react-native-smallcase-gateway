@@ -3,8 +3,6 @@ import { ENV, TRANSACTION_TYPE, ERROR_MSG } from "./constants";
 
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
-asd;
-
 /**
  *
  * @typedef {Object} envConfig
