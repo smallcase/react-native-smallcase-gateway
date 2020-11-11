@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd .git/hooks;echo \"#!/bin/bash\nexec < /dev/tty && node_modules/.bin/cz --hook || true\" > prepare-commit-msg;chmod u+x prepare-commit-msg;"
+    "postinstall": "sh init-githooks.sh"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,8 @@
     "react-native": ">=0.60.0-rc.0 <1.0.x"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/cli": "^11.0.0",
     "commitizen": "^4.2.2",
     "cz-conventional-changelog": "^3.3.0",
     "react": "^16.9.0",
