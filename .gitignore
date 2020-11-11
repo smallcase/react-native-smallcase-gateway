@@ -42,3 +42,7 @@ buck-out/
 *.keystore
 
 .vscode
+android/gradle.properties
+example/android/gradle.properties
+coverage/
+junit.xml
