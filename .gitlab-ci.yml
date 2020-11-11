@@ -7,5 +7,9 @@ test:
   script:
     - yarn
     - yarn test
+  artifacts:
+    reports:
+      junit: junit.xml
+      cobertura: coverage/cobertura-coverage.xml
   tags:
     - docker

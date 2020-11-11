@@ -6,5 +6,7 @@
 module.exports = {
   testEnvironment: "node",
   coverageDirectory: "coverage",
+  reporters: ["default", "jest-junit"],
   testPathIgnorePatterns: ["example/"],
+  coverageReporters: ["cobertura", "text"],
 };
