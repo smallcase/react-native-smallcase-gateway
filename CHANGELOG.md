@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.19](https://gitlab.com/smallcase/mobile/gateway/react-native-smallcase-gateway/compare/v0.0.18...v0.0.19) (2020-11-11)
+
 ### 0.0.18 (2020-11-11)
 
 
