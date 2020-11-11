@@ -30,13 +30,15 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @param {envConfig} envConfig
  */
 const setConfigEnvironment = async (envConfig) => {
+  const safeConfig = typeof envConfig === "object" ? envConfig : {};
+
   const {
     brokerList,
     gatewayName,
     isLeprechaun,
     isAmoEnabled,
     environmentName,
-  } = envConfig;
+  } = safeConfig;
 
   const safeIsLeprechaun = Boolean(isLeprechaun);
   const safeIsAmoEnabled = Boolean(isAmoEnabled);
@@ -74,7 +76,9 @@ const init = async (sdkToken) => {
  */
 const triggerTransaction = async (transactionId, utmParams) => {
   const safeUtm = typeof utmParams === "object" ? utmParams : {};
-  return SmallcaseGatewayNative.triggerTransaction(transactionId, safeUtm);
+  const safeId = typeof transactionId === "string" ? transactionId : "";
+
+  return SmallcaseGatewayNative.triggerTransaction(safeId, safeUtm);
 };
 
 /**
