@@ -1,0 +1,11 @@
+stages:
+  - test
+
+test:
+  stage: test
+  image: node:alpine
+  script:
+    - yarn
+    - yarn test
+  tags:
+    - docker
