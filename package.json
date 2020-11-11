@@ -12,7 +12,8 @@
     "react-native-smallcase-gateway.podspec"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "exec < /dev/tty && node_modules/.bin/cz --hook || true"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,14 @@
     "react-native": ">=0.60.0-rc.0 <1.0.x"
   },
   "devDependencies": {
+    "commitizen": "^4.2.2",
+    "cz-conventional-changelog": "^3.3.0",
     "react": "^16.9.0",
     "react-native": "^0.61.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
