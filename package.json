@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "exec < /dev/tty && node_modules/.bin/cz --hook || true"
+    "postinstall": "cd .git/hooks;echo \"#!/bin/bash\nexec < /dev/tty && node_modules/.bin/cz --hook || true\" > prepare-commit-msg;chmod u+x prepare-commit-msg;"
   },
   "repository": {
     "type": "git",
