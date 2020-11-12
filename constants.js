@@ -19,6 +19,7 @@ export const ERROR_MSG = {
   invalid_jwt: "invalid_jwt",
   market_closed: "market_closed",
   user_mismatch: "user_mismatch",
+  order_pending: "order_pending",
   internal_error: "internal_error",
   user_cancelled: "user_cancelled",
   consent_denied: "consent_denied",
