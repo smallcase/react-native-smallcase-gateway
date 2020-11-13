@@ -4,7 +4,7 @@
 
 ## Getting started
 
-`$ yarn add https://gitlab.com/smallcase/mobile/gateway/react-native-smallcase-gateway.git`
+`$ yarn add https://gitlab.com/scGatewayOS/react-native-smallcase-gateway.git`
 
 ## ios setup
 

@@ -22,8 +22,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com:smallcase/mobile/gateway/react-native-smallcase-gateway.git",
-    "baseUrl": "https://gitlab.com/smallcase/mobile/gateway/react-native-smallcase-gateway"
+    "url": "git+https://gitlab.com:scGatewayOS/react-native-smallcase-gateway.git",
+    "baseUrl": "https://gitlab.com/scGatewayOS/react-native-smallcase-gateway.git"
   },
   "keywords": [
     "react-native"
