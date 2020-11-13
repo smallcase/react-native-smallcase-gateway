@@ -63,8 +63,8 @@ repositories {
     maven {
         url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
         credentials {
-            username "${artifactory_user}"
-            password "${artifactory_password}"
+            username "react_native_user"
+            password "reactNativeUser123"
         }
     }
     maven {
