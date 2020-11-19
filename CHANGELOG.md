@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.26](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.0.25...v0.0.26) (2020-11-19)
+
+
+### Bug Fixes
+
+* ignore postinstall error ([f4918db](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/f4918db3c12db65a3d4942644e6e1b627a4a2b4d))
+
 ### [0.0.25](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.0.24...v0.0.25) (2020-11-19)
 
 ### [0.0.24](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.0.23...v0.0.24) (2020-11-19)
