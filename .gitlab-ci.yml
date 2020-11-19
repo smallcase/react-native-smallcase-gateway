@@ -1,5 +1,6 @@
 stages:
   - test
+  - publish
 
 test:
   stage: test
@@ -11,5 +12,15 @@ test:
     reports:
       junit: junit.xml
       cobertura: coverage/cobertura-coverage.xml
+  tags:
+    - docker
+
+publish:
+  when: manual
+  stage: publish
+  image: node:alpine
+  script:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+    - npm publish
   tags:
     - docker
