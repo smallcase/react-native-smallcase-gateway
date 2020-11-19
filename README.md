@@ -1,10 +1,14 @@
 # react-native-smallcase-gateway
 
-[Complete Guide](https://developers.gateway.smallcase.com/docs/react-native-integration)
+[**Complete Guide**](https://developers.gateway.smallcase.com/docs/react-native-integration)
 
 ## Getting started
 
-`$ yarn add https://gitlab.com/scGatewayOS/react-native-smallcase-gateway.git`
+`$ yarn add react-native-smallcase-gateway`
+
+or
+
+`$ npm install react-native-smallcase-gateway`
 
 ## ios setup
 
