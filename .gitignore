@@ -46,3 +46,4 @@ android/gradle.properties
 example/android/gradle.properties
 coverage/
 junit.xml
+.npmrc
