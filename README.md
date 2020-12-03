@@ -1,6 +1,6 @@
 # react-native-smallcase-gateway
 
-[**Complete Guide**](https://developers.gateway.smallcase.com/docs/react-native-integration)
+[📖 Complete Guide](https://developers.gateway.smallcase.com/docs/react-native-integration)
 
 ## Getting started
 
@@ -39,15 +39,13 @@ allprojects {
         maven {
           url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
           credentials {
-              username "${artifactory_user}"
-              password "${artifactory_password}"
+            username "react_native_user"
+            password "reactNativeUser123"
           }
       }
     }
 }
 ```
-
-Either replace `artifactory_user` and `artifactory_password` directly here or add them to your `gradle.properties`
 
 add these lines in `AndroidManifest.xml` in the main `<application />` tag
 
