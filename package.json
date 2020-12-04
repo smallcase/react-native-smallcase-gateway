@@ -5,8 +5,8 @@
   "description": "smallcase gateway bindings for react native",
   "main": "index.js",
   "files": [
+    "src",
     "index.js",
-    "constants.js",
     "android/src",
     "android/build.gradle",
     "ios",
