@@ -15,13 +15,13 @@ describe("triggerTransaction", () => {
       campaign: "test-campaign",
     });
 
-    expect(transactFn).toBeCalledWith("test-token", {
+    expect(transactFn).toHaveBeenNthCalledWith(1, "test-token", {
       source: "test-source",
       campaign: "test-campaign",
     });
 
     await SmallcaseGateway.triggerTransaction("test-token");
-    expect(transactFn).toBeCalledWith("test-token", {});
+    expect(transactFn).toHaveBeenNthCalledWith(2, "test-token", {});
   });
 
   test("invalid", async () => {
@@ -29,12 +29,18 @@ describe("triggerTransaction", () => {
       source: "test-source",
       campaign: "test-campaign",
     });
-    expect(transactFn).toBeCalledWith("", {
+    expect(transactFn).toHaveBeenNthCalledWith(3, "", {
       source: "test-source",
       campaign: "test-campaign",
     });
 
     await SmallcaseGateway.triggerTransaction(123, "invalid");
-    expect(transactFn).toBeCalledWith("", {});
+    expect(transactFn).toHaveBeenNthCalledWith(4, "", {});
+
+    await SmallcaseGateway.triggerTransaction(null, null);
+    expect(transactFn).toHaveBeenNthCalledWith(4, "", {});
+
+    await SmallcaseGateway.triggerTransaction(undefined, undefined);
+    expect(transactFn).toHaveBeenNthCalledWith(5, "", {});
   });
 });

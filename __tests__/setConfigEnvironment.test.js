@@ -17,7 +17,8 @@ describe("setConfigEnvironment", () => {
       environmentName: "production",
       brokerList: ["kite", "trustline"],
     });
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      1,
       SmallcaseGateway.ENV.PROD,
       "test-name",
       true,
@@ -32,7 +33,8 @@ describe("setConfigEnvironment", () => {
       environmentName: "production",
       brokerList: ["kite"],
     });
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      2,
       SmallcaseGateway.ENV.PROD,
       "test-name",
       true,
@@ -47,7 +49,8 @@ describe("setConfigEnvironment", () => {
       environmentName: "production",
       brokerList: ["kite"],
     });
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      3,
       SmallcaseGateway.ENV.PROD,
       "test-name",
       false,
@@ -58,7 +61,8 @@ describe("setConfigEnvironment", () => {
 
   test("invalid", async () => {
     await SmallcaseGateway.setConfigEnvironment();
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      4,
       SmallcaseGateway.ENV.PROD,
       "",
       false,
@@ -67,7 +71,8 @@ describe("setConfigEnvironment", () => {
     );
 
     await SmallcaseGateway.setConfigEnvironment({});
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      5,
       SmallcaseGateway.ENV.PROD,
       "",
       false,
@@ -76,7 +81,8 @@ describe("setConfigEnvironment", () => {
     );
 
     await SmallcaseGateway.setConfigEnvironment(123);
-    expect(envFn).toBeCalledWith(
+    expect(envFn).toHaveBeenNthCalledWith(
+      6,
       SmallcaseGateway.ENV.PROD,
       "",
       false,
