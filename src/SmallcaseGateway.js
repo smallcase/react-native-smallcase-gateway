@@ -82,6 +82,17 @@ const triggerTransaction = async (transactionId, utmParams) => {
 };
 
 /**
+ * Logs the user out and removes the web session.
+ *
+ * This promise will be rejected if logout was unsuccessful
+ *
+ * @returns {Promise}
+ */
+const logoutUser = async () => {
+  return SmallcaseGatewayNative.logoutUser();
+};
+
+/**
  * triggers the lead gen flow
  *
  * @param {userDetails} [params]
@@ -93,6 +104,7 @@ const triggerLeadGen = (params) => {
 
 const SmallcaseGateway = {
   init,
+  logoutUser,
   triggerLeadGen,
   triggerTransaction,
   setConfigEnvironment,

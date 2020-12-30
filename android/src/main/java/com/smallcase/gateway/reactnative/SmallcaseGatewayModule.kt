@@ -3,6 +3,7 @@ package com.smallcase.gateway.reactnative
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
+import com.smallcase.gateway.data.SmallcaseLogoutListener
 import com.smallcase.gateway.data.listeners.DataListener
 import com.smallcase.gateway.data.listeners.TransactionResponseListener
 import com.smallcase.gateway.data.models.Environment
@@ -117,6 +118,25 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     })
         } else {
             promise.reject(Throwable("no activity"))
+        }
+    }
+
+    @ReactMethod
+    fun logoutUser(promise: Promise) {
+        val activity = currentActivity;
+        if (activity != null) {
+            SmallcaseGatewaySdk.logoutUser(
+                    activity = activity,
+                    logoutListener = object : SmallcaseLogoutListener {
+                        override fun onLogoutSuccessfull() {
+                            promise.resolve(true)
+                        }
+
+                        override fun onLogoutFailed(errorCode: Int, error: String) {
+                            val err = createErrorJSON(errorCode, error)
+                            promise.reject("error", err)
+                        }
+                    })
         }
     }
 

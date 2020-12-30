@@ -201,6 +201,13 @@ RCT_REMAP_METHOD(triggerTransaction,
     });
 }
 
+RCT_REMAP_METHOD(logoutUser,
+                 logoutUserWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@(YES));
+}
+
 RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)params)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
