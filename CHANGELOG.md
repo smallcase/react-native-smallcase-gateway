@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.1.1-alpha.0...v0.2.0) (2021-01-05)
+
+
+### Features
+
+* add logout user and signup key in ios ([8cb5b74](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/8cb5b74e2b402253c4e2bfff2886c7e669df8f3b))
+
+
+### Bug Fixes
+
+* remove json handling in ios, and pass the response as it is ([67ed038](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/67ed038bf873180fc7ca394a4fba514e83bee66c))
+
 ### [0.1.1-alpha.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.1.0...v0.1.1-alpha.0) (2020-12-30)
 
 
