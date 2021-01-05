@@ -122,43 +122,16 @@ RCT_REMAP_METHOD(triggerTransaction,
             if([response isKindOfClass: [ObjCTransactionIntentConnect class]]) {
                 ObjCTransactionIntentConnect *trxResponse = response;
                 [responseDict setValue:@"CONNECT"  forKey:@"transaction"];
-                
-                if(trxResponse.authToken != nil && trxResponse.transaction != nil){
-                    // both authtoken and transaction are not nnull
-                    
-                    NSError *jsonErr = nil;
-                    id signupJson = [NSJSONSerialization
-                                         JSONObjectWithData:[trxResponse.transaction dataUsingEncoding:NSUTF8StringEncoding]
-                                         options:0
-                                         error:&jsonErr];
-                    
-                    if([signupJson isKindOfClass:[NSDictionary class]]){
-                        // successfully parsed json in transaction key
-                        
-                        NSMutableDictionary *data =  [[NSMutableDictionary alloc] init];
-                        
-                        [data setValue:[signupJson objectForKey:@"signup"] forKey:@"signup"];
-                        [data setValue:trxResponse.authToken forKey:@"smallcaseAuthToken"];
-                        
-                        NSError *jsonDtErr = nil;
-                        id jsonData = [NSJSONSerialization dataWithJSONObject:data options:0 error:&jsonDtErr];
-                        
-                        if(jsonData){
-                            // successfully generated json string
-                            // if control reaches here, promise is resolved here
-                            // if anything failed, control falls back to just checking authToken
-                            
-                            [responseDict setValue:jsonData forKey:@"data"];
-                            resolve(responseDict);
-                            return;
-                        }
-                    }
-                }
-                
-                if (trxResponse.authToken != nil) {
+
+                if (trxResponse.transaction != nil) {
+                    NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.transaction options: 0];
+                    NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
+
+                    [responseDict setValue:decodedResponse forKey:@"data"];
+                } else if (trxResponse.authToken != nil) {
                     [responseDict setValue:trxResponse.authToken forKey:@"data"];
                 }
-                
+
                 resolve(responseDict);
                 return;
             }
