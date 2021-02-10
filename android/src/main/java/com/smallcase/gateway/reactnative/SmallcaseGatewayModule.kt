@@ -31,6 +31,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             preProvidedBrokers: ReadableArray,
             promise: Promise) {
         Log.d(TAG, "setConfigEnvironment: start")
+
         try {
             val brokerList = ArrayList<String>()
             for (index in 0 until preProvidedBrokers.size()) {
@@ -87,8 +88,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun triggerTransaction(transactionId: String, utmParams: ReadableMap, brokerList: ReadableArray, promise: Promise) {
+    fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, promise: Promise) {
         Log.d(TAG, "triggerTransaction: start")
+
+        var safeBrokerList = listOf<String>()
+
+        if (brokerList != null) {
+            safeBrokerList = brokerList.toArrayList().map { it as String }
+        }
+
+
         val activity = currentActivity;
         if (activity != null) {
             val utm = readableMapToStrHashMap(utmParams)
@@ -96,7 +105,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     utmParams = utm,
                     activity = activity,
                     transactionId = transactionId,
-                    preProvidedBrokers = brokerList,
+                    preProvidedBrokers = safeBrokerList,
                     transactionResponseListener = object : TransactionResponseListener {
                         override fun onSuccess(transactionResult: TransactionResult) {
                             if (transactionResult.success) {
@@ -159,16 +168,20 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         }
     }
 
-    private fun readableMapToStrHashMap(params: ReadableMap): HashMap<String, String> {
+    private fun readableMapToStrHashMap(params: ReadableMap?): HashMap<String, String> {
         val data = HashMap<String, String>()
-        val keyIterator = params.keySetIterator()
 
-        while (keyIterator.hasNextKey()) {
-            val key = keyIterator.nextKey()
-            params.getString(key)?.let {
-                data.put(key, it)
+        if (params != null) {
+            val keyIterator = params.keySetIterator()
+
+            while (keyIterator.hasNextKey()) {
+                val key = keyIterator.nextKey()
+                params.getString(key)?.let {
+                    data.put(key, it)
+                }
             }
         }
+
         return data
     }
 
