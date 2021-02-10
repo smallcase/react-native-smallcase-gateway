@@ -82,6 +82,7 @@ RCT_REMAP_METHOD(init,
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
+                 brokerList:(NSArray *)brokerList
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {

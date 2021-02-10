@@ -25,6 +25,8 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} pinCode - pin-code of user
  */
 
+let defaultBrokerList = [];
+
 /**
  * configure the sdk with
  * @param {envConfig} envConfig
@@ -46,6 +48,8 @@ const setConfigEnvironment = async (envConfig) => {
   const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
   const safeEnvName =
     typeof environmentName === "string" ? environmentName : ENV.PROD;
+
+  defaultBrokerList = safeBrokerList;
 
   await SmallcaseGatewayNative.setConfigEnvironment(
     safeEnvName,
@@ -72,13 +76,23 @@ const init = async (sdkToken) => {
  *
  * @param {string} transactionId
  * @param {Object} [utmParams]
+ * @param {Array<string>} [brokerList]
  * @returns {Promise<transactionRes>}
  */
-const triggerTransaction = async (transactionId, utmParams) => {
+const triggerTransaction = async (transactionId, utmParams, brokerList) => {
   const safeUtm = safeObject(utmParams);
   const safeId = typeof transactionId === "string" ? transactionId : "";
 
-  return SmallcaseGatewayNative.triggerTransaction(safeId, safeUtm);
+  const safeBrokerList =
+    Array.isArray(brokerList) && brokerList.length
+      ? brokerList
+      : defaultBrokerList;
+
+  return SmallcaseGatewayNative.triggerTransaction(
+    safeId,
+    safeUtm,
+    safeBrokerList
+  );
 };
 
 /**

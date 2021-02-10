@@ -87,7 +87,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun triggerTransaction(transactionId: String, utmParams: ReadableMap, promise: Promise) {
+    fun triggerTransaction(transactionId: String, utmParams: ReadableMap, brokerList: ReadableArray, promise: Promise) {
         Log.d(TAG, "triggerTransaction: start")
         val activity = currentActivity;
         if (activity != null) {
@@ -96,6 +96,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     utmParams = utm,
                     activity = activity,
                     transactionId = transactionId,
+                    preProvidedBrokers = brokerList,
                     transactionResponseListener = object : TransactionResponseListener {
                         override fun onSuccess(transactionResult: TransactionResult) {
                             if (transactionResult.success) {
