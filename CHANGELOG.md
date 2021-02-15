@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0-alpha.2](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0-alpha.1...v0.3.0-alpha.2) (2021-02-15)
+
+
+### Features
+
+* add optional list of brokers to show in trigger-transaction (ios) ([f1f0eba](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/f1f0ebaa98ceffbac55df2a791de9bc199fc4597))
+
 ## [0.3.0-alpha.1](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0-alpha.0...v0.3.0-alpha.1) (2021-02-10)
 
 
