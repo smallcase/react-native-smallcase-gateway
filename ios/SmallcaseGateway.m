@@ -91,6 +91,7 @@ RCT_REMAP_METHOD(triggerTransaction,
          triggerTransactionFlowWithTransactionId:transactionId
          presentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
          utmParams:utmParams
+         brokerConfig:brokerList
          completion: ^(id response, NSError * error) {
             if (error != nil) {
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
