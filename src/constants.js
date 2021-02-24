@@ -15,6 +15,7 @@ export const TRANSACTION_TYPE = {
 
 export const ERROR_MSG = {
   init_sdk: "init_sdk",
+  no_order: "no_order",
   no_broker: "no_broker",
   invalid_jwt: "invalid_jwt",
   market_closed: "market_closed",
