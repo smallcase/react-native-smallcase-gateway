@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0-alpha.2...v0.3.0) (2021-02-24)
+
+
+### Bug Fixes
+
+* add "no_order" error code to handle invalid pending-action orders ([89d19e4](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/89d19e44f2cc8758c6a38715837d1a6ea595e041))
+
 ## [0.3.0-alpha.2](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0-alpha.1...v0.3.0-alpha.2) (2021-02-15)
 
 
