@@ -61,6 +61,20 @@ add these lines in `AndroidManifest.xml` in the main `<application />` tag
       android:scheme="scgateway" />
   </intent-filter>
 </activity>
+
+<activity android:name="com.smallcase.gateway.screens.common.RedirectActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.BROWSABLE" />
+    <category android:name="android.intent.category.DEFAULT" />
+
+    <data
+      android:host="{YOUR_HOST_NAME}"
+      android:scheme="scgatewayredirect"
+    />
+  </intent-filter>
+</activity>
 ```
 
 ## Example Usage
