@@ -15,13 +15,13 @@ Pod::Spec.new do |s|
   # optional - use expanded license entry instead:
   # s.license    = { :type => "MIT", :file => "LICENSE" }
   s.authors      = { "smallcase" => "mobile@smallcase.com" }
-  s.platforms    = { :ios => "9.0" }
+  s.platforms    = { :ios => "14.3" }
   s.source       = { :git => "https://github.com/mobile/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency 'SCGateway', '2.7.0'
+  s.dependency 'SCGateway', '2.9.2'
 end
 

@@ -18,6 +18,9 @@ const App = () => {
   const [sdkToken, setSdkToken] = useState(
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE1OTk2Nzc5NjJ9.CqqzVqX7E_od-TFzaPKET51XUhSr0hdL-P3pwNQ6ZMM',
   );
+
+  const [iscid, setIscid] = useState('60ae3f69e3f4b0e0c5f98d12');
+
   const [transactionId, setTransactionId] = useState('');
 
   const updateEnv = useCallback(async () => {
@@ -26,7 +29,7 @@ const App = () => {
     try {
       await SmallcaseGateway.setConfigEnvironment({
         environmentName: env,
-        gatewayName: 'smallcase-website',
+        gatewayName: 'gatewaydemo',
         isLeprechaun: true,
         brokerList: ['kite', 'aliceblue', 'trustline'],
       });
@@ -61,6 +64,19 @@ const App = () => {
       );
     }
   }, [transactionId]);
+
+  const markSmallcaseArchive = useCallback(async () => {
+    setLog((p) => p + '\n marking smallcase archive');
+    try {
+      const res = await SmallcaseGateway.archiveSmallcase(iscid);
+      setLog((p) => p + '\n archive success');
+      setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
+    } catch (err) {
+      setLog(
+        (p) => p + '\n error during archive' + JSON.stringify(err),
+      );
+    }
+  }, [iscid]);
 
   return (
     <ScrollView style={styles.container}>
@@ -106,6 +122,14 @@ const App = () => {
           }}
         />
       </View>
+
+      <TextInput
+        value={iscid}
+        onChangeText={setIscid}
+        style={styles.inp}
+        placeholder="iscid"
+      />
+      <Button title="archive smallcase" onPress={markSmallcaseArchive} />
 
       <View style={styles.logBox}>
         <Button title="clear logs" onPress={() => setLog('')} />
