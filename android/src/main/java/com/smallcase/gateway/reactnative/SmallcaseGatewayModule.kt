@@ -169,23 +169,17 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun triggerLeadGen(params: ReadableMap) {
+    fun triggerLeadGen(userDetails: ReadableMap, utmData: ReadableMap) {
         val activity = currentActivity;
         if (activity != null) {
-            val data = readableMapToStrHashMap(params)
-            SmallcaseGatewaySdk.triggerLeadGen(activity, data)
+            SmallcaseGatewaySdk.triggerLeadGen(
+                    activity=activity,
+                    utmParams = readableMapToStrHashMap(utmData),
+                    params = readableMapToStrHashMap(userDetails)
+            )
         }
     }
 
-    @ReactMethod
-    fun triggerLeadGenUtm(userParams: ReadableMap, utmParams: ReadableMap) {
-        val activity = currentActivity;
-        if (activity != null) {
-            val userData = readableMapToStrHashMap(userParams)
-            val utmData = readableMapToStrHashMap(utmParams)
-            SmallcaseGatewaySdk.triggerLeadGen(activity, userData, utmData)
-        }
-    }
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
             "production" -> Environment.PROTOCOL.PRODUCTION

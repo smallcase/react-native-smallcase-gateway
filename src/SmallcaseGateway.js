@@ -109,42 +109,34 @@ const logoutUser = async () => {
 /**
  * triggers the lead gen flow
  *
- * @param {userDetails} [params]
+ * @param {userDetails} [userDetails]
+ * @param {Object} [utmParams]
  */
-const triggerLeadGen = (params) => {
-  const safeParams = safeObject(params);
-  return SmallcaseGatewayNative.triggerLeadGen(safeParams);
+const triggerLeadGen = (userDetails, utmParams) => {
+  const safeParams = safeObject(userDetails);
+  const safeUtm = safeObject(utmParams);
+
+  return SmallcaseGatewayNative.triggerLeadGen(safeParams, safeUtm);
 };
 
 /**
- * Marks a smallcase archive
+ * Marks a smallcase as archived
  *
- * @param {String} iscid  
+ * @param {String} iscid
  */
 const archiveSmallcase = async (iscid) => {
-  return SmallcaseGatewayNative.archiveSmallcase(iscid);
-}
+  const safeIscid = typeof iscid === "string" ? iscid : "";
 
-/**
- * triggers the lead gen flow with utm params
- *
- * @param {userDetails} [params] 
- * @param {Object} [utmParams]
- */
-const triggerLeadGenUtm = (params, utmParams) => {
-  const safeParams = safeObject(params);
-  const safeUtm = safeObject(utmParams);
-
-  return SmallcaseGatewayNative.triggerLeadGenUtm(safeParams, safeUtm);
-}
+  return SmallcaseGatewayNative.archiveSmallcase(safeIscid);
+};
 
 const SmallcaseGateway = {
   init,
   logoutUser,
   triggerLeadGen,
+  archiveSmallcase,
   triggerTransaction,
   setConfigEnvironment,
-  archiveSmallcase,
 };
 
 export default SmallcaseGateway;
