@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0...v0.4.0) (2021-05-31)
+
+
+### Features
+
+* added archiveSmallcase functionality and utm params in triggerLeadGen ([314f7d1](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/314f7d10417031cdef7eaa3360fa87cbce826b5e))
+
 ## [0.3.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0-alpha.2...v0.3.0) (2021-02-24)
 
 
