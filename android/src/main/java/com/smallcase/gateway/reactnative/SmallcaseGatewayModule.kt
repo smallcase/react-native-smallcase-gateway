@@ -8,6 +8,7 @@ import com.smallcase.gateway.data.listeners.DataListener
 import com.smallcase.gateway.data.listeners.TransactionResponseListener
 import com.smallcase.gateway.data.models.Environment
 import com.smallcase.gateway.data.models.InitialisationResponse
+import com.smallcase.gateway.data.models.SmallcaseGatewayDataResponse
 import com.smallcase.gateway.data.models.TransactionResult
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
@@ -132,6 +133,23 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun archiveSmallcase(iscid: String, promise: Promise) {
+        Log.d(TAG, "markSmallcaseArchive: start")
+
+        SmallcaseGatewaySdk.markSmallcaseArchived(iscid, object : DataListener<SmallcaseGatewayDataResponse> {
+
+            override fun onSuccess(response: SmallcaseGatewayDataResponse) {
+                promise.resolve(response)
+            }
+
+            override fun onFailure(errorCode: Int, errorMessage: String) {
+                val err = createErrorJSON(errorCode, errorMessage)
+                promise.reject("error", err)
+            }
+        })
+    }
+
+    @ReactMethod
     fun logoutUser(promise: Promise) {
         val activity = currentActivity;
         if (activity != null) {
@@ -151,11 +169,14 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun triggerLeadGen(params: ReadableMap) {
+    fun triggerLeadGen(userDetails: ReadableMap, utmData: ReadableMap) {
         val activity = currentActivity;
         if (activity != null) {
-            val data = readableMapToStrHashMap(params)
-            SmallcaseGatewaySdk.triggerLeadGen(activity, data)
+            SmallcaseGatewaySdk.triggerLeadGen(
+                    activity=activity,
+                    utmParams = readableMapToStrHashMap(utmData),
+                    params = readableMapToStrHashMap(userDetails)
+            )
         }
     }
 

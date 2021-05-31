@@ -79,6 +79,34 @@ RCT_REMAP_METHOD(init,
 
 }
 
+RCT_REMAP_METHOD(archiveSmallcase,
+                 iscid:(NSString *)iscid
+                 initWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [SCGateway.shared markSmallcaseArchiveWithIscid:iscid completion: ^(id response, NSError * error) {
+        if(error != nil) {
+            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+            [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+            [responseDict setValue:error.domain  forKey:@"errorMessage"];
+            
+            NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+            
+            reject(@"archiveSmallcase", @"Error during transaction", err);
+            return;
+        }
+        
+        NSString *archiveResponseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
+        
+        NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
+        [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
+       
+        [responseDict setObject:archiveResponseString forKey:@"data"];
+        resolve(responseDict);
+        return;
+    }];
+}
+
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
@@ -177,8 +205,14 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
-
                 [dict setValue: trxResponse.sipAction forKey:@"sipAction"];
+                [dict setValue: trxResponse.sipType forKey:@"sipType"];
+                [dict setValue: trxResponse.frequency forKey:@"frequency"];
+                [dict setValue: trxResponse.iscid forKey:@"iscid"];
+                [dict setValue: trxResponse.scheduledDate forKey:@"scheduledDate"];
+                [dict setValue: trxResponse.scid forKey:@"scid"];
+                [dict setValue: trxResponse.sipActive ? @"YES" : @"NO" forKey:@"sipActive"];
+                [dict setValue: [NSNumber numberWithDouble: trxResponse.sipAmount] forKey:@"sipAmount"];
 
                 [responseDict setValue:dict forKey:@"data"];
                 resolve(responseDict);
@@ -226,12 +260,15 @@ RCT_REMAP_METHOD(logoutUser,
     });
 }
 
-RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)params)
+RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:params];
+        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams: utmParams];
     });
 }
 @end
+
+
+
 
 
