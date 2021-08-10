@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.4.0...v0.5.0) (2021-08-10)
+
+
+### Bug Fixes
+
+* ios deployment target reduced to 11.0 ([a02955c](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/a02955c6cff9314b9a0dff17a6b7194b32232dce))
+
 ## [0.4.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.3.0...v0.4.0) (2021-05-31)
 
 
