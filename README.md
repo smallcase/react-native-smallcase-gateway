@@ -16,7 +16,7 @@ add these lines at the top of your `Podfile`
 
 ```ruby
 # private podspec for smallcase
-source 'https://gitlab.com/scGatewayOS/cocoapodspecs.git'
+source 'git@github.com:smallcase/cocoapodspecs.git'
 
 # default source for all other pods
 source 'https://cdn.cocoapods.org'
