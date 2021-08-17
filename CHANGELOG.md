@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.5.0...v0.6.0) (2021-08-17)
+
+
+### Features
+
+* added broker name to transaction responses ([c486fc0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/c486fc0e5d2093b1345ff5c750e94a913579ea9b))
+
 ## [0.5.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.4.0...v0.5.0) (2021-08-10)
 
 
