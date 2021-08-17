@@ -153,15 +153,10 @@ RCT_REMAP_METHOD(triggerTransaction,
                 ObjCTransactionIntentConnect *trxResponse = response;
                 [responseDict setValue:@"CONNECT"  forKey:@"transaction"];
 
-                if (trxResponse.transaction != nil) {
-                    NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.transaction options: 0];
-                    NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
-
-                    [responseDict setValue:decodedResponse forKey:@"data"];
-                } else if (trxResponse.authToken != nil) {
-                    [responseDict setValue:trxResponse.authToken forKey:@"data"];
+                if (trxResponse.response != nil) {
+                    [responseDict setValue:trxResponse.response forKey:@"data"];
                 }
-
+                
                 resolve(responseDict);
                 return;
             }
@@ -174,7 +169,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
-
+                [dict setValue: trxResponse.broker forKey:@"broker"];
 
                 [responseDict setValue:dict forKey:@"data"];
                 resolve(responseDict);

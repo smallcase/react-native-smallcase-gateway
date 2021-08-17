@@ -16,7 +16,7 @@ const App = () => {
   const [env, setEnv] = useState(GATEWAY_ENV.PROD);
 
   const [sdkToken, setSdkToken] = useState(
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE1OTk2Nzc5NjJ9.CqqzVqX7E_od-TFzaPKET51XUhSr0hdL-P3pwNQ6ZMM',
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE2OTk2Nzc5NjJ9.KUNm8Sz4e_qG7BZQTO6smBVCMeOcSf2ORkiClS7b6lw',
   );
 
   const [iscid, setIscid] = useState('60ae3f69e3f4b0e0c5f98d12');
@@ -31,7 +31,7 @@ const App = () => {
         environmentName: env,
         gatewayName: 'gatewaydemo',
         isLeprechaun: true,
-        brokerList: ['kite', 'aliceblue', 'trustline'],
+        brokerList: [],
       });
 
       setLog((p) => p + '\n config set successfully');
