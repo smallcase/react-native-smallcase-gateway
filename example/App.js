@@ -16,7 +16,7 @@ const App = () => {
   const [env, setEnv] = useState(GATEWAY_ENV.PROD);
 
   const [sdkToken, setSdkToken] = useState(
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE2OTk2Nzc5NjJ9.KUNm8Sz4e_qG7BZQTO6smBVCMeOcSf2ORkiClS7b6lw',
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJndWVzdCI6dHJ1ZSwiaWF0IjoxNTk5Njc0MzYyLCJleHAiOjE2OTk2Nzc5NjJ9.12czJ5vFOlyZqxa8Q3dg-p5OilcJvb8ZdiP-MiSaQb0',
   );
 
   const [iscid, setIscid] = useState('60ae3f69e3f4b0e0c5f98d12');
@@ -31,6 +31,7 @@ const App = () => {
         environmentName: env,
         gatewayName: 'gatewaydemo',
         isLeprechaun: true,
+        isAmoEnabled: true,
         brokerList: [],
       });
 
@@ -78,6 +79,21 @@ const App = () => {
     }
   }, [iscid]);
 
+  const triggerLeadGen = useCallback(async () => {
+    setLog((p) => p + '\n triggering lead gen');
+    try {
+      const res = await SmallcaseGateway.triggerLeadGenWithStatus(
+        {name: 'test'});
+
+        setLog((p) => p + '\n lead gen success');
+        setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
+    } catch (err) {
+      setLog(
+        (p) => p + '\n error during trigger lead gen' + JSON.stringify(err.userInfo),
+      );
+    }
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       <Text>Smallcase SDK Tester</Text>
@@ -117,9 +133,10 @@ const App = () => {
       <View style={styles.envContainer}>
         <Button
           title="Open lead gen"
-          onPress={() => {
-            SmallcaseGateway.triggerLeadGen();
-          }}
+          onPress={triggerLeadGen}
+          // onPress={() => {
+          //   SmallcaseGateway.triggerLeadGen();
+          // }}
         />
       </View>
 

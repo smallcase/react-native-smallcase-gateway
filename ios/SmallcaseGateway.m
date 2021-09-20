@@ -255,12 +255,30 @@ RCT_REMAP_METHOD(logoutUser,
     });
 }
 
+
+RCT_REMAP_METHOD(triggerLeadGenWithStatus,
+                  userParams: (NSDictionary *)userParams
+                  leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams
+                                                      completion:^(NSString * leadGenResponse) {
+            resolve(leadGenResponse);
+        }
+         ];
+        
+    });
+}
+
 RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams: utmParams];
     });
 }
+
 @end
 
 

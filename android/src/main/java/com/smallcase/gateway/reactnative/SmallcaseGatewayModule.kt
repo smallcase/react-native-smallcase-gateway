@@ -1,6 +1,9 @@
 package com.smallcase.gateway.reactnative
 
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
@@ -177,6 +180,33 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     utmParams = readableMapToStrHashMap(utmData),
                     params = readableMapToStrHashMap(userDetails)
             )
+        }
+    }
+
+    @ReactMethod
+    fun triggerLeadGenWithStatus(userDetails: ReadableMap, promise: Promise) {
+        val activity = currentActivity;
+        if (activity != null) {
+            SmallcaseGatewaySdk.triggerLeadGen(activity,readableMapToStrHashMap(userDetails), object : TransactionResponseListener {
+                override fun onSuccess(transactionResult: TransactionResult) {
+                    if (transactionResult.success) {
+                        val res = resultToWritableMap(transactionResult)
+                        promise.resolve(res)
+                    } else {
+                        val err = createErrorJSON(
+                                transactionResult.errorCode,
+                                transactionResult.error
+                        )
+                        promise.reject("error", err)
+                    }
+                }
+
+                override fun onError(errorCode: Int, errorMessage: String) {
+                    val err = createErrorJSON(errorCode, errorMessage)
+                    promise.reject("error", err)
+                }
+
+            })
         }
     }
 
