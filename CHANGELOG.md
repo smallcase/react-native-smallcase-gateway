@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.8.0...v0.9.0) (2022-01-03)
+
+
+### Features
+
+* updated android SDK to 3.1.10 and iOS SDK to 3.1.5 ([69d28f5](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/commit/69d28f5b75d7280beae9dd30d5481269f93daff6))
+
 ## [0.8.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.7.0...v0.8.0) (2021-11-15)
 
 ## [0.7.0](https://gitlab.com/scGatewayOS/react-native-smallcase-gateway/compare/v0.6.0...v0.7.0) (2021-09-20)
