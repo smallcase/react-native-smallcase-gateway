@@ -238,6 +238,56 @@ RCT_REMAP_METHOD(triggerTransaction,
     });
 }
 
+RCT_REMAP_METHOD(launchSmallplug,
+                  targetEndpoint:(NSString *)targetEndpoint
+                  params:(NSString *)params
+                  launchSmallplugWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+       
+        SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
+        
+        [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData completion:^(id smallplugResponse, NSError * error) {
+            
+            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+            
+            if (error != nil) {
+                NSLog(@"%@", error.domain);
+                double delayInSeconds = 0.5;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"error"];
+                    
+                    resolve(responseDict);
+                    return;
+                });
+            } else {
+                
+                if ([smallplugResponse isKindOfClass: [NSString class]]) {
+                    NSLog(@"%@", smallplugResponse);
+                    
+                    [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
+                    [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
+                    
+                    double delayInSeconds = 0.5;
+                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+                    
+                        resolve(responseDict);
+                        return;
+                        
+                    });
+                }
+            }
+            
+        }];
+    });
+}
+
 RCT_REMAP_METHOD(logoutUser,
                  logoutUserWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)

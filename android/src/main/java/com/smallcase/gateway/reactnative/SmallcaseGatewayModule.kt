@@ -8,11 +8,9 @@ import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
 import com.smallcase.gateway.data.listeners.DataListener
+import com.smallcase.gateway.data.listeners.SmallPlugResponseListener
 import com.smallcase.gateway.data.listeners.TransactionResponseListener
-import com.smallcase.gateway.data.models.Environment
-import com.smallcase.gateway.data.models.InitialisationResponse
-import com.smallcase.gateway.data.models.SmallcaseGatewayDataResponse
-import com.smallcase.gateway.data.models.TransactionResult
+import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 
@@ -136,6 +134,25 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
+        Log.d(TAG, "launchSmallplug: start")
+
+        SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
+            override fun onFailure(errorCode: Int, errorMessage: String) {
+                val err = createErrorJSON(errorCode, errorMessage)
+
+                promise.reject("error", err)
+            }
+
+            override fun onSuccess(smallPlugResult: SmallPlugResult) {
+                val res = resultToWritableMap(smallPlugResult)
+                promise.resolve(res)
+            }
+
+        })
+    }
+
+    @ReactMethod
     fun archiveSmallcase(iscid: String, promise: Promise) {
         Log.d(TAG, "markSmallcaseArchive: start")
 
@@ -246,6 +263,15 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             writableMap.putInt("errorCode", it)
         }
         writableMap.putString("transaction", result.transaction.name)
+        return writableMap
+    }
+
+    private fun resultToWritableMap(result: SmallPlugResult): WritableMap {
+        val writableMap: WritableMap = Arguments.createMap()
+
+        writableMap.putBoolean("success", result.success)
+        writableMap.putString("smallcaseAuthToken", result.smallcaseAuthToken)
+
         return writableMap
     }
 

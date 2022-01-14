@@ -3,6 +3,7 @@ import {
   Text,
   View,
   Button,
+  Switch,
   TextInput,
   StyleSheet,
   ScrollView,
@@ -23,6 +24,14 @@ const App = () => {
 
   const [transactionId, setTransactionId] = useState('');
 
+  const [targetEndpoint, setTargetEndpoint] = useState('');
+
+  const [isLeprechaunEnabled, setIsLeprechaunEnabled] = useState(false);
+  const toggleSwitch = () => setIsLeprechaunEnabled(previousState => !previousState);
+
+  const [isAmoEnabled, setIsAmoEnabled] = useState(false);
+  const toggleAmoSwitch = () => setIsAmoEnabled(previousState => !previousState);
+
   const updateEnv = useCallback(async () => {
     setLog((p) => p + '\n setting config');
 
@@ -30,8 +39,8 @@ const App = () => {
       await SmallcaseGateway.setConfigEnvironment({
         environmentName: env,
         gatewayName: 'gatewaydemo',
-        isLeprechaun: true,
-        isAmoEnabled: true,
+        isLeprechaun: isLeprechaunEnabled,
+        isAmoEnabled: isAmoEnabled,
         brokerList: [],
       });
 
@@ -79,6 +88,15 @@ const App = () => {
     }
   }, [iscid]);
 
+  const showAlert = (title, message) =>
+  Alert.alert(
+    title,
+    message,
+    [
+      { text: "OK", onPress: () => console.log("OK Pressed") }
+    ]
+  );
+
   const triggerLeadGen = useCallback(async () => {
     setLog((p) => p + '\n triggering lead gen');
     try {
@@ -93,6 +111,19 @@ const App = () => {
       );
     }
   }, []);
+
+  const launchSmallplug = useCallback(async () => {
+    setLog((p) => p + '\n launching smallplug');
+
+    try {
+      const res = await SmallcaseGateway.launchSmallplug(targetEndpoint, '');
+      setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
+    } catch(err) {
+      setLog(
+        (p) => p + '\n error while launching smallplug' + JSON.stringify(err),
+      );
+    }
+  });
 
   return (
     <ScrollView style={styles.container}>
@@ -114,7 +145,41 @@ const App = () => {
           onPress={setEnv}
         />
       </View>
+
+      <View style={[styles.container, {
+      flexDirection: "row"
+      }]}>
+
+        <Text>Leprechaun Mode</Text>
+
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={isLeprechaunEnabled ? "#f5dd4b" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleSwitch}
+          value={isLeprechaunEnabled}
+        />
+
+      </View>
+
+      <View style={[styles.container, {
+      flexDirection: "row"
+      }]}>
+
+        <Text>isAmoEnabled</Text>
+
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={isAmoEnabled ? "#f5dd4b" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleAmoSwitch}
+          value={isAmoEnabled}
+        />
+
+      </View>
+
       <Button title="update env" onPress={updateEnv} />
+
       <TextInput
         value={sdkToken}
         onChangeText={setSdkToken}
@@ -122,15 +187,16 @@ const App = () => {
         placeholder="sdk token"
       />
       <Button title="initialize" onPress={init} />
-      <TextInput
+      
+      {/* <TextInput
         value={transactionId}
         onChangeText={setTransactionId}
         style={styles.inp}
         placeholder="transaction id"
       />
-      <Button title="start transaction" onPress={startTransaction} />
+      <Button title="start transaction" onPress={startTransaction} /> */}
 
-      <View style={styles.envContainer}>
+      {/* <View style={styles.envContainer}>
         <Button
           title="Open lead gen"
           onPress={triggerLeadGen}
@@ -138,15 +204,23 @@ const App = () => {
           //   SmallcaseGateway.triggerLeadGen();
           // }}
         />
-      </View>
+      </View> */}
 
-      <TextInput
+      {/* <TextInput
         value={iscid}
         onChangeText={setIscid}
         style={styles.inp}
         placeholder="iscid"
       />
-      <Button title="archive smallcase" onPress={markSmallcaseArchive} />
+      <Button title="archive smallcase" onPress={markSmallcaseArchive} /> */}
+
+      <TextInput
+        value={targetEndpoint}
+        onChangeText={setTargetEndpoint}
+        style={styles.inp}
+        placeholder="Target Endpoint"
+      />
+      <Button title="launch smallplug" onPress={launchSmallplug} />
 
       <View style={styles.logBox}>
         <Button title="clear logs" onPress={() => setLog('')} />

@@ -96,6 +96,23 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 };
 
 /**
+ * launches smallcases module
+ * 
+ * @param {string} targetEndpoint
+ * @param {string} params
+ */
+const launchSmallplug = async (targetEndpoint, params) => {
+  const safeEndpoint = safeObject(targetEndpoint);
+  const safeParams = safeObject(params);
+
+  return SmallcaseGatewayNative.launchSmallplug(
+    targetEndpoint,
+    params
+  );
+
+}
+
+/**
  * Logs the user out and removes the web session.
  *
  * This promise will be rejected if logout was unsuccessful
@@ -164,6 +181,7 @@ const SmallcaseGateway = {
   archiveSmallcase,
   triggerTransaction,
   setConfigEnvironment,
+  launchSmallplug
 };
 
 export default SmallcaseGateway;
