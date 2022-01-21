@@ -27,13 +27,18 @@ const App = () => {
   const [targetEndpoint, setTargetEndpoint] = useState('');
 
   const [isLeprechaunEnabled, setIsLeprechaunEnabled] = useState(false);
-  const toggleSwitch = () => setIsLeprechaunEnabled(previousState => !previousState);
+  // const toggleSwitch = () => setIsLeprechaunEnabled(previousState => !previousState);
+  const toggleLeprechaunSwitch = () => setIsLeprechaunEnabled(!isLeprechaunEnabled);
 
   const [isAmoEnabled, setIsAmoEnabled] = useState(false);
-  const toggleAmoSwitch = () => setIsAmoEnabled(previousState => !previousState);
+  // const toggleAmoSwitch = () => setIsAmoEnabled(previousState => !previousState);
+  const toggleAmoSwitch = () => setIsAmoEnabled(!isAmoEnabled);
 
   const updateEnv = useCallback(async () => {
+
     setLog((p) => p + '\n setting config');
+    setLog((p) => p + isLeprechaunEnabled);
+    setLog((p) => p + isAmoEnabled);
 
     try {
       await SmallcaseGateway.setConfigEnvironment({
@@ -48,7 +53,7 @@ const App = () => {
     } catch (err) {
       setLog((p) => p + '\n error setting config' + err);
     }
-  }, [env]);
+  }, [env, isLeprechaunEnabled, isAmoEnabled]);
 
   const init = useCallback(async () => {
     setLog((p) => p + '\n starting init');
@@ -156,7 +161,7 @@ const App = () => {
           trackColor={{ false: "#767577", true: "#81b0ff" }}
           thumbColor={isLeprechaunEnabled ? "#f5dd4b" : "#f4f3f4"}
           ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch}
+          onValueChange={toggleLeprechaunSwitch}
           value={isLeprechaunEnabled}
         />
 
@@ -188,13 +193,13 @@ const App = () => {
       />
       <Button title="initialize" onPress={init} />
       
-      {/* <TextInput
+      <TextInput
         value={transactionId}
         onChangeText={setTransactionId}
         style={styles.inp}
         placeholder="transaction id"
       />
-      <Button title="start transaction" onPress={startTransaction} /> */}
+      <Button title="start transaction" onPress={startTransaction} />
 
       {/* <View style={styles.envContainer}>
         <Button
