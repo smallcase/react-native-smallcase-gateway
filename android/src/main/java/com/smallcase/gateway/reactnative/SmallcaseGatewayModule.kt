@@ -70,6 +70,12 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun setHybridSdkVersion(sdkVersion: String) {
+        SmallcaseGatewaySdk.setSDKType("react-native")
+        SmallcaseGatewaySdk.setHybridSDKVersion(sdkVersion)
+    }
+
+    @ReactMethod
     fun init(sdkToken: String, promise: Promise) {
         Log.d(TAG, "init: start")
 

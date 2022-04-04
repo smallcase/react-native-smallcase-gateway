@@ -8,6 +8,11 @@
 
 RCT_EXPORT_MODULE()
 
+RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {
+    [SCGateway.shared setSDKTypeWithType:@"react-native"];
+    [SCGateway.shared setHybridSDKVersionWithVersion:sdkVersion];
+}
+
 RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
@@ -75,8 +80,6 @@ RCT_REMAP_METHOD(init,
             reject(@"init", @"Error during init", error);
         }
     }];
-
-
 }
 
 RCT_REMAP_METHOD(archiveSmallcase,
