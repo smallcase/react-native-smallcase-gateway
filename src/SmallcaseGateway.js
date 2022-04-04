@@ -1,6 +1,7 @@
 import { NativeModules } from "react-native";
 import { ENV } from "./constants";
 import { safeObject } from "./util";
+import { version } from "../package.json";
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -34,6 +35,8 @@ let defaultBrokerList = [];
 const setConfigEnvironment = async (envConfig) => {
   const safeConfig = safeObject(envConfig);
 
+  await SmallcaseGatewayNative.setHybridSdkVersion(version);
+  
   const {
     brokerList,
     gatewayName,
