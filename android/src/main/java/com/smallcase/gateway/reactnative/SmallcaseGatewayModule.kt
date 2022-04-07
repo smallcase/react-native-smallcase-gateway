@@ -13,6 +13,7 @@ import com.smallcase.gateway.data.listeners.TransactionResponseListener
 import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
+import com.smallcase.gateway.data.listeners.LeadGenResponseListener
 
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext!!) {
@@ -32,7 +33,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             isAmoEnabled: Boolean,
             preProvidedBrokers: ReadableArray,
             promise: Promise) {
-        Log.d(TAG, "setConfigEnvironment: start")
 
         try {
             val brokerList = ArrayList<String>()
@@ -76,6 +76,12 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun getSdkVersion(reactNativeSdkVersion: String, promise: Promise) {
+        val sdkString = "android:${SmallcaseGatewaySdk.getSdkVersion()},react-native:$reactNativeSdkVersion"
+        promise.resolve(sdkString)
+    }
+
+    @ReactMethod
     fun init(sdkToken: String, promise: Promise) {
         Log.d(TAG, "init: start")
 
@@ -84,7 +90,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                 authRequest = initReq,
                 gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
                     override fun onFailure(errorCode: Int, errorMessage: String) {
-                        val err = createErrorJSON(errorCode, errorMessage)
+                        val err = createErrorJSON(errorCode, errorMessage, null)
                         promise.reject("error", err)
                     }
 
@@ -116,21 +122,15 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     preProvidedBrokers = safeBrokerList,
                     transactionResponseListener = object : TransactionResponseListener {
                         override fun onSuccess(transactionResult: TransactionResult) {
-                            if (transactionResult.success) {
-                                val res = resultToWritableMap(transactionResult)
-                                promise.resolve(res)
-                            } else {
-                                val err = createErrorJSON(
-                                        transactionResult.errorCode,
-                                        transactionResult.error
-                                )
-                                promise.reject("error", err)
-                            }
+
+                            val res = resultToWritableMap(transactionResult)
+                            promise.resolve(res)
+
 
                         }
 
-                        override fun onError(errorCode: Int, errorMessage: String) {
-                            val err = createErrorJSON(errorCode, errorMessage)
+                        override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+                            val err = createErrorJSON(errorCode, errorMessage, data)
                             promise.reject("error", err)
                         }
                     })
@@ -145,7 +145,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
             override fun onFailure(errorCode: Int, errorMessage: String) {
-                val err = createErrorJSON(errorCode, errorMessage)
+                val err = createErrorJSON(errorCode, errorMessage, null)
 
                 promise.reject("error", err)
             }
@@ -169,7 +169,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             }
 
             override fun onFailure(errorCode: Int, errorMessage: String) {
-                val err = createErrorJSON(errorCode, errorMessage)
+                val err = createErrorJSON(errorCode, errorMessage, null)
                 promise.reject("error", err)
             }
         })
@@ -187,7 +187,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                         }
 
                         override fun onLogoutFailed(errorCode: Int, error: String) {
-                            val err = createErrorJSON(errorCode, error)
+                            val err = createErrorJSON(errorCode, error, null)
                             promise.reject("error", err)
                         }
                     })
@@ -208,27 +208,13 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
     @ReactMethod
     fun triggerLeadGenWithStatus(userDetails: ReadableMap, promise: Promise) {
-        val activity = currentActivity;
+        val activity = currentActivity
         if (activity != null) {
-            SmallcaseGatewaySdk.triggerLeadGen(activity,readableMapToStrHashMap(userDetails), object : TransactionResponseListener {
-                override fun onSuccess(transactionResult: TransactionResult) {
-                    if (transactionResult.success) {
-                        val res = resultToWritableMap(transactionResult)
-                        promise.resolve(res)
-                    } else {
-                        val err = createErrorJSON(
-                                transactionResult.errorCode,
-                                transactionResult.error
-                        )
-                        promise.reject("error", err)
-                    }
-                }
 
-                override fun onError(errorCode: Int, errorMessage: String) {
-                    val err = createErrorJSON(errorCode, errorMessage)
-                    promise.reject("error", err)
+            SmallcaseGatewaySdk.triggerLeadGen(activity, readableMapToStrHashMap(userDetails), object: LeadGenResponseListener {
+                override fun onSuccess(leadResponse: String) {
+                    promise.resolve(leadResponse)
                 }
-
             })
         }
     }
@@ -263,14 +249,10 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         val writableMap: WritableMap = Arguments.createMap()
 
         writableMap.putString("data", result.data)
-        writableMap.putBoolean("success", result.success)
-        writableMap.putString("error", result.error)
-        result.errorCode?.let {
-            writableMap.putInt("errorCode", it)
-        }
         writableMap.putString("transaction", result.transaction.name)
         return writableMap
     }
+
 
     private fun resultToWritableMap(result: SmallPlugResult): WritableMap {
         val writableMap: WritableMap = Arguments.createMap()
@@ -281,11 +263,12 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         return writableMap
     }
 
-    private fun createErrorJSON(errorCode: Int?, errorMessage: String?): WritableMap {
+    private fun createErrorJSON(errorCode: Int?, errorMessage: String?, data: String?): WritableMap {
         val errObj = Arguments.createMap()
 
         errorCode?.let { errObj.putInt("errorCode", it) }
         errorMessage?.let { errObj.putString("errorMessage", it) }
+        data?.let { errObj.putString("data", it) }
 
         return errObj
     }

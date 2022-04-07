@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.0.2...v1.1.0) (2022-04-07)
+
+
+### Bug Fixes
+
+* transaction error response in onSuccess callback ([6d36aeb](https://github.com/smallcase/react-native-smallcase-gateway/commit/6d36aebc0af379d7d7782baa7e59bc3092654d76))
+
 ### [1.0.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.0.0...v1.0.2) (2022-04-04)
 
 

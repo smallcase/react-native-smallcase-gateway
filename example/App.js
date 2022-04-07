@@ -34,6 +34,20 @@ const App = () => {
   // const toggleAmoSwitch = () => setIsAmoEnabled(previousState => !previousState);
   const toggleAmoSwitch = () => setIsAmoEnabled(!isAmoEnabled);
 
+  
+  const sdkVersion = useCallback(async () => {
+    setLog((p) => p + '\n sdk version is:');
+
+    try {
+      const res = await SmallcaseGateway.getSdkVersion();
+      setLog((p) => p + res);
+    } catch (err) {
+      setLog((p) => p + '\n error fetching version string' + err);
+    }
+
+  });
+  
+  
   const updateEnv = useCallback(async () => {
 
     setLog((p) => p + '\n setting config');
@@ -132,7 +146,9 @@ const App = () => {
 
   return (
     <ScrollView style={styles.container}>
+      
       <Text>Smallcase SDK Tester</Text>
+      
       <View style={styles.envContainer}>
         <EnvButton
           buttonEnv={GATEWAY_ENV.PROD}
@@ -182,6 +198,8 @@ const App = () => {
         />
 
       </View>
+
+      <Button title="Get SDK version" onPress={sdkVersion} />
 
       <Button title="update env" onPress={updateEnv} />
 
