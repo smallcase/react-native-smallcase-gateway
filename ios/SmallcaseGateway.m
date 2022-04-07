@@ -13,6 +13,19 @@ RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {
     [SCGateway.shared setHybridSDKVersionWithVersion:sdkVersion];
 }
 
+RCT_REMAP_METHOD(getSdkVersion,
+                 reactNativeSdkVersion: (NSString *)reactNativeSdkVersion
+                 initWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    NSString *nativeSdkString = [NSString stringWithFormat: @"ios:%@", [SCGateway.shared getSdkVersion]];
+    NSString *reactNativeSdkString = [NSString stringWithFormat: @",react-native:%@", reactNativeSdkVersion];
+    
+    NSString *result = [nativeSdkString stringByAppendingString: reactNativeSdkString];
+    
+    resolve(result);
+}
+
 RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
