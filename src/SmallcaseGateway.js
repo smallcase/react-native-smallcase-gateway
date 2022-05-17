@@ -127,6 +127,15 @@ const logoutUser = async () => {
 };
 
 /**
+ * This will display a list of all the orders that a user recently placed.
+ * This includes pending, successful, and failed orders.
+ * @returns 
+ */
+const showOrders = async () => {
+  return SmallcaseGatewayNative.showOrders();
+};
+
+/**
  * triggers the lead gen flow
  *
  * @param {userDetails} [userDetails]
@@ -180,7 +189,8 @@ const SmallcaseGateway = {
   triggerTransaction,
   setConfigEnvironment,
   launchSmallplug,
-  getSdkVersion
+  getSdkVersion,
+  showOrders
 };
 
 export default SmallcaseGateway;
