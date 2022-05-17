@@ -94,6 +94,23 @@ const App = () => {
     }
   }, [transactionId]);
 
+  const showOrders = useCallback(async () => {
+    
+    setLog((p) => p + '\n starting show orders');
+    
+    try {
+      
+      const showOrdersRes = await SmallcaseGateway.showOrders();
+      setLog((p) => p + '\n show order success');
+      setLog((p) => p + '\n' + JSON.stringify(showOrdersRes, null, 2));
+
+    } catch (err) {
+      setLog(
+        (p) => p + '\n show order error: \n' + JSON.stringify(err.userInfo),
+      );
+    }
+  })
+
   const markSmallcaseArchive = useCallback(async () => {
     setLog((p) => p + '\n marking smallcase archive');
     try {
@@ -218,6 +235,8 @@ const App = () => {
         placeholder="transaction id"
       />
       <Button title="start transaction" onPress={startTransaction} />
+
+      <Button title="Show Orders" onPress={showOrders} />
 
       {/* <View style={styles.envContainer}>
         <Button

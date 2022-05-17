@@ -95,34 +95,6 @@ RCT_REMAP_METHOD(init,
     }];
 }
 
-RCT_REMAP_METHOD(archiveSmallcase,
-                 iscid:(NSString *)iscid
-                 initWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
-    [SCGateway.shared markSmallcaseArchiveWithIscid:iscid completion: ^(id response, NSError * error) {
-        if(error != nil) {
-            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-            [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-            [responseDict setValue:error.domain  forKey:@"errorMessage"];
-            
-            NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-            
-            reject(@"archiveSmallcase", @"Error during transaction", err);
-            return;
-        }
-        
-        NSString *archiveResponseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
-        
-        NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
-        [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
-       
-        [responseDict setObject:archiveResponseString forKey:@"data"];
-        resolve(responseDict);
-        return;
-    }];
-}
-
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
@@ -254,6 +226,29 @@ RCT_REMAP_METHOD(triggerTransaction,
     });
 }
 
+RCT_REMAP_METHOD(showOrders,
+                 showOrdersWithResolver: (RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+        
+        [SCGateway.shared
+         showOrdersWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
+         completion:^(BOOL success, NSError * error) {
+         
+            if(success){
+                resolve(@(YES));
+            } else {
+                [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                [responseDict setValue:error.domain  forKey:@"error"];
+                resolve(responseDict);
+            }
+        }];
+    });
+}
+
 RCT_REMAP_METHOD(launchSmallplug,
                   targetEndpoint:(NSString *)targetEndpoint
                   params:(NSString *)params
@@ -304,6 +299,57 @@ RCT_REMAP_METHOD(launchSmallplug,
     });
 }
 
+RCT_REMAP_METHOD(archiveSmallcase,
+                 iscid:(NSString *)iscid
+                 initWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [SCGateway.shared markSmallcaseArchiveWithIscid:iscid completion: ^(id response, NSError * error) {
+        if(error != nil) {
+            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+            [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+            [responseDict setValue:error.domain  forKey:@"errorMessage"];
+            
+            NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+            
+            reject(@"archiveSmallcase", @"Error during transaction", err);
+            return;
+        }
+        
+        NSString *archiveResponseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
+        
+        NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
+        [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
+        
+        [responseDict setObject:archiveResponseString forKey:@"data"];
+        resolve(responseDict);
+        return;
+    }];
+}
+
+RCT_REMAP_METHOD(triggerLeadGenWithStatus,
+                 userParams: (NSDictionary *)userParams
+                 leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams
+                                                      completion:^(NSString * leadGenResponse) {
+            resolve(leadGenResponse);
+        }
+        ];
+        
+    });
+}
+
+RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams: utmParams];
+    });
+}
+
 RCT_REMAP_METHOD(logoutUser,
                  logoutUserWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
@@ -318,30 +364,6 @@ RCT_REMAP_METHOD(logoutUser,
                     reject(@"logout", @"Error during logout", error);
                 }
         }];
-    });
-}
-
-
-RCT_REMAP_METHOD(triggerLeadGenWithStatus,
-                  userParams: (NSDictionary *)userParams
-                  leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-{
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
-        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams
-                                                      completion:^(NSString * leadGenResponse) {
-            resolve(leadGenResponse);
-        }
-         ];
-        
-    });
-}
-
-RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams)
-{
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams: utmParams];
     });
 }
 

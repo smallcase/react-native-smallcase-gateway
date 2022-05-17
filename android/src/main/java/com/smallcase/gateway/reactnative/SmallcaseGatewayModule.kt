@@ -140,6 +140,26 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun showOrders(promise: Promise) {
+        val activity = currentActivity;
+        if (activity != null) {
+            SmallcaseGatewaySdk.showOrders(
+                activity = activity,
+                showOrdersResponseListener = object : DataListener<Any> {
+                    override fun onSuccess(response: Any) {
+                        promise.resolve(true)
+                    }
+
+                    override fun onFailure(errorCode: Int, errorMessage: String) {
+                        val err = createErrorJSON(errorCode, errorMessage, null)
+                        promise.reject("error", err)
+                    }
+                }
+            )
+        }
+    }
+
+    @ReactMethod
     fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
         Log.d(TAG, "launchSmallplug: start")
 
