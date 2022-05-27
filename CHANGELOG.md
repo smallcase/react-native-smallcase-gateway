@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.0...v1.2.1) (2022-05-27)
+
+
+### Bug Fixes
+
+* smallplug crash for blank page ([35996e9](https://github.com/smallcase/react-native-smallcase-gateway/commit/35996e90c6fe97f4d98e004ab7d319f34411db2d))
+
 ## [1.2.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.1.0...v1.2.0) (2022-05-17)
 
 
