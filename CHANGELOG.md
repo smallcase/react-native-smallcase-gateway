@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.1...v1.2.2) (2022-05-27)
+
+
+### Bug Fixes
+
+* show orders not working for leprechaun users ([f7f23a2](https://github.com/smallcase/react-native-smallcase-gateway/commit/f7f23a21ed933fbfa702bc21b6c4dd483653ea42))
+
 ### [1.2.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.0...v1.2.1) (2022-05-27)
 
 
