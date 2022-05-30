@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.3...v1.2.4) (2022-05-30)
+
+
+### Bug Fixes
+
+* excluded arm64 arch for ios simulators ([207e3a6](https://github.com/smallcase/react-native-smallcase-gateway/commit/207e3a62a9764875d61c7888c2a1a9efcd9af796))
+
 ### [1.2.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.2...v1.2.3) (2022-05-30)
 
 
