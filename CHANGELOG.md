@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.4...v1.3.0) (2022-06-01)
+
+
+### Features
+
+* kite native login ([26fca00](https://github.com/smallcase/react-native-smallcase-gateway/commit/26fca00a10c2ed02e3db85180c370c8bb661bc1f))
+
 ### [1.2.4](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.2.3...v1.2.4) (2022-05-30)
 
 
