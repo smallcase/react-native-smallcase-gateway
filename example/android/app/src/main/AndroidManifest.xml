@@ -3,6 +3,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <queries>
+        <package android:name="com.zerodha.kite3" />
+        <package android:name="com.android.chrome" />
+    </queries>
+    
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
