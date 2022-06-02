@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.3.2...v1.3.3) (2022-06-02)
+
+
+### Bug Fixes
+
+* Login Fallback Fragment UI ([36f2285](https://github.com/smallcase/react-native-smallcase-gateway/commit/36f228594b20c57310d6391f38a796a4ba242b6e))
+
 ### [1.3.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.3.1...v1.3.2) (2022-06-02)
 
 
