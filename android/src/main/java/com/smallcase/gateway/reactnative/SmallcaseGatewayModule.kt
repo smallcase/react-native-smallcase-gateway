@@ -122,11 +122,8 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     preProvidedBrokers = safeBrokerList,
                     transactionResponseListener = object : TransactionResponseListener {
                         override fun onSuccess(transactionResult: TransactionResult) {
-
-                            val res = resultToWritableMap(transactionResult)
+                            val res = resultToWritableMap(transactionResult, true)
                             promise.resolve(res)
-
-
                         }
 
                         override fun onError(errorCode: Int, errorMessage: String, data: String?) {
@@ -265,10 +262,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         return data
     }
 
-    private fun resultToWritableMap(result: TransactionResult): WritableMap {
+    private fun resultToWritableMap(result: TransactionResult, success: Boolean): WritableMap {
         val writableMap: WritableMap = Arguments.createMap()
 
         writableMap.putString("data", result.data)
+        writableMap.putBoolean("success", success)
         writableMap.putString("transaction", result.transaction.name)
         return writableMap
     }
