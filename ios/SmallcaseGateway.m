@@ -299,6 +299,61 @@ RCT_REMAP_METHOD(launchSmallplug,
     });
 }
 
+RCT_REMAP_METHOD(launchSmallplugWithBranding,
+                 targetEndpoint:(NSString *)targetEndpoint
+                 params:(NSString *)params
+                 headerColor:(NSString *)headerColor
+                 headerOpacity:(NSNumber *)headerOpacity
+                 backIconColor:(NSString *)backIconColor
+                 backIconOpacity:(NSNumber *)backIconOpacity
+                 launchSmallplugWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
+        SmallplugUiConfig *smallplugUiConfig = [[SmallplugUiConfig alloc] initWithSmallplugHeaderColor:headerColor headerColorOpacity:headerOpacity backIconColor:backIconColor backIconColorOpacity:backIconOpacity];
+        
+        [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData smallplugUiConfig:smallplugUiConfig completion:^(id smallplugResponse, NSError * error) {
+            
+            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+            
+            if (error != nil) {
+                NSLog(@"%@", error.domain);
+                double delayInSeconds = 0.5;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"error"];
+                    
+                    resolve(responseDict);
+                    return;
+                });
+            } else {
+                
+                if ([smallplugResponse isKindOfClass: [NSString class]]) {
+                    NSLog(@"%@", smallplugResponse);
+                    
+                    [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
+                    [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
+                    
+                    double delayInSeconds = 0.5;
+                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+                        
+                        resolve(responseDict);
+                        return;
+                        
+                    });
+                }
+            }
+            
+        }];
+    });
+}
+
 RCT_REMAP_METHOD(archiveSmallcase,
                  iscid:(NSString *)iscid
                  initWithResolver:(RCTPromiseResolveBlock)resolve

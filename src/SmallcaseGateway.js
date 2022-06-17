@@ -115,6 +115,36 @@ const launchSmallplug = async (targetEndpoint, params) => {
 
 }
 
+const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
+/**
+ * launches smallcases module
+ * 
+ * @param {string} targetEndpoint
+ * @param {string} params
+ * @param {string} headerColor
+ * @param {number} headerOpacity
+ * @param {string} backIconColor
+ * @param {number} backIconOpacity
+ */
+ const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
+  const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
+  const safeParams = typeof params === "string" ? params : ""
+  const safeHeaderColor = typeof headerColor === "string" ? headerColor : "2F363F"
+  const safeHeaderOpacity = typeof headerOpacity === "number" ? headerOpacity : 1
+  const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : "FFFFFF"
+  const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
+
+  return SmallcaseGatewayNative.launchSmallplug(
+    safeEndpoint,
+    safeParams,
+    safeHeaderColor,
+    safeHeaderOpacity,
+    safeBackIconColor,
+    safeBackIconOpacity
+  );
+
+}
+
 /**
  * Logs the user out and removes the web session.
  *

@@ -152,7 +152,7 @@ const App = () => {
     setLog((p) => p + '\n launching smallplug');
 
     try {
-      const res = await SmallcaseGateway.launchSmallplug(targetEndpoint, '');
+      const res = await SmallcaseGateway.launchSmallplugWithBranding(targetEndpoint, '','000000', 1, 'ffffff', 1);
       setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
     } catch(err) {
       setLog(
