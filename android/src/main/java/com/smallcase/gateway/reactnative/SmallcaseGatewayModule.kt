@@ -1,9 +1,6 @@
 package com.smallcase.gateway.reactnative
 
-import android.content.ClipboardManager
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
@@ -15,6 +12,7 @@ import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.data.listeners.LeadGenResponseListener
 import com.smallcase.gateway.portal.SmallplugPartnerProps
+import kotlin.Error
 
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext!!) {
@@ -153,17 +151,24 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                 promise.resolve(res)
             }
 
-        })
+        }, smallplugPartnerProps = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff"))
     }
 
     @ReactMethod
     fun launchSmallplugWithBranding(targetEndpoint: String, params: String, readableMap: ReadableMap?, promise: Promise) {
         Log.d(TAG, "launchSmallplugWithBranding: start")
-        val partnerProps = readableMap?.let { map ->
-            SmallplugPartnerProps(headerColor = map.getString("headerColor"),
-                headerOpacity = map.getDouble("headerOpacity"),
-                backIconColor = map.getString("backIconColor"),
-                backIconOpacity = map.getDouble("backIconOpacity"))
+
+        var partnerProps: SmallplugPartnerProps? = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff")
+
+        try {
+            partnerProps = readableMap?.toHashMap()?.let { map ->
+                val hc = map["headerColor"]?.let { if (it is String) it else "#2F363F" } ?: "#2F363F"
+                val ho = map["headerOpacity"]?.let { if (it is Double) it else 1.0 } ?: 1.0
+                val bc = map["backIconColor"]?.let { if (it is String) it else "#ffffff" } ?: "#ffffff"
+                val bo = map["backIconOpacity"]?.let { if (it is Double) it else 1.0 } ?: 1.0
+                SmallplugPartnerProps(headerColor = hc, headerOpacity = ho, backIconColor = bc, backIconOpacity = bo)
+            }
+        } catch (e: Throwable) {
         }
 
 
