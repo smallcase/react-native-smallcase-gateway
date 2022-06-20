@@ -24,6 +24,12 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
+ * 
+ * @typedef {Object} SmallplugUiConfig
+ * @property {String} headerColor - color of the header background
+ * @property {Number} headerOpacity - opacity of the header background
+ * @property {String} backIconColor - color of the back icon
+ * @property {Number} backIconOpacity - opacity of the back icon
  */
 
 let defaultBrokerList = [];
@@ -36,7 +42,7 @@ const setConfigEnvironment = async (envConfig) => {
   const safeConfig = safeObject(envConfig);
 
   await SmallcaseGatewayNative.setHybridSdkVersion(version);
-  
+
   const {
     brokerList,
     gatewayName,
@@ -116,6 +122,26 @@ const launchSmallplug = async (targetEndpoint, params) => {
 }
 
 /**
+ * launches smallcases module with partner branding
+ * 
+ * @param {string} targetEndpoint
+ * @param {string} params
+ * @param {SmallplugUiConfig} smallplugUiConfig
+ */
+const launchSmallplugWithBranding = async (targetEndpoint, params, smallplugUiConfig) => {
+  const safeEndpoint = safeObject(targetEndpoint);
+  const safeParams = safeObject(params);
+  const safeUiConfig = safeObject(smallplugUiConfig);
+
+  return SmallcaseGatewayNative.launchSmallplugWithBranding(
+    safeEndpoint,
+    safeParams,
+    safeUiConfig
+  );
+
+}
+
+/**
  * Logs the user out and removes the web session.
  *
  * This promise will be rejected if logout was unsuccessful
@@ -154,7 +180,7 @@ const triggerLeadGen = (userDetails, utmParams) => {
  * @param {userDetails} [userDetails]
  * * @returns {Promise}
  */
- const triggerLeadGenWithStatus = async (userDetails) => {
+const triggerLeadGenWithStatus = async (userDetails) => {
   const safeParams = safeObject(userDetails);
 
   return SmallcaseGatewayNative.triggerLeadGenWithStatus(safeParams);
@@ -189,6 +215,7 @@ const SmallcaseGateway = {
   triggerTransaction,
   setConfigEnvironment,
   launchSmallplug,
+  launchSmallplugWithBranding,
   getSdkVersion,
   showOrders
 };

@@ -14,6 +14,7 @@ import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.data.listeners.LeadGenResponseListener
+import com.smallcase.gateway.portal.SmallplugPartnerProps
 
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext!!) {
@@ -26,13 +27,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
-    fun setConfigEnvironment(
-            envName: String,
-            gateway: String,
-            isLeprechaunActive: Boolean,
-            isAmoEnabled: Boolean,
-            preProvidedBrokers: ReadableArray,
-            promise: Promise) {
+    fun setConfigEnvironment(envName: String, gateway: String, isLeprechaunActive: Boolean, isAmoEnabled: Boolean, preProvidedBrokers: ReadableArray, promise: Promise) {
 
         try {
             val brokerList = ArrayList<String>()
@@ -45,25 +40,17 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
             val protocol = getProtocol(envName)
 
-            val env = Environment(
-                    gateway = gateway,
-                    buildType = protocol,
-                    isAmoEnabled = isAmoEnabled,
-                    preProvidedBrokers = brokerList,
-                    isLeprachaunActive = isLeprechaunActive
-            )
+            val env = Environment(gateway = gateway, buildType = protocol, isAmoEnabled = isAmoEnabled, preProvidedBrokers = brokerList, isLeprachaunActive = isLeprechaunActive)
 
-            SmallcaseGatewaySdk.setConfigEnvironment(
-                    environment = env,
-                    smallcaseGatewayListeners = object : SmallcaseGatewayListeners {
-                        override fun onGatewaySetupSuccessfull() {
-                            promise.resolve(true)
-                        }
+            SmallcaseGatewaySdk.setConfigEnvironment(environment = env, smallcaseGatewayListeners = object : SmallcaseGatewayListeners {
+                override fun onGatewaySetupSuccessfull() {
+                    promise.resolve(true)
+                }
 
-                        override fun onGatewaySetupFailed(error: String) {
-                            promise.reject(Throwable(error))
-                        }
-                    })
+                override fun onGatewaySetupFailed(error: String) {
+                    promise.reject(Throwable(error))
+                }
+            })
         } catch (e: Exception) {
             promise.reject(e)
         }
@@ -86,19 +73,17 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         Log.d(TAG, "init: start")
 
         val initReq = InitRequest(sdkToken)
-        SmallcaseGatewaySdk.init(
-                authRequest = initReq,
-                gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
-                    override fun onFailure(errorCode: Int, errorMessage: String) {
-                        val err = createErrorJSON(errorCode, errorMessage, null)
-                        promise.reject("error", err)
-                    }
+        SmallcaseGatewaySdk.init(authRequest = initReq, gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
+            override fun onFailure(errorCode: Int, errorMessage: String) {
+                val err = createErrorJSON(errorCode, errorMessage, null)
+                promise.reject("error", err)
+            }
 
-                    override fun onSuccess(response: InitialisationResponse) {
-                        promise.resolve(true)
-                    }
+            override fun onSuccess(response: InitialisationResponse) {
+                promise.resolve(true)
+            }
 
-                })
+        })
     }
 
     @ReactMethod
@@ -115,22 +100,21 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         val activity = currentActivity;
         if (activity != null) {
             val utm = readableMapToStrHashMap(utmParams)
-            SmallcaseGatewaySdk.triggerTransaction(
-                    utmParams = utm,
-                    activity = activity,
-                    transactionId = transactionId,
-                    preProvidedBrokers = safeBrokerList,
-                    transactionResponseListener = object : TransactionResponseListener {
-                        override fun onSuccess(transactionResult: TransactionResult) {
-                            val res = resultToWritableMap(transactionResult, true)
-                            promise.resolve(res)
-                        }
+            SmallcaseGatewaySdk.triggerTransaction(utmParams = utm,
+                activity = activity,
+                transactionId = transactionId,
+                preProvidedBrokers = safeBrokerList,
+                transactionResponseListener = object : TransactionResponseListener {
+                    override fun onSuccess(transactionResult: TransactionResult) {
+                        val res = resultToWritableMap(transactionResult, true)
+                        promise.resolve(res)
+                    }
 
-                        override fun onError(errorCode: Int, errorMessage: String, data: String?) {
-                            val err = createErrorJSON(errorCode, errorMessage, data)
-                            promise.reject("error", err)
-                        }
-                    })
+                    override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+                        val err = createErrorJSON(errorCode, errorMessage, data)
+                        promise.reject("error", err)
+                    }
+                })
         } else {
             promise.reject(Throwable("no activity"))
         }
@@ -140,19 +124,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     fun showOrders(promise: Promise) {
         val activity = currentActivity;
         if (activity != null) {
-            SmallcaseGatewaySdk.showOrders(
-                activity = activity,
-                showOrdersResponseListener = object : DataListener<Any> {
-                    override fun onSuccess(response: Any) {
-                        promise.resolve(true)
-                    }
-
-                    override fun onFailure(errorCode: Int, errorMessage: String) {
-                        val err = createErrorJSON(errorCode, errorMessage, null)
-                        promise.reject("error", err)
-                    }
+            SmallcaseGatewaySdk.showOrders(activity = activity, showOrdersResponseListener = object : DataListener<Any> {
+                override fun onSuccess(response: Any) {
+                    promise.resolve(true)
                 }
-            )
+
+                override fun onFailure(errorCode: Int, errorMessage: String) {
+                    val err = createErrorJSON(errorCode, errorMessage, null)
+                    promise.reject("error", err)
+                }
+            })
         }
     }
 
@@ -176,6 +157,32 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     }
 
     @ReactMethod
+    fun launchSmallplugWithBranding(targetEndpoint: String, params: String, readableMap: ReadableMap?, promise: Promise) {
+        Log.d(TAG, "launchSmallplugWithBranding: start")
+        val partnerProps = readableMap?.let { map ->
+            SmallplugPartnerProps(headerColor = map.getString("headerColor"),
+                headerOpacity = map.getDouble("headerOpacity"),
+                backIconColor = map.getString("backIconColor"),
+                backIconOpacity = map.getDouble("backIconOpacity"))
+        }
+
+
+        SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
+            override fun onFailure(errorCode: Int, errorMessage: String) {
+                val err = createErrorJSON(errorCode, errorMessage, null)
+
+                promise.reject("error", err)
+            }
+
+            override fun onSuccess(smallPlugResult: SmallPlugResult) {
+                val res = resultToWritableMap(smallPlugResult)
+                promise.resolve(res)
+            }
+
+        }, partnerProps)
+    }
+
+    @ReactMethod
     fun archiveSmallcase(iscid: String, promise: Promise) {
         Log.d(TAG, "markSmallcaseArchive: start")
 
@@ -196,18 +203,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     fun logoutUser(promise: Promise) {
         val activity = currentActivity;
         if (activity != null) {
-            SmallcaseGatewaySdk.logoutUser(
-                    activity = activity,
-                    logoutListener = object : SmallcaseLogoutListener {
-                        override fun onLogoutSuccessfull() {
-                            promise.resolve(true)
-                        }
+            SmallcaseGatewaySdk.logoutUser(activity = activity, logoutListener = object : SmallcaseLogoutListener {
+                override fun onLogoutSuccessfull() {
+                    promise.resolve(true)
+                }
 
-                        override fun onLogoutFailed(errorCode: Int, error: String) {
-                            val err = createErrorJSON(errorCode, error, null)
-                            promise.reject("error", err)
-                        }
-                    })
+                override fun onLogoutFailed(errorCode: Int, error: String) {
+                    val err = createErrorJSON(errorCode, error, null)
+                    promise.reject("error", err)
+                }
+            })
         }
     }
 
@@ -215,11 +220,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
     fun triggerLeadGen(userDetails: ReadableMap, utmData: ReadableMap) {
         val activity = currentActivity;
         if (activity != null) {
-            SmallcaseGatewaySdk.triggerLeadGen(
-                    activity=activity,
-                    utmParams = readableMapToStrHashMap(utmData),
-                    params = readableMapToStrHashMap(userDetails)
-            )
+            SmallcaseGatewaySdk.triggerLeadGen(activity = activity, utmParams = readableMapToStrHashMap(utmData), params = readableMapToStrHashMap(userDetails))
         }
     }
 
@@ -228,7 +229,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         val activity = currentActivity
         if (activity != null) {
 
-            SmallcaseGatewaySdk.triggerLeadGen(activity, readableMapToStrHashMap(userDetails), object: LeadGenResponseListener {
+            SmallcaseGatewaySdk.triggerLeadGen(activity, readableMapToStrHashMap(userDetails), object : LeadGenResponseListener {
                 override fun onSuccess(leadResponse: String) {
                     promise.resolve(leadResponse)
                 }
