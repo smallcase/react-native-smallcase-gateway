@@ -134,8 +134,8 @@ const launchSmallplugWithBranding = async (targetEndpoint, params, smallplugUiCo
   const safeUiConfig = safeObject(smallplugUiConfig);
 
   return SmallcaseGatewayNative.launchSmallplugWithBranding(
-    safeEndpoint,
-    safeParams,
+    targetEndpoint,
+    params,
     safeUiConfig
   );
 
