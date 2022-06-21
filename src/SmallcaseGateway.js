@@ -1,4 +1,4 @@
-import { NativeModules } from "react-native";
+import { NativeModules, Platform } from "react-native";
 import { ENV } from "./constants";
 import { safeObject } from "./util";
 import { version } from "../package.json";
@@ -132,7 +132,7 @@ const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
  * @param {string} backIconColor
  * @param {number} backIconOpacity
  */
- const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
+const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
   const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
   const safeParams = typeof params === "string" ? params : ""
   const safeHeaderColor = typeof headerColor === "string" ? headerColor : "2F363F"
@@ -140,34 +140,23 @@ const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
   const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : "FFFFFF"
   const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
 
-  return SmallcaseGatewayNative.launchSmallplug(
-    safeEndpoint,
-    safeParams,
-    safeHeaderColor,
-    safeHeaderOpacity,
-    safeBackIconColor,
-    safeBackIconOpacity
-  );
-
-}
-
-/**
- * launches smallcases module with partner branding
- * 
- * @param {string} targetEndpoint
- * @param {string} params
- * @param {SmallplugUiConfig} smallplugUiConfig
- */
-const launchSmallplugWithBranding = async (targetEndpoint, params, smallplugUiConfig) => {
-  const safeEndpoint = safeObject(targetEndpoint);
-  const safeParams = safeObject(params);
-  const safeUiConfig = safeObject(smallplugUiConfig);
-
-  return SmallcaseGatewayNative.launchSmallplugWithBranding(
-    targetEndpoint,
-    params,
-    safeUiConfig
-  );
+  return Platform.OS === 'android' ?
+    SmallcaseGatewayNative.launchSmallplugWithBranding(
+      safeEndpoint, safeParams,
+      {
+        headerColor: safeHeaderColor,
+        headerOpacity: safeHeaderOpacity,
+        backIconColor: safeBackIconColor,
+        backIconOpacity: safeBackIconOpacity
+      })
+    : SmallcaseGatewayNative.launchSmallplug(
+      safeEndpoint,
+      safeParams,
+      safeHeaderColor,
+      safeHeaderOpacity,
+      safeBackIconColor,
+      safeBackIconOpacity
+    );
 
 }
 
