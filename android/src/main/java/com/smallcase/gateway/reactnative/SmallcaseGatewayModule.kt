@@ -156,15 +156,26 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
     @ReactMethod
     fun launchSmallplugWithBranding(targetEndpoint: String, params: String, readableMap: ReadableMap?, promise: Promise) {
+
+        fun getColorValue(value: Any?, defaultValue: String): String {
+            return when (value) {
+                is String -> {
+                    if (value.length < 6) defaultValue else if (!value.contains("#")) "#$value" else value
+                }
+                else -> {
+                    defaultValue
+                }
+            }
+        }
         Log.d(TAG, "launchSmallplugWithBranding: start")
 
         var partnerProps: SmallplugPartnerProps? = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff")
 
         try {
             partnerProps = readableMap?.toHashMap()?.let { map ->
-                val hc = map["headerColor"]?.let { if (it is String) it else "#2F363F" } ?: "#2F363F"
+                val hc = getColorValue(map["headerColor"], "#2F363F")
                 val ho = map["headerOpacity"]?.let { if (it is Double) it else 1.0 } ?: 1.0
-                val bc = map["backIconColor"]?.let { if (it is String) it else "#ffffff" } ?: "#ffffff"
+                val bc = getColorValue(map["backIconColor"], "#ffffff")
                 val bo = map["backIconOpacity"]?.let { if (it is Double) it else 1.0 } ?: 1.0
                 SmallplugPartnerProps(headerColor = hc, headerOpacity = ho, backIconColor = bc, backIconOpacity = bo)
             }

@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from "react-native";
 import { ENV } from "./constants";
-import { safeObject } from "./util";
+import { safeObject, platformSpecificColorHex } from "./util";
 import { version } from "../package.json";
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
@@ -135,9 +135,9 @@ const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
 const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
   const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
   const safeParams = typeof params === "string" ? params : ""
-  const safeHeaderColor = typeof headerColor === "string" ? headerColor : "2F363F"
+  const safeHeaderColor = typeof headerColor === "string" ? headerColor : platformSpecificColorHex("2F363F") 
   const safeHeaderOpacity = typeof headerOpacity === "number" ? headerOpacity : 1
-  const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : "FFFFFF"
+  const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : platformSpecificColorHex("FFFFFF")
   const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
 
   return Platform.OS === 'android' ?

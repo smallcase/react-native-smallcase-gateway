@@ -303,9 +303,9 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
                  targetEndpoint:(NSString *)targetEndpoint
                  params:(NSString *)params
                  headerColor:(NSString *)headerColor
-                 headerOpacity:(NSNumber *)headerOpacity
+                 headerOpacity:(nonnull NSNumber *)headerOpacity
                  backIconColor:(NSString *)backIconColor
-                 backIconOpacity:(NSNumber *)backIconOpacity
+                 backIconOpacity:(nonnull NSNumber *)backIconOpacity
                  launchSmallplugWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {

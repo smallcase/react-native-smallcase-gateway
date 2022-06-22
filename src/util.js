@@ -9,3 +9,10 @@
 export const safeObject = (obj) => {
   return obj && typeof obj === "object" ? obj : {};
 };
+
+export function platformSpecificColorHex(hex) {
+  if (Platform.OS === 'android') {
+    return `#${hex}`
+  }
+  return hex
+}
