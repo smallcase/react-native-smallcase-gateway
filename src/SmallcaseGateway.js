@@ -149,7 +149,7 @@ const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, 
         backIconColor: safeBackIconColor,
         backIconOpacity: safeBackIconOpacity
       })
-    : SmallcaseGatewayNative.launchSmallplug(
+    : SmallcaseGatewayNative.launchSmallplugWithBranding(
       safeEndpoint,
       safeParams,
       safeHeaderColor,
