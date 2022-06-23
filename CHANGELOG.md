@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.3.3...v1.4.0) (2022-06-23)
+
+
+### Bug Fixes
+
+* android native module for dmbranding ([df816f6](https://github.com/smallcase/react-native-smallcase-gateway/commit/df816f6dfa987dfdfc6297aec362fdb2c7d1e3c3))
+* dm partner branding ([78fb73f](https://github.com/smallcase/react-native-smallcase-gateway/commit/78fb73f56055c74eecebcff03c7560a794c06c7f))
+* iOS null issue & Android def val ([a852397](https://github.com/smallcase/react-native-smallcase-gateway/commit/a852397e2aa4e0ffc6669f0345cbd93f2e63a6b8))
+* method signature for ios native dm ([daedabc](https://github.com/smallcase/react-native-smallcase-gateway/commit/daedabca1180b16c3eacd2c956a51b8d63457435))
+* Platform check for dm branding ([0d80e79](https://github.com/smallcase/react-native-smallcase-gateway/commit/0d80e797b80e4c92e940b2763da81299ba05c9c6))
+* type error ([e2b1394](https://github.com/smallcase/react-native-smallcase-gateway/commit/e2b139426a488a94bfe514265a8599c81ffb31b8))
+
 ### [1.3.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.3.2...v1.3.3) (2022-06-02)
 
 
