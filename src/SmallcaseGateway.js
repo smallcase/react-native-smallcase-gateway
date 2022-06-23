@@ -1,6 +1,6 @@
-import { NativeModules } from "react-native";
+import { NativeModules, Platform } from "react-native";
 import { ENV } from "./constants";
-import { safeObject } from "./util";
+import { safeObject, platformSpecificColorHex } from "./util";
 import { version } from "../package.json";
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
@@ -24,6 +24,12 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
+ * 
+ * @typedef {Object} SmallplugUiConfig
+ * @property {String} headerColor - color of the header background
+ * @property {Number} headerOpacity - opacity of the header background
+ * @property {String} backIconColor - color of the back icon
+ * @property {Number} backIconOpacity - opacity of the back icon
  */
 
 let defaultBrokerList = [];
@@ -36,7 +42,7 @@ const setConfigEnvironment = async (envConfig) => {
   const safeConfig = safeObject(envConfig);
 
   await SmallcaseGatewayNative.setHybridSdkVersion(version);
-  
+
   const {
     brokerList,
     gatewayName,
@@ -115,6 +121,45 @@ const launchSmallplug = async (targetEndpoint, params) => {
 
 }
 
+const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
+/**
+ * launches smallcases module
+ * 
+ * @param {string} targetEndpoint
+ * @param {string} params
+ * @param {string} headerColor
+ * @param {number} headerOpacity
+ * @param {string} backIconColor
+ * @param {number} backIconOpacity
+ */
+const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
+  const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
+  const safeParams = typeof params === "string" ? params : ""
+  const safeHeaderColor = typeof headerColor === "string" ? headerColor : platformSpecificColorHex("2F363F") 
+  const safeHeaderOpacity = typeof headerOpacity === "number" ? headerOpacity : 1
+  const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : platformSpecificColorHex("FFFFFF")
+  const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
+
+  return Platform.OS === 'android' ?
+    SmallcaseGatewayNative.launchSmallplugWithBranding(
+      safeEndpoint, safeParams,
+      {
+        headerColor: safeHeaderColor,
+        headerOpacity: safeHeaderOpacity,
+        backIconColor: safeBackIconColor,
+        backIconOpacity: safeBackIconOpacity
+      })
+    : SmallcaseGatewayNative.launchSmallplugWithBranding(
+      safeEndpoint,
+      safeParams,
+      safeHeaderColor,
+      safeHeaderOpacity,
+      safeBackIconColor,
+      safeBackIconOpacity
+    );
+
+}
+
 /**
  * Logs the user out and removes the web session.
  *
@@ -154,7 +199,7 @@ const triggerLeadGen = (userDetails, utmParams) => {
  * @param {userDetails} [userDetails]
  * * @returns {Promise}
  */
- const triggerLeadGenWithStatus = async (userDetails) => {
+const triggerLeadGenWithStatus = async (userDetails) => {
   const safeParams = safeObject(userDetails);
 
   return SmallcaseGatewayNative.triggerLeadGenWithStatus(safeParams);
@@ -189,6 +234,7 @@ const SmallcaseGateway = {
   triggerTransaction,
   setConfigEnvironment,
   launchSmallplug,
+  launchSmallplugWithBranding,
   getSdkVersion,
   showOrders
 };
