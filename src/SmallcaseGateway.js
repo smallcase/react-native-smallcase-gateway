@@ -41,7 +41,7 @@ let defaultBrokerList = [];
 const setConfigEnvironment = async (envConfig) => {
   const safeConfig = safeObject(envConfig);
 
-  await SmallcaseGatewayNative.setHybridSdkVersion(null);
+  await SmallcaseGatewayNative.setHybridSdkVersion(version);
 
   const {
     brokerList,
