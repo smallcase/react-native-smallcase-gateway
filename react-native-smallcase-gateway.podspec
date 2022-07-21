@@ -24,6 +24,5 @@ Pod::Spec.new do |s|
 
   s.dependency "React-Core"
   s.dependency 'SCGateway', '3.4.3'
-  s.dependency "Mixpanel-swift"
 end
 
