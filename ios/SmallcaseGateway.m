@@ -113,7 +113,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                 [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                [responseDict setValue:error.userInfo forKey:@"data"];
+                [responseDict setValue:[error.userInfo objectForKey: @"data"] forKey:@"data"];
 
                 NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -159,6 +159,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
                 [dict setValue: trxResponse.broker forKey:@"broker"];
+                [dict setValue: trxResponse.signup forKey:@"signup"];
 
                 [responseDict setValue:dict forKey:@"data"];
                 resolve(responseDict);
@@ -173,7 +174,8 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
-
+                [dict setValue: trxResponse.signup forKey:@"signup"];
+                
                 [dict setValue:[NSNumber numberWithDouble:trxResponse.fund] forKey:@"fund"];
 
                 [responseDict setValue:dict forKey:@"data"];
@@ -197,6 +199,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 [dict setValue: trxResponse.scid forKey:@"scid"];
                 [dict setValue: trxResponse.sipActive ? @"YES" : @"NO" forKey:@"sipActive"];
                 [dict setValue: [NSNumber numberWithDouble: trxResponse.sipAmount] forKey:@"sipAmount"];
+                [dict setValue: trxResponse.signup forKey:@"signup"];
 
                 [responseDict setValue:dict forKey:@"data"];
                 resolve(responseDict);
@@ -212,7 +215,8 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
-
+                [dict setValue: trxResponse.signup forKey:@"signup"];
+                
                 [dict setValue: [NSNumber numberWithBool:trxResponse.status] forKey:@"status"];
 
                 [responseDict setValue:dict forKey:@"data"];
