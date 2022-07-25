@@ -19,9 +19,6 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - Mixpanel-swift (3.2.6):
-    - Mixpanel-swift/Complete (= 3.2.6)
-  - Mixpanel-swift/Complete (3.2.6)
   - RCTRequired (0.63.2)
   - RCTTypeSafety (0.63.2):
     - FBLazyVector (= 0.63.2)
@@ -188,10 +185,9 @@ PODS:
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
   - React-jsinspector (0.63.2)
-  - react-native-smallcase-gateway (1.3.3):
-    - Mixpanel-swift
+  - react-native-smallcase-gateway (1.4.2):
     - React-Core
-    - SCGateway (= 3.4.3)
+    - SCGateway (= 3.5.0)
   - React-RCTActionSheet (0.63.2):
     - React-Core/RCTActionSheetHeaders (= 0.63.2)
   - React-RCTAnimation (0.63.2):
@@ -252,8 +248,7 @@ PODS:
     - React-Core (= 0.63.2)
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
-  - SCGateway (3.4.3):
-    - Mixpanel-swift
+  - SCGateway (3.5.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -292,7 +287,6 @@ SPEC REPOS:
     - SCGateway
   trunk:
     - boost-for-react-native
-    - Mixpanel-swift
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -357,7 +351,6 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: dc7fa9088f0f2a998503a352b0554d69a4391c5a
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
-  Mixpanel-swift: ce120e0d51dcb0d0bf5a25e1ee232fe89ad1136b
   RCTRequired: f13f25e7b12f925f1f6a6a8c69d929a03c0129fe
   RCTTypeSafety: 44982c5c8e43ff4141eb519a8ddc88059acd1f3a
   React: e1c65dd41cb9db13b99f24608e47dd595f28ca9a
@@ -368,7 +361,7 @@ SPEC CHECKSUMS:
   React-jsi: 54245e1d5f4b690dec614a73a3795964eeef13a8
   React-jsiexecutor: 8ca588cc921e70590820ce72b8789b02c67cce38
   React-jsinspector: b14e62ebe7a66e9231e9581279909f2fc3db6606
-  react-native-smallcase-gateway: a5aba97173fef9984faff3700c1a381c46bb326e
+  react-native-smallcase-gateway: 1f793107551f2b68db7658cd1f960e3dd39da4ad
   React-RCTActionSheet: 910163b6b09685a35c4ebbc52b66d1bfbbe39fc5
   React-RCTAnimation: 9a883bbe1e9d2e158d4fb53765ed64c8dc2200c6
   React-RCTBlob: 39cf0ece1927996c4466510e25d2105f67010e13
@@ -379,9 +372,9 @@ SPEC CHECKSUMS:
   React-RCTText: 1b6773e776e4b33f90468c20fe3b16ca3e224bb8
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
-  SCGateway: 19a144be4a895040c2393de3870846d514c37b23
+  SCGateway: 38d90e46af2a6a20fb286abddc2b6823ffcd1cf9
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
 PODFILE CHECKSUM: e0e2e389bf9956b918ca8300f72292e3d4fc0514
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3

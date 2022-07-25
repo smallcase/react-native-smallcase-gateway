@@ -113,6 +113,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                 [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                [responseDict setValue:error.userInfo forKey:@"data"];
 
                 NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
