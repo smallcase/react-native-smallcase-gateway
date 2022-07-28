@@ -60,8 +60,7 @@ repositories {
     // ref: https://www.baeldung.com/maven-local-repository
     mavenLocal()
     maven {
-        url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
-        allowInsecureProtocol true
+        url "https://artifactory.smallcase.com/artifactory/gradle-dev-local"
         credentials {
             username "react_native_user"
             password "reactNativeUser123"
