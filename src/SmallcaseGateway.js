@@ -110,13 +110,13 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
  * @param {string} targetEndpoint
  * @param {string} params
  */
-const launchSmallplug = async (targetEndpoint, params) => {
-  const safeEndpoint = safeObject(targetEndpoint);
-  const safeParams = safeObject(params);
+ const launchSmallplug = async (targetEndpoint, params) => {
+  const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
+  const safeParams = typeof params === "string" ? params : ""
 
   return SmallcaseGatewayNative.launchSmallplug(
-    targetEndpoint,
-    params
+    safeEndpoint,
+    safeParams
   );
 
 }
