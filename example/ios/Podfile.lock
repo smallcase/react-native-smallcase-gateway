@@ -185,9 +185,9 @@ PODS:
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
   - React-jsinspector (0.63.2)
-  - react-native-smallcase-gateway (1.4.2):
+  - react-native-smallcase-gateway (1.5.0):
     - React-Core
-    - SCGateway (= 3.5.0)
+    - SCGateway (= 3.5.1)
   - React-RCTActionSheet (0.63.2):
     - React-Core/RCTActionSheetHeaders (= 0.63.2)
   - React-RCTAnimation (0.63.2):
@@ -248,7 +248,7 @@ PODS:
     - React-Core (= 0.63.2)
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
-  - SCGateway (3.5.0)
+  - SCGateway (3.5.1)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -361,7 +361,7 @@ SPEC CHECKSUMS:
   React-jsi: 54245e1d5f4b690dec614a73a3795964eeef13a8
   React-jsiexecutor: 8ca588cc921e70590820ce72b8789b02c67cce38
   React-jsinspector: b14e62ebe7a66e9231e9581279909f2fc3db6606
-  react-native-smallcase-gateway: 1f793107551f2b68db7658cd1f960e3dd39da4ad
+  react-native-smallcase-gateway: cf0303555326c142b94caa06a981cbbc9dc89bcb
   React-RCTActionSheet: 910163b6b09685a35c4ebbc52b66d1bfbbe39fc5
   React-RCTAnimation: 9a883bbe1e9d2e158d4fb53765ed64c8dc2200c6
   React-RCTBlob: 39cf0ece1927996c4466510e25d2105f67010e13
@@ -372,7 +372,7 @@ SPEC CHECKSUMS:
   React-RCTText: 1b6773e776e4b33f90468c20fe3b16ca3e224bb8
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
-  SCGateway: 38d90e46af2a6a20fb286abddc2b6823ffcd1cf9
+  SCGateway: b569e666c1ec726aad4159a1a9d3795974bf300e
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
 PODFILE CHECKSUM: e0e2e389bf9956b918ca8300f72292e3d4fc0514

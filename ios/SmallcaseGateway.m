@@ -8,6 +8,7 @@
 
 RCT_EXPORT_MODULE()
 
+//MARK: SDK version helpers
 RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {
     [SCGateway.shared setSDKTypeWithType:@"react-native"];
     [SCGateway.shared setHybridSDKVersionWithVersion:sdkVersion];
@@ -26,6 +27,7 @@ RCT_REMAP_METHOD(getSdkVersion,
     resolve(result);
 }
 
+//MARK: SDK setup
 RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
@@ -33,8 +35,7 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                  isAmoEnabled: (BOOL *)isAmoEnabled
                  preProvidedBrokers: (NSArray *)preProvidedBrokers
                  setConfigEnvironmentWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     NSInteger environment = EnvironmentProduction;
 
     if([envName isEqualToString:@"production"]) {
@@ -53,10 +54,8 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                              isLeprechaunActive:isLeprechaunActive
                              isAmoEnabled:isAmoEnabled];
 
-    [SCGateway.shared setupWithConfig: config completion:^(BOOL success,NSError * error)
-     {
-        if(success)
-        {
+    [SCGateway.shared setupWithConfig: config completion:^(BOOL success,NSError * error) {
+        if(success) {
             resolve(@(YES));
         } else {
             NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -67,20 +66,20 @@ RCT_REMAP_METHOD(setConfigEnvironment,
 
             reject(@"setConfigEnvironment", @"Env setup failed", err);
         }
+        
     }];
 }
 
+//MARK: SDK init
 RCT_REMAP_METHOD(init,
                  sdkToken:(NSString *)sdkToken
                  initWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     [SCGateway.shared initializeGatewayWithSdkToken:sdkToken completion:^(BOOL success, NSError * error) {
-        if(success){
+        if(success) {
             resolve(@(YES));
         } else {
-            if(error != nil)
-            {
+            if(error != nil) {
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                 [responseDict setValue:error.domain  forKey:@"errorMessage"];
@@ -95,13 +94,13 @@ RCT_REMAP_METHOD(init,
     }];
 }
 
+//MARK: Trigger Transaction
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
                  brokerList:(NSArray *)brokerList
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         [SCGateway.shared
          triggerTransactionFlowWithTransactionId:transactionId
@@ -124,7 +123,7 @@ RCT_REMAP_METHOD(triggerTransaction,
             NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
             [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
 
-            // intent - transaction
+            //MARK: intent - transaction
             if ([response isKindOfClass: [ObjcTransactionIntentTransaction class]]) {
                 ObjcTransactionIntentTransaction *trxResponse = response;
                 [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
@@ -137,7 +136,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 return;
             }
 
-            // intent - connect
+            //MARK: intent - connect
             if([response isKindOfClass: [ObjCTransactionIntentConnect class]]) {
                 ObjCTransactionIntentConnect *trxResponse = response;
                 [responseDict setValue:@"CONNECT"  forKey:@"transaction"];
@@ -150,7 +149,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 return;
             }
 
-            // intent - holdings import
+            //MARK: intent - holdings import
             if([response isKindOfClass: [ObjcTransactionIntentHoldingsImport class]]) {
                 ObjcTransactionIntentHoldingsImport *trxResponse = response;
                 [responseDict setValue:@"HOLDING_IMPORT"  forKey:@"transaction"];
@@ -166,7 +165,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 return;
             }
 
-            // intent - fetch funds
+            //MARK: intent - fetch funds
             if([response isKindOfClass: [ObjcTransactionIntentFetchFunds class]]) {
                 ObjcTransactionIntentFetchFunds *trxResponse = response;
                 [responseDict setValue:@"FETCH_FUNDS"  forKey:@"transaction"];
@@ -183,7 +182,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 return;
             }
 
-            // intent - sip setup
+            //MARK: intent - sip setup
             if([response isKindOfClass: [ObjcTransactionIntentSipSetup class]]) {
                 ObjcTransactionIntentSipSetup *trxResponse = response;
                 [responseDict setValue:@"SIP_SETUP"  forKey:@"transaction"];
@@ -207,7 +206,7 @@ RCT_REMAP_METHOD(triggerTransaction,
             }
 
 
-            // intent - authorize holdings
+            //MARK: intent - authorize holdings
             if([response isKindOfClass: [ObjcTransactionIntentAuthoriseHoldings class]]) {
                 ObjcTransactionIntentAuthoriseHoldings *trxResponse = response;
                 [responseDict setValue:@"AUTHORISE_HOLDINGS"  forKey:@"transaction"];
@@ -231,10 +230,10 @@ RCT_REMAP_METHOD(triggerTransaction,
     });
 }
 
+//MARK: Show orders
 RCT_REMAP_METHOD(showOrders,
                  showOrdersWithResolver: (RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         
         NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -254,12 +253,12 @@ RCT_REMAP_METHOD(showOrders,
     });
 }
 
+//MARK: smallplug
 RCT_REMAP_METHOD(launchSmallplug,
                   targetEndpoint:(NSString *)targetEndpoint
                   params:(NSString *)params
                   launchSmallplugWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
        
         SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
@@ -304,6 +303,7 @@ RCT_REMAP_METHOD(launchSmallplug,
     });
 }
 
+//MARK: smallplug with branding
 RCT_REMAP_METHOD(launchSmallplugWithBranding,
                  targetEndpoint:(NSString *)targetEndpoint
                  params:(NSString *)params
@@ -359,11 +359,11 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
     });
 }
 
+//MARK: Archive smallcase
 RCT_REMAP_METHOD(archiveSmallcase,
                  iscid:(NSString *)iscid
                  initWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     [SCGateway.shared markSmallcaseArchiveWithIscid:iscid completion: ^(id response, NSError * error) {
         if(error != nil) {
             NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -387,11 +387,11 @@ RCT_REMAP_METHOD(archiveSmallcase,
     }];
 }
 
+//MARK: Lead Gen
 RCT_REMAP_METHOD(triggerLeadGenWithStatus,
                  userParams: (NSDictionary *)userParams
                  leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         
         [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams
@@ -403,17 +403,16 @@ RCT_REMAP_METHOD(triggerLeadGenWithStatus,
     });
 }
 
-RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams)
-{
+RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictionary *)utmParams) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams: utmParams];
     });
 }
 
+//MARK: User logout
 RCT_REMAP_METHOD(logoutUser,
                  logoutUserWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
-{
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         [SCGateway.shared
             logoutUserWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
