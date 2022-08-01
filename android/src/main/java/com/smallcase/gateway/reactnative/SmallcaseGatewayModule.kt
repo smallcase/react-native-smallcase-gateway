@@ -72,8 +72,8 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
 
         val initReq = InitRequest(sdkToken)
         SmallcaseGatewaySdk.init(authRequest = initReq, gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
-            override fun onFailure(errorCode: Int, errorMessage: String) {
-                val err = createErrorJSON(errorCode, errorMessage, null)
+            override fun onFailure(errorCode: Int, errorMessage: String, data: String?) {
+                val err = createErrorJSON(errorCode, errorMessage, data)
                 promise.reject("error", err)
             }
 
@@ -127,8 +127,8 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                     promise.resolve(true)
                 }
 
-                override fun onFailure(errorCode: Int, errorMessage: String) {
-                    val err = createErrorJSON(errorCode, errorMessage, null)
+                override fun onFailure(errorCode: Int, errorMessage: String, data: String?) {
+                    val err = createErrorJSON(errorCode, errorMessage, data)
                     promise.reject("error", err)
                 }
             })
@@ -208,7 +208,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                 promise.resolve(response)
             }
 
-            override fun onFailure(errorCode: Int, errorMessage: String) {
+            override fun onFailure(errorCode: Int, errorMessage: String, data: String?) {
                 val err = createErrorJSON(errorCode, errorMessage, null)
                 promise.reject("error", err)
             }

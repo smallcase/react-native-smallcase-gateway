@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency 'SCGateway', '3.4.4'
-  # s.dependency "Mixpanel-swift"
+  s.dependency 'SCGateway', '3.5.2'
 end
 
