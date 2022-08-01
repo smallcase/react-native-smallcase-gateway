@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.4.2...v1.5.0) (2022-08-01)
+
+
+### Features
+
+* added error data for transactional errors ([e50e977](https://github.com/smallcase/react-native-smallcase-gateway/commit/e50e977dda6c15f4ed3c4e40932f851e7a3bebce))
+* added signup key for all transactional intents ([6f00f57](https://github.com/smallcase/react-native-smallcase-gateway/commit/6f00f57cf2f24f6896019ca17f7603508477161d))
+
+
+### Bug Fixes
+
+* added `data` in DataListener error callback ([0481520](https://github.com/smallcase/react-native-smallcase-gateway/commit/0481520ace7730d137400808b05b037787d73296))
+* build fails on gradle 7 ([28f79fd](https://github.com/smallcase/react-native-smallcase-gateway/commit/28f79fd53dd2400412f7286442f7b6031287c063))
+* data not appended in init and show orders ([07a2a61](https://github.com/smallcase/react-native-smallcase-gateway/commit/07a2a61dd2add4a3cf7b7e4d59a70bb6c750c0bc))
+* error data not being returned for intent_not_enabled_for_broker 3000 error ([53b4bfd](https://github.com/smallcase/react-native-smallcase-gateway/commit/53b4bfd52c7dee4aed647e04493e4d1e23402406))
+* http for artifactory url ([b7934dc](https://github.com/smallcase/react-native-smallcase-gateway/commit/b7934dc28353508f36aa9ec23d1ebac36d74bf29))
+* unsafe params on launchSmallplug ([a6752cb](https://github.com/smallcase/react-native-smallcase-gateway/commit/a6752cb9d41eb0f55c997fa1712a26c0e72d7472))
+
 ### [1.4.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.4.0...v1.4.2) (2022-07-21)
 
 
