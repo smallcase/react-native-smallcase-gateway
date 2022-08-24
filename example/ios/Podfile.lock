@@ -19,6 +19,9 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - Mixpanel-swift (4.0.0):
+    - Mixpanel-swift/Complete (= 4.0.0)
+  - Mixpanel-swift/Complete (4.0.0)
   - RCTRequired (0.63.2)
   - RCTTypeSafety (0.63.2):
     - FBLazyVector (= 0.63.2)
@@ -185,9 +188,10 @@ PODS:
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
   - React-jsinspector (0.63.2)
-  - react-native-smallcase-gateway (1.5.0):
+  - react-native-smallcase-gateway (1.5.3):
     - React-Core
-    - SCGateway (= 3.5.1)
+    - SCGateway (= 3.5.4)
+    - scgateway-mixpanel
   - React-RCTActionSheet (0.63.2):
     - React-Core/RCTActionSheetHeaders (= 0.63.2)
   - React-RCTAnimation (0.63.2):
@@ -248,7 +252,9 @@ PODS:
     - React-Core (= 0.63.2)
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
-  - SCGateway (3.5.1)
+  - SCGateway (3.5.4)
+  - scgateway-mixpanel (1.0.0):
+    - Mixpanel-swift
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -283,10 +289,13 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/ankit-deshmukh/scgateway-mixpanel-podspec.git:
+    - scgateway-mixpanel
   https://github.com/smallcase/cocoapodspecs.git:
     - SCGateway
   trunk:
     - boost-for-react-native
+    - Mixpanel-swift
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -351,6 +360,7 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: dc7fa9088f0f2a998503a352b0554d69a4391c5a
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
+  Mixpanel-swift: 04a0326f195237e16a27debf505e477c23722262
   RCTRequired: f13f25e7b12f925f1f6a6a8c69d929a03c0129fe
   RCTTypeSafety: 44982c5c8e43ff4141eb519a8ddc88059acd1f3a
   React: e1c65dd41cb9db13b99f24608e47dd595f28ca9a
@@ -361,7 +371,7 @@ SPEC CHECKSUMS:
   React-jsi: 54245e1d5f4b690dec614a73a3795964eeef13a8
   React-jsiexecutor: 8ca588cc921e70590820ce72b8789b02c67cce38
   React-jsinspector: b14e62ebe7a66e9231e9581279909f2fc3db6606
-  react-native-smallcase-gateway: cf0303555326c142b94caa06a981cbbc9dc89bcb
+  react-native-smallcase-gateway: 0d74fcbdc6538a7bde38203ea0da7243330852d8
   React-RCTActionSheet: 910163b6b09685a35c4ebbc52b66d1bfbbe39fc5
   React-RCTAnimation: 9a883bbe1e9d2e158d4fb53765ed64c8dc2200c6
   React-RCTBlob: 39cf0ece1927996c4466510e25d2105f67010e13
@@ -372,9 +382,10 @@ SPEC CHECKSUMS:
   React-RCTText: 1b6773e776e4b33f90468c20fe3b16ca3e224bb8
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
-  SCGateway: b569e666c1ec726aad4159a1a9d3795974bf300e
+  SCGateway: c24671aa08c2e52d463da047d6caed0f7acbb0c9
+  scgateway-mixpanel: 692d422056bbea2932cac17c7e07ddd077bded82
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
-PODFILE CHECKSUM: e0e2e389bf9956b918ca8300f72292e3d4fc0514
+PODFILE CHECKSUM: 304688ca1725d5952886770fb566d2f6ccb69062
 
 COCOAPODS: 1.11.3

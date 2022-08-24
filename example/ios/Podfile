@@ -4,6 +4,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 # source 'https://gitlab.com/scGatewayOS/cocoapodspecs.git'
 source 'https://github.com/smallcase/cocoapodspecs.git'
 source 'https://cdn.cocoapods.org'
+source 'https://github.com/ankit-deshmukh/scgateway-mixpanel-podspec.git'
 
 
 platform :ios, '11.0'
