@@ -136,8 +136,11 @@ const App = () => {
   const triggerLeadGen = useCallback(async () => {
     setLog((p) => p + '\n triggering lead gen');
     try {
-      const res = await SmallcaseGateway.triggerLeadGenWithStatus(
-        {name: 'test'});
+      const res = await SmallcaseGateway.triggerLeadGenWithLoginCta(
+        {name: 'test'},
+        {utmSource:'organic'},
+        false
+        );
 
         setLog((p) => p + '\n lead gen success');
         setLog((p) => p + '\n' + JSON.stringify(res, null, 2));
@@ -237,6 +240,8 @@ const App = () => {
       <Button title="start transaction" onPress={startTransaction} />
 
       <Button title="Show Orders" onPress={showOrders} />
+
+      <Button title="Lead Gen" onPress={triggerLeadGen} />
 
       {/* <View style={styles.envContainer}>
         <Button
