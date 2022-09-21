@@ -4,13 +4,10 @@ import android.util.Log
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
-import com.smallcase.gateway.data.listeners.DataListener
-import com.smallcase.gateway.data.listeners.SmallPlugResponseListener
-import com.smallcase.gateway.data.listeners.TransactionResponseListener
+import com.smallcase.gateway.data.listeners.*
 import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
-import com.smallcase.gateway.data.listeners.LeadGenResponseListener
 import com.smallcase.gateway.portal.SmallplugPartnerProps
 import kotlin.Error
 
@@ -103,6 +100,31 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
                 transactionId = transactionId,
                 preProvidedBrokers = safeBrokerList,
                 transactionResponseListener = object : TransactionResponseListener {
+                    override fun onSuccess(transactionResult: TransactionResult) {
+                        val res = resultToWritableMap(transactionResult, true)
+                        promise.resolve(res)
+                    }
+
+                    override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+                        val err = createErrorJSON(errorCode, errorMessage, data)
+                        promise.reject("error", err)
+                    }
+                })
+        } else {
+            promise.reject(Throwable("no activity"))
+        }
+    }
+
+    @ReactMethod
+    fun triggerMfTransaction(transactionId: String, promise: Promise) {
+
+        if(currentActivity !=  null) {
+
+            SmallcaseGatewaySdk.triggerMfTransaction(
+                activity = currentActivity!!,
+                transactionId = transactionId,
+                listener = object : MFHoldingsResponseListener {
+
                     override fun onSuccess(transactionResult: TransactionResult) {
                         val res = resultToWritableMap(transactionResult, true)
                         promise.resolve(res)
@@ -252,6 +274,24 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
             })
         }
     }
+
+     @ReactMethod
+     fun triggerLeadGenWithLoginCta(userDetails: ReadableMap, utmData: ReadableMap, showLoginCta: Boolean, promise: Promise) {
+         if(currentActivity != null) {
+
+             SmallcaseGatewaySdk.triggerLeadGen(
+                 activity = currentActivity!!,
+                 params = readableMapToStrHashMap(userDetails),
+                 utmParams = readableMapToStrHashMap(utmData),
+                 retargeting = null,
+                 showLoginCta = showLoginCta,
+                 leadStatusListener = object : LeadGenResponseListener {
+                     override fun onSuccess(leadResponse: String) {
+                         promise.resolve(leadResponse)
+                     }
+                 })
+         }
+     }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
