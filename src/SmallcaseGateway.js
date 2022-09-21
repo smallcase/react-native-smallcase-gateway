@@ -105,6 +105,20 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 };
 
 /**
+ * triggers a transaction with a transaction id
+ *
+ * @param {string} transactionId
+ * @returns {Promise<transactionRes>}
+ */
+const triggerMfTransaction = async (transactionId) => {
+  const safeTransactionId = typeof transactionId === "string" ? transactionId : "";
+
+  return SmallcaseGatewayNative.triggerMfTransaction(
+    safeTransactionId
+  );
+}
+
+/**
  * launches smallcases module
  * 
  * @param {string} targetEndpoint
@@ -257,7 +271,8 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders
+  showOrders,
+  triggerMfTransaction
 };
 
 export default SmallcaseGateway;
