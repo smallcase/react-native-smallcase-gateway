@@ -410,6 +410,21 @@ RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictio
     });
 }
 
+RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
+                  userParams: (NSDictionary *)userParams
+                  utmParams:(NSDictionary *)utmParams
+                  showLoginCta:(BOOL *)showLoginCta
+                  leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject
+                  ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+       [SCGateway.shared
+        triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams utmParams:utmParams retargeting:false showLoginCta:showLoginCta completion:^(NSString * leadGenResponse) {
+           resolve(leadGenResponse);
+       }];
+    });
+}
+
 //MARK: User logout
 RCT_REMAP_METHOD(logoutUser,
                  logoutUserWithResolver:(RCTPromiseResolveBlock)resolve

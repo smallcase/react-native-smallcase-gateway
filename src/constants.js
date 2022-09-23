@@ -11,6 +11,7 @@ export const TRANSACTION_TYPE = {
   transaction: "TRANSACTION",
   holdingsImport: "HOLDINGS_IMPORT",
   authorizeHoldings: "AUTHORISE_HOLDINGS",
+  mfHoldingsImport: "MF_HOLDINGS_IMPORT"
 };
 
 export const ERROR_MSG = {

@@ -105,6 +105,20 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 };
 
 /**
+ * triggers a transaction with a transaction id
+ *
+ * @param {string} transactionId
+ * @returns {Promise<transactionRes>}
+ */
+// const triggerMfTransaction = async (transactionId) => {
+//   const safeTransactionId = typeof transactionId === "string" ? transactionId : "";
+
+//   return SmallcaseGatewayNative.triggerMfTransaction(
+//     safeTransactionId
+//   );
+// }
+
+/**
  * launches smallcases module
  * 
  * @param {string} targetEndpoint
@@ -206,6 +220,26 @@ const triggerLeadGenWithStatus = async (userDetails) => {
 }
 
 /**
+ * triggers the lead gen flow with an option of "login here" cta
+ *
+ * @param {userDetails} [userDetails]
+ * @param {Object} [utmParams]
+ * @param {boolean} [showLoginCta]
+ * @returns {Promise}
+ */
+const triggerLeadGenWithLoginCta = async (userDetails, utmParams, showLoginCta) => {
+  const safeParams = safeObject(userDetails);
+  const safeUtm = safeObject(utmParams);
+  const safeShowLoginCta = Boolean(showLoginCta);
+
+  return SmallcaseGatewayNative.triggerLeadGenWithLoginCta(
+    safeParams,
+    safeUtm,
+    safeShowLoginCta
+  );
+}
+
+/**
  * Marks a smallcase as archived
  *
  * @param {String} iscid
@@ -230,6 +264,7 @@ const SmallcaseGateway = {
   logoutUser,
   triggerLeadGen,
   triggerLeadGenWithStatus,
+  triggerLeadGenWithLoginCta,
   archiveSmallcase,
   triggerTransaction,
   setConfigEnvironment,
