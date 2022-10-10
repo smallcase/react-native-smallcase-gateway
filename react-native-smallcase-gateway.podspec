@@ -24,5 +24,6 @@ Pod::Spec.new do |s|
 
   s.dependency "React-Core"
   s.dependency 'SCGateway', '3.6.1'
+  s.dependency 'mixpanel-with-framework', '1.0.4'
 end
 
