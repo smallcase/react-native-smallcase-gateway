@@ -115,30 +115,30 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext?) : ReactCont
         }
     }
 
-    // @ReactMethod
-    // fun triggerMfTransaction(transactionId: String, promise: Promise) {
+    @ReactMethod
+    fun triggerMfTransaction(transactionId: String, promise: Promise) {
 
-    //     if(currentActivity !=  null) {
+        if(currentActivity !=  null) {
 
-    //         SmallcaseGatewaySdk.triggerMfTransaction(
-    //             activity = currentActivity!!,
-    //             transactionId = transactionId,
-    //             listener = object : MFHoldingsResponseListener {
+            SmallcaseGatewaySdk.triggerMfTransaction(
+                activity = currentActivity!!,
+                transactionId = transactionId,
+                listener = object : MFHoldingsResponseListener {
 
-    //                 override fun onSuccess(transactionResult: TransactionResult) {
-    //                     val res = resultToWritableMap(transactionResult, true)
-    //                     promise.resolve(res)
-    //                 }
+                    override fun onSuccess(transactionResult: TransactionResult) {
+                        val res = resultToWritableMap(transactionResult, true)
+                        promise.resolve(res)
+                    }
 
-    //                 override fun onError(errorCode: Int, errorMessage: String, data: String?) {
-    //                     val err = createErrorJSON(errorCode, errorMessage, data)
-    //                     promise.reject("error", err)
-    //                 }
-    //             })
-    //     } else {
-    //         promise.reject(Throwable("no activity"))
-    //     }
-    // }
+                    override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+                        val err = createErrorJSON(errorCode, errorMessage, data)
+                        promise.reject("error", err)
+                    }
+                })
+        } else {
+            promise.reject(Throwable("no activity"))
+        }
+    }
 
     @ReactMethod
     fun showOrders(promise: Promise) {
