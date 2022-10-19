@@ -31,4 +31,5 @@ export const ERROR_MSG = {
   invalid_transactionId: "invalid_transactionId",
   insufficient_holdings: "insufficient_holdings",
   transaction_in_process: "transaction_in_process",
+  no_compatible_browser: "no_compatible_browser"
 };

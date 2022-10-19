@@ -110,13 +110,13 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
  * @param {string} transactionId
  * @returns {Promise<transactionRes>}
  */
-// const triggerMfTransaction = async (transactionId) => {
-//   const safeTransactionId = typeof transactionId === "string" ? transactionId : "";
+const triggerMfTransaction = async (transactionId) => {
+  const safeTransactionId = typeof transactionId === "string" ? transactionId : "";
 
-//   return SmallcaseGatewayNative.triggerMfTransaction(
-//     safeTransactionId
-//   );
-// }
+  return SmallcaseGatewayNative.triggerMfTransaction(
+    safeTransactionId
+  );
+}
 
 /**
  * launches smallcases module

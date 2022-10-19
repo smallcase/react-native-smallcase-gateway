@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.5.4...v1.6.1) (2022-10-19)
+
+
+### Features
+
+* 1014 err msg added ([04bc4de](https://github.com/smallcase/react-native-smallcase-gateway/commit/04bc4de8dcd3a7a37d6f0d15eee5aeeb34419195))
+* add bridge method for mf holdings ([b68b570](https://github.com/smallcase/react-native-smallcase-gateway/commit/b68b57062ed514dc46404f94191c3ee438f184dc))
+
 ## [1.6.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.5.4...v1.6.0) (2022-09-23)
 
 ### [1.5.4](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.5.2...v1.5.4) (2022-09-08)
