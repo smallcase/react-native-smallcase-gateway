@@ -18,11 +18,11 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "11.0" }
   # s.source       = { :git => "https://github.com/mobile/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
-
+  s.vendored_frameworks = 'SCGateway.xcframework'
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency 'SCGateway', '3.6.1'
+  s.dependency 'SCGateway', '3.7.2'
 end
 

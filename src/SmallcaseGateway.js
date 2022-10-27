@@ -267,6 +267,7 @@ const SmallcaseGateway = {
   triggerLeadGenWithLoginCta,
   archiveSmallcase,
   triggerTransaction,
+  triggerMfTransaction,
   setConfigEnvironment,
   launchSmallplug,
   launchSmallplugWithBranding,
