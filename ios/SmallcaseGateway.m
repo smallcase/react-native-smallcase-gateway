@@ -119,13 +119,14 @@ dispatch_async(dispatch_get_main_queue(), ^(void) {
 
             //MARK: intent - mf transaction
             if ([response isKindOfClass: [ObjCTransactionIntentMfHoldingsImport class]]) {
+                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 ObjCTransactionIntentMfHoldingsImport *trxResponse = response;
                 [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
 
                 NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.data options: 0];
                 NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
 
-                [responseDict setObject:decodedResponse forKey:@"data"];
+                [responseDict setObject:trxResponse.data forKey:@"data"];
                 resolve(responseDict);
                 return;
             }
