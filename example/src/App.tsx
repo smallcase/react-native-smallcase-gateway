@@ -229,6 +229,8 @@ const App = () => {
 
       <Button title="Show Orders" onPress={showOrders} />
 
+      <Button title="Lead Gen" onPress={triggerLeadGen} />
+
       {/* <View style={styles.envContainer}>
         <Button
           title="Open lead gen"

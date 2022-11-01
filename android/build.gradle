@@ -145,7 +145,7 @@ dependencies {
   // From node_modules
 
   // direct dependencies
-  implementation 'com.smallcase.gateway:sdk:3.5.3'
+  implementation 'com.smallcase.gateway:sdk:3.6.4'
 }
 
 if (isNewArchitectureEnabled()) {

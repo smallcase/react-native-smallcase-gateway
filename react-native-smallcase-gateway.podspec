@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
   s.platforms    = { :ios => "10.0" }
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
-
+  s.vendored_frameworks = 'SCGateway.xcframework'
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
@@ -33,5 +33,5 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '3.5.3'
+  s.dependency 'SCGateway', '3.7.2'
 end

@@ -1,12 +1,9 @@
 {
   "name": "react-native-smallcase-gateway",
-  "version": "0.1.0",
-  "description": "test",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
-  "types": "lib/typescript/index.d.ts",
-  "react-native": "src/index",
-  "source": "src/index",
+  "title": "React Native Smallcase Gateway",
+  "version": "1.6.2",
+  "description": "smallcase gateway bindings for react native",
+  "main": "index.js",
   "files": [
     "src",
     "lib",
