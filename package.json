@@ -3,7 +3,7 @@
   "title": "React Native Smallcase Gateway",
   "version": "1.6.2",
   "description": "smallcase gateway bindings for react native",
-  "main": "index.js",
+  "main": "src/index.tsx",
   "files": [
     "src",
     "lib",
