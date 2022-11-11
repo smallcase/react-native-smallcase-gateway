@@ -95,6 +95,50 @@ RCT_REMAP_METHOD(init,
 }
 
 //MARK: Trigger Transaction
+RCT_REMAP_METHOD(triggerMfTransaction,
+                 transactionId:(NSString *)transactionId
+                 triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+dispatch_async(dispatch_get_main_queue(), ^(void) {
+    [SCGateway.shared
+         triggerMfTransactionWithPresentingController:
+         [[[UIApplication sharedApplication] keyWindow] rootViewController]
+         transactionId: transactionId
+         completion: ^(id response, NSError * error) {
+            if (error != nil) {
+                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                [responseDict setValue:[error.userInfo objectForKey: @"data"] forKey:@"data"];
+
+                NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+
+                reject(@"triggerTransaction", @"Error during transaction", err);
+                return;
+            }
+
+            //MARK: intent - mf transaction
+            if ([response isKindOfClass: [ObjCTransactionIntentMfHoldingsImport class]]) {
+                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                ObjCTransactionIntentMfHoldingsImport *trxResponse = response;
+                [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
+
+                NSData *decodedStringData = [[NSData alloc] initWithBase64EncodedString:trxResponse.data options: 0];
+                NSString *decodedResponse = [[NSString alloc] initWithData:decodedStringData encoding:1];
+
+                [responseDict setObject:trxResponse.data forKey:@"data"];
+                resolve(responseDict);
+                return;
+            }
+
+            // no matching intent type
+            NSError *err = [[NSError alloc] initWithDomain:@"com.smallcase.gateway" code:0 userInfo:@{@"Error reason": @"no matching response type"}];
+            reject(@"triggerMfTransaction", @"no matching response type", err);
+         }];
+});
+                 }
+
+//MARK: Trigger Transaction
 RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
