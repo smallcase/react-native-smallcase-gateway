@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.6.1...v1.6.2) (2022-11-11)
+
+
+### Features
+
+* added support for MF Holdings import fix ([0bf5388](https://github.com/smallcase/react-native-smallcase-gateway/commit/0bf5388e1ca6ee5534681dfa35bd3f69c3aefd7a))
+
+
+### Bug Fixes
+
+* Data in mf response is null ([bfca609](https://github.com/smallcase/react-native-smallcase-gateway/commit/bfca609a3075a9e45dc63c4fa9e4561ea3b6cd37))
+
 ### [1.6.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.5.4...v1.6.1) (2022-10-19)
 
 
