@@ -23,6 +23,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency 'SCGateway', '3.8.1'
+  s.dependency 'SCGateway', '3.8.2'
 end
 
