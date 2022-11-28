@@ -1,11 +1,4 @@
-import SmallcaseGateway from './SmallcaseGateway';
+import SmallcaseGateway from "./SmallcaseGateway";
+import { ENV, TRANSACTION_TYPE, ERROR_MSG } from "./constants";
 
-import {
-  GATEWAY_ENV,
-  GATEWAY_TRANSACTION_TYPE,
-  GATEWAY_ERROR_MSG,
-} from './constants';
-
-export default SmallcaseGateway;
-
-export { GATEWAY_ENV, GATEWAY_ERROR_MSG, GATEWAY_TRANSACTION_TYPE };
+export default { ...SmallcaseGateway, ENV, ERROR_MSG, TRANSACTION_TYPE };
