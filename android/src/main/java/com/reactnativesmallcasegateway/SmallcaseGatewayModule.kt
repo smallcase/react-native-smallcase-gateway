@@ -106,7 +106,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                     }
 
                     override fun onError(errorCode: Int, errorMessage: String, data: String?) {
-                        Log.d(TAG, "triggerTransaction: onError: $data")
                         val err = createErrorJSON(errorCode, errorMessage, data)
                         promise.reject("error", err)
                     }
