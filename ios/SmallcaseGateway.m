@@ -5,16 +5,6 @@
 
 @interface RCT_EXTERN_MODULE(SmallcaseGateway, NSObject)
 
-RCT_EXTERN_METHOD(multiply:(float)a withB:(float)b
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
-
-+ (BOOL)requiresMainQueueSetup
-{
-  return NO;
-}
-
-
 //MARK: SDK version helpers
 RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {
     [SCGateway.shared setSDKTypeWithType:@"react-native"];
