@@ -1,29 +1,37 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-# source 'https://gitlab.com/scGatewayOS/cocoapodspecs.git'
-source 'https://github.com/smallcase/cocoapodspecs.git'
+platform :ios, '11.0'
+install! 'cocoapods', :deterministic_uuids => false
+
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+
+source 'git@github.com:smallcase/cocoapodspecs.git'
 source 'https://cdn.cocoapods.org'
 
-
-platform :ios, '11.0'
-
-target 'example' do
+target 'SmallcaseGatewayExample' do
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  # Flags change depending on the env values.
+  flags = get_default_flags()
 
-  target 'exampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
-end
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :hermes_enabled => true,
+    :fabric_enabled => flags[:fabric_enabled],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
 
-target 'example-tvOS' do
-  # Pods for example-tvOS
+  # Enables Flipper.
+  #
+  # Note that if you have use_frameworks! enabled, Flipper will not work and
+  # you should disable the next line.
+  use_flipper!()
 
-  target 'example-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
+  post_install do |installer|
+    react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end

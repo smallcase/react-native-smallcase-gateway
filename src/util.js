@@ -6,7 +6,7 @@
  * @param {*} obj
  * @returns {Object} same object if its valid, else returns `{}`
  */
-export const safeObject = (obj) => {
+ export const safeObject = (obj) => {
   return obj && typeof obj === "object" ? obj : {};
 };
 

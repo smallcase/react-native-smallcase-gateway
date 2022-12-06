@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.7.0...v2.0.0) (2022-12-06)
+
+
+### Features
+
+* delete old files ([d85689e](https://github.com/smallcase/react-native-smallcase-gateway/commit/d85689eac4324b8c877a502d539aee7317eb7715))
+* move blank ios swift source files ([c5f1e6e](https://github.com/smallcase/react-native-smallcase-gateway/commit/c5f1e6ed8588474d4cbab1521b3eece92f0c60c4))
+* move js source files to ts ([2331df6](https://github.com/smallcase/react-native-smallcase-gateway/commit/2331df678fe4e9ec23ada7b40ceb1c4bd36cb6b6))
+* move new android files ([634ba90](https://github.com/smallcase/react-native-smallcase-gateway/commit/634ba90383214571f704cf9bff459a0e2e32ac15))
+* move new config files ([645014f](https://github.com/smallcase/react-native-smallcase-gateway/commit/645014fbd8dfeda35eccb8e012a0a6832446c354))
+
+
+### Bug Fixes
+
+* "main" path in package.json ([f29b94b](https://github.com/smallcase/react-native-smallcase-gateway/commit/f29b94b9fa6d3d84952e642bb7077e2c5820998e))
+* add login cta and mf bridge methods to new arch ([ce16ed5](https://github.com/smallcase/react-native-smallcase-gateway/commit/ce16ed5de7610ef38a11e635486a014b3acf5892))
+* index.js imports ([a5272e6](https://github.com/smallcase/react-native-smallcase-gateway/commit/a5272e63f9f23a0d39a2e6f69032dcd2197e099c))
+* ios bridge ([37b900f](https://github.com/smallcase/react-native-smallcase-gateway/commit/37b900f817370de920990fb1cd0dd96f03bd6877))
+* util.ts -> util.js ([3e6f843](https://github.com/smallcase/react-native-smallcase-gateway/commit/3e6f843d2486b2d6982da2045358308e0a3b4ca2))
+* wrong ts usage ([d8125cf](https://github.com/smallcase/react-native-smallcase-gateway/commit/d8125cf55af477011c920e3fd8c33d1f2b65c691))
 ### [1.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.7.0...v1.7.1) (2022-12-01)
 
 ## [1.7.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.6.3...v1.7.0) (2022-11-24)

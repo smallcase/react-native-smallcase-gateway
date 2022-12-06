@@ -1,12 +1,9 @@
-#import "SmallcaseGateway.h"
+#import <React/RCTBridgeModule.h>
 
 #import <SCGateway/SCGateway.h>
 #import <SCGateway/SCGateway-Swift.h>
 
-
-@implementation SmallcaseGateway
-
-RCT_EXPORT_MODULE()
+@interface RCT_EXTERN_MODULE(SmallcaseGateway, NSObject)
 
 //MARK: SDK version helpers
 RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {
@@ -94,7 +91,7 @@ RCT_REMAP_METHOD(init,
     }];
 }
 
-//MARK: Trigger Transaction
+//MARK: Trigger Mf Transaction
 RCT_REMAP_METHOD(triggerMfTransaction,
                  transactionId:(NSString *)transactionId
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
@@ -487,8 +484,3 @@ RCT_REMAP_METHOD(logoutUser,
 }
 
 @end
-
-
-
-
-

@@ -1,30 +1,25 @@
 {
-  "name": "example",
+  "name": "react-native-smallcase-gateway-example",
+  "description": "Example app for react-native-smallcase-gateway",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint ."
+    "pods": "pod-install --quiet",
+    "postinstall": "patch-package"
   },
   "dependencies": {
-    "react": "16.13.1",
-    "react-native": "0.63.2",
-    "react-native-smallcase-gateway": "file:../"
+    "react": "17.0.2",
+    "react-native": "0.68.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/runtime": "^7.8.4",
-    "@react-native-community/eslint-config": "^1.1.0",
-    "babel-jest": "^25.1.0",
-    "eslint": "^6.5.1",
-    "jest": "^25.1.0",
-    "metro-react-native-babel-preset": "^0.59.0",
-    "react-test-renderer": "16.13.1"
-  },
-  "jest": {
-    "preset": "react-native"
+    "@babel/core": "^7.12.10",
+    "@babel/runtime": "^7.12.5",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "metro-react-native-babel-preset": "^0.67.0",
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0"
   }
 }

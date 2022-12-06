@@ -1,13 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example">
+  package="com.example.reactnativesmallcasegateway">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <queries>
-        <package android:name="com.zerodha.kite3" />
-        <package android:name="com.android.chrome" />
-    </queries>
-    
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -18,63 +13,14 @@
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
         android:launchMode="singleTask"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-      <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-      
-      <activity android:name="com.smallcase.gateway.screens.transaction.activity.TransactionProcessActivity">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-
-          <category android:name="android.intent.category.BROWSABLE" />
-          <category android:name="android.intent.category.DEFAULT" />
-
-                <data
-                    android:host="gatewaydemo"
-                    android:scheme="scgateway" />
-
-                <data
-                    android:host="gatewaydemo-dev"
-                    android:scheme="scgateway" />
-
-                <data
-                    android:host="gatewaydemo-stag"
-                    android:scheme="scgateway" />
-            
-        </intent-filter>
-      </activity>
-
-              <activity android:name="com.smallcase.gateway.screens.common.RedirectActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data
-                    android:host="gatewaydemo"
-                    android:scheme="scgatewayredirect"
-                    />
-
-                <data
-                    android:host="gatewaydemo-dev"
-                    android:scheme="scgatewayredirect"
-                    />
-
-                <data
-                    android:host="gatewaydemo-stag"
-                    android:scheme="scgatewayredirect"
-                    />
-
-            </intent-filter>
-        </activity>
-
     </application>
-
 </manifest>
