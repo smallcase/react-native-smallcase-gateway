@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. See [standa
 * ios bridge ([37b900f](https://github.com/smallcase/react-native-smallcase-gateway/commit/37b900f817370de920990fb1cd0dd96f03bd6877))
 * util.ts -> util.js ([3e6f843](https://github.com/smallcase/react-native-smallcase-gateway/commit/3e6f843d2486b2d6982da2045358308e0a3b4ca2))
 * wrong ts usage ([d8125cf](https://github.com/smallcase/react-native-smallcase-gateway/commit/d8125cf55af477011c920e3fd8c33d1f2b65c691))
+### [1.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.7.0...v1.7.1) (2022-12-01)
 
 ## [1.7.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.6.3...v1.7.0) (2022-11-24)
 
