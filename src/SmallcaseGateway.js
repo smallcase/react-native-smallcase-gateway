@@ -30,6 +30,20 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {Number} headerOpacity - opacity of the header background
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
+ * 
+ * @typedef {Object} UtmParams
+ * @property {String} utmSource
+ * @property {String} utmMedium
+ * @property {String} utmCampaign
+ * @property {String} utmContent
+ * @property {String} utmTerm
+ * 
+ * @typedef {Object} SignUpConfig
+ * @property {String} opaqueId
+ * @property {String} phoneNumber
+ * @property {String} notes
+ * @property {UtmParams} utmParams
+ * @property {boolean} retargeting
  */
 
 let defaultBrokerList = [];
@@ -259,6 +273,20 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 }
 
+/**
+ * Triggers the US Equities Account Opening Journey
+ * 
+ * @param {SignUpConfig} signUpConfig
+ * @returns {Promise<String>}
+ */
+const openUsEquitiesAccount = async (signUpConfig) => {
+  const safeSignUpConfig = safeObject(signUpConfig);
+
+  return SmallcaseGatewayNative.openUsEquitiesAccount(
+    safeSignUpConfig
+  );
+}
+
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -272,7 +300,8 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders
+  showOrders,
+  openUsEquitiesAccount
 };
 
 export default SmallcaseGateway;

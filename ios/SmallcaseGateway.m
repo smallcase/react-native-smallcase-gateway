@@ -466,6 +466,35 @@ RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
     });
 }
 
+//MARK: USE Account Opening
+RCT_REMAP_METHOD(openUsEquitiesAccount,
+                 signUpConfig: (SignUpConfig *)signUpConfig
+                 useAccountOpeningResolver: (RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        NSLog(@"Triggered USE Account Opening Flow");
+        
+        [SCGateway.shared openUsEquitiesAccountWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] signUpConfig:signUpConfig completion:^(NSString * leadStatus, NSError * error) {
+            
+            if(error != nil) {
+                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                
+                NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+                
+                reject(@"USE", @"Error during account opening", err);
+                return;
+            }
+            
+            resolve(leadStatus);
+        }];
+        
+    });
+}
+
 //MARK: User logout
 RCT_REMAP_METHOD(logoutUser,
                  logoutUserWithResolver:(RCTPromiseResolveBlock)resolve

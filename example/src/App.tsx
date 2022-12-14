@@ -131,6 +131,25 @@ const App = () => {
     }
   }, []);
 
+  const triggerUSEAccountOpening = useCallback (async () => {
+    
+    setLog((p) => p + '\n triggering USE');
+
+    try {
+      
+      const leadRes = await SmallcaseGateway.openUsEquitiesAccount({
+        opaqueId: 'abcd1234'
+      });
+
+    } catch (err: any) {
+      setLog(
+        (p) =>
+          p + '\n error during trigger lead gen' + JSON.stringify(err.userInfo)
+      );
+    }
+
+  });
+
   const launchSmallplug = useCallback(async () => {
     setLog((p) => p + '\n launching smallplug');
 
@@ -256,6 +275,8 @@ const App = () => {
         placeholder="Target Endpoint"
       />
       <Button title="launch smallplug" onPress={launchSmallplug} />
+
+      <Button title="USE Account Opening" onPress={triggerUSEAccountOpening} />
 
       <View style={styles.logBox}>
         <Button title="clear logs" onPress={() => setLog('')} />

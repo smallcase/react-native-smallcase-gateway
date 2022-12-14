@@ -6,6 +6,7 @@ import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
 import com.smallcase.gateway.data.listeners.*
 import com.smallcase.gateway.data.models.*
+import com.smallcase.gateway.data.models.accountOpening.SignUpConfig
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
@@ -292,6 +293,28 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                  })
          }
      }
+
+  @ReactMethod
+  fun openUsEquitiesAccount(signUpConfig: SignUpConfig, promise: Promise) {
+
+    currentActivity?.let { activity ->
+      SmallcaseGatewaySdk.openUsEquitiesAccount(
+        activity = activity,
+        signUpConfig = signUpConfig,
+        useAccountOpeningListener = object : USEAccountOpeningListener {
+
+          override fun onSuccess(response: Any) {
+            promise.resolve(response.toString())
+          }
+
+          override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+            val err = createErrorJSON(errorCode, errorMessage, data)
+            promise.reject("error", err)
+          }
+        }
+      )
+    }
+  }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
