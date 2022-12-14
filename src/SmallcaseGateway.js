@@ -31,18 +31,18 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
  * 
- * @typedef {Object} UtmParams
+ * @typedef {Object} utmParams
  * @property {String} utmSource
  * @property {String} utmMedium
  * @property {String} utmCampaign
  * @property {String} utmContent
  * @property {String} utmTerm
  * 
- * @typedef {Object} SignUpConfig
+ * @typedef {Object} signUpConfig
  * @property {String} opaqueId
  * @property {String} phoneNumber
  * @property {String} notes
- * @property {UtmParams} utmParams
+ * @property {utmParams} utmParams
  * @property {boolean} retargeting
  */
 
@@ -276,7 +276,7 @@ const getSdkVersion = async () => {
 /**
  * Triggers the US Equities Account Opening Journey
  * 
- * @param {SignUpConfig} signUpConfig
+ * @param {signUpConfig} signUpConfig
  * @returns {Promise<String>}
  */
 const openUsEquitiesAccount = async (signUpConfig) => {
