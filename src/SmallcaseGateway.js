@@ -39,10 +39,10 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} utmTerm
  * 
  * @typedef {Object} SignUpConfig
- * @property {String} opaqueId
- * @property {String} notes
- * @property {utmParams} utmParams
- * @property {boolean} retargeting
+ * @property {String} opaqueId - opaqueId/distinctId of the user
+ * @property {String} notes - smallcaseUserId of the user
+ * @property {utmParams} utmParams - marketing params
+ * @property {boolean} retargeting - is the user being retargeted
  */
 
 let defaultBrokerList = [];

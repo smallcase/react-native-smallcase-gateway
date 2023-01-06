@@ -7,6 +7,7 @@ import com.smallcase.gateway.data.SmallcaseLogoutListener
 import com.smallcase.gateway.data.listeners.*
 import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.models.accountOpening.SignUpConfig
+import com.smallcase.gateway.data.models.accountOpening.UtmParams
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
@@ -295,26 +296,73 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
      }
 
   @ReactMethod
-  fun openUsEquitiesAccount(signUpConfig: SignUpConfig, promise: Promise) {
+  fun openUsEquitiesAccount(signUpConfig: ReadableMap?, promise: Promise) {
 
-    currentActivity?.let { activity ->
-      SmallcaseGatewaySdk.openUsEquitiesAccount(
-        activity = activity,
-        signUpConfig = signUpConfig,
-        useAccountOpeningListener = object : USEAccountOpeningListener {
+        var signUpConfigNative: SignUpConfig? = null
 
-          override fun onSuccess(response: Any) {
-            promise.resolve(response.toString())
-          }
+        if (signUpConfig != null) {
 
-          override fun onError(errorCode: Int, errorMessage: String, data: String?) {
-            val err = createErrorJSON(errorCode, errorMessage, data)
-            promise.reject("error", err)
-          }
+                val opaqueId = if (signUpConfig.hasKey("opaqueId")) signUpConfig.getString("opaqueId") else null
+
+                opaqueId?.let { userId ->
+
+                    val notes = if (signUpConfig.hasKey("notes")) signUpConfig.getString("notes") else null
+
+                    var utmParamsNative: UtmParams? = null
+
+                    val utmParams = if (signUpConfig.hasKey("utmParams")) signUpConfig.getMap("utmParams") else null
+
+                    utmParams?.let { utms ->
+
+                        if (utms is ReadableMap) {
+
+                        val utmSource = if(utms.hasKey("utmSource")) utms.getString("utmSource") else null
+                        val utmMedium = if(utms.hasKey("utmMedium")) utms.getString("utmMedium") else null
+                        val utmCampaign = if(utms.hasKey("utmCampaign")) utms.getString("utmCampaign") else null
+                        val utmContent = if(utms.hasKey("utmContent")) utms.getString("utmContent") else null
+                        val utmTerm = if(utms.hasKey("utmTerm")) utms.getString("utmTerm") else null
+
+                        utmParamsNative = UtmParams(
+                            utmSource = utmSource.toString(),
+                            utmMedium = utmMedium.toString(),
+                            utmCampaign = utmCampaign.toString(),
+                            utmContent = utmContent.toString(),
+                            utmTerm = utmTerm.toString()
+                        )
+                        }
+                    }
+
+                    val retargeting = if(signUpConfig.hasKey("retargeting")) signUpConfig.getBoolean("retargeting") else null
+
+                    signUpConfigNative = SignUpConfig(
+                        opaqueId = opaqueId.toString(),
+                        notes = notes.toString(),
+                        utmParams = utmParamsNative,
+                        retargeting = retargeting
+                    )  
+                }
         }
-      )
+
+        // val additionalConfigNative = readableMapToStrHashMap(additionalConfig)
+
+        currentActivity?.let { activity ->
+            SmallcaseGatewaySdk.openUsEquitiesAccount(
+                activity = activity,
+                signUpConfig = signUpConfigNative,
+                // additionalConfig = additionalConfigNative,
+                useAccountOpeningListener = object : USEAccountOpeningListener {
+
+                override fun onSuccess(response: Any) {
+                    promise.resolve(response.toString())
+                }
+
+                override fun onError(errorCode: Int, errorMessage: String, data: String?) {
+                    val err = createErrorJSON(errorCode, errorMessage, data)
+                    promise.reject("error", err)
+                }
+            }
+        )}
     }
-  }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
