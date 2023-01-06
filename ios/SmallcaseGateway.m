@@ -468,30 +468,51 @@ RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
 
 //MARK: USE Account Opening
 RCT_REMAP_METHOD(openUsEquitiesAccount,
-                 signUpConfig: (SignUpConfig *)signUpConfig
+                 signUpConfig: (NSDictionary *)signUpConfig
                  useAccountOpeningResolver: (RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         
-        NSLog(@"Triggered USE Account Opening Flow");
-        
-        [SCGateway.shared openUsEquitiesAccountWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] signUpConfig:signUpConfig completion:^(NSString * leadStatus, NSError * error) {
+        if(signUpConfig != nil && signUpConfig[@"opaqueId"] != nil) {
             
-            if(error != nil) {
-                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                [responseDict setValue:error.domain  forKey:@"errorMessage"];
+            NSString *opaqueId = signUpConfig[@"opaqueId"];
+            NSLog(@" ----------- OpaqueID: %@", opaqueId);
+            
+            NSString *notes = signUpConfig[@"notes"];
+            NSLog(@" ----------- Notes: %@", notes);
+            
+            UtmParams *utmParams = nil;
+            
+            if(signUpConfig[@"utmParams"] != nil) {
                 
-                NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-                
-                reject(@"USE", @"Error during account opening", err);
-                return;
+                utmParams = [[UtmParams alloc] initWithUtmSource:signUpConfig[@"utmSource"] utmMedium:signUpConfig[@"utmMedium"] utmCampaign:signUpConfig[@"utmCampaign"] utmContent:signUpConfig[@"utmContent"] utmTerm:signUpConfig[@"utmTerm"]];
             }
             
-            resolve(leadStatus);
-        }];
-        
+            NSNumber *retargeting = [NSNumber numberWithBool:YES];
+            
+            if(signUpConfig[@"retargeting"] != nil) {
+                retargeting = signUpConfig[@"retargeting"];
+            }
+            
+            SignUpConfig *signUpConfig = [[SignUpConfig alloc] initWithOpaqueId:opaqueId phoneNumber:nil notes:notes utmParams:utmParams retargeting: retargeting];
+            
+            [SCGateway.shared openUsEquitiesAccountWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] signUpConfig:signUpConfig completion:^(NSString * leadStatus, NSError * error) {
+                
+                if(error != nil) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                    
+                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+                    
+                    reject(@"USE", @"Error during account opening", err);
+                    return;
+                }
+                
+                resolve(leadStatus);
+            }];
+        }
     });
 }
 
