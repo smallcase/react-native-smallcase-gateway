@@ -469,19 +469,23 @@ RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
 //MARK: USE Account Opening
 RCT_REMAP_METHOD(openUsEquitiesAccount,
                  signUpConfig: (NSDictionary *)signUpConfig
+                 additionalConfig: (NSDictionary *)additionalConfig
                  useAccountOpeningResolver: (RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         
-        if(signUpConfig != nil && signUpConfig[@"opaqueId"] != nil) {
+        if(signUpConfig != nil && signUpConfig[@"opaqueId"] != nil && signUpConfig[@"userInfo"] != nil) {
             
             NSString *opaqueId = signUpConfig[@"opaqueId"];
             NSLog(@" ----------- OpaqueID: %@", opaqueId);
             
-            NSString *notes = signUpConfig[@"notes"];
-            NSLog(@" ----------- Notes: %@", notes);
+            NSDictionary *userInfoDict = signUpConfig[@"userInfo"];
+            NSString *userId = userInfoDict[@"userId"];
+            NSString *idType = userInfoDict[@"idType"];
             
+            UserInfo *userInfo = [[UserInfo alloc] initWithUserId:userId idType:idType];
+
             UtmParams *utmParams = nil;
             
             if(signUpConfig[@"utmParams"] != nil) {
@@ -495,9 +499,9 @@ RCT_REMAP_METHOD(openUsEquitiesAccount,
                 retargeting = signUpConfig[@"retargeting"];
             }
             
-            SignUpConfig *signUpConfig = [[SignUpConfig alloc] initWithOpaqueId:opaqueId phoneNumber:nil notes:notes utmParams:utmParams retargeting: retargeting];
+            SignUpConfig *signUpConfig = [[SignUpConfig alloc] initWithOpaqueId:opaqueId userInfo:userInfo utmParams:utmParams retargeting: retargeting];
             
-            [SCGateway.shared openUsEquitiesAccountWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] signUpConfig:signUpConfig completion:^(NSString * leadStatus, NSError * error) {
+            [SCGateway.shared openUsEquitiesAccountWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] signUpConfig:signUpConfig additionalConfig:additionalConfig completion:^(NSString * leadStatus, NSError * error) {
                 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
