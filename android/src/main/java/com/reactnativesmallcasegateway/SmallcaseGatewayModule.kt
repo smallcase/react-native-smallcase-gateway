@@ -296,7 +296,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
      }
 
   @ReactMethod
-  fun openUsEquitiesAccount(signUpConfig: ReadableMap?, promise: Promise) {
+  fun openUsEquitiesAccount(signUpConfig: ReadableMap?, additionalConfig: ReadableMap?, promise: Promise) {
 
         var signUpConfigNative: SignUpConfig? = null
 
@@ -304,9 +304,14 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
                 val opaqueId = if (signUpConfig.hasKey("opaqueId")) signUpConfig.getString("opaqueId") else null
 
-                opaqueId?.let { userId ->
+                val userInfoMap = if (signUpConfig.hasKey("userInfo")) signUpConfig.getMap("userInfo") else null
 
-                    val notes = if (signUpConfig.hasKey("notes")) signUpConfig.getString("notes") else null
+                if (opaqueId != null && userInfoMap != null) {
+
+                    val userId = if (userInfoMap.hasKey("userId")) userInfoMap.getString("userId") else null
+                    val idType = if (userInfoMap.hasKey("idType")) userInfoMap.getString("idType") else null
+
+                    val userInfo = UserInfo(userId = userId, idType = idType)
 
                     var utmParamsNative: UtmParams? = null
 
@@ -336,20 +341,59 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
                     signUpConfigNative = SignUpConfig(
                         opaqueId = opaqueId.toString(),
-                        notes = notes.toString(),
+                        // notes = notes.toString(),
+                        userInfo = userInfo,
                         utmParams = utmParamsNative,
                         retargeting = retargeting
                     )  
                 }
+
+                // opaqueId?.let { userId ->
+
+                //     val notes = if (signUpConfig.hasKey("notes")) signUpConfig.getString("notes") else null
+
+                //     var utmParamsNative: UtmParams? = null
+
+                //     val utmParams = if (signUpConfig.hasKey("utmParams")) signUpConfig.getMap("utmParams") else null
+
+                //     utmParams?.let { utms ->
+
+                //         if (utms is ReadableMap) {
+
+                //         val utmSource = if(utms.hasKey("utmSource")) utms.getString("utmSource") else null
+                //         val utmMedium = if(utms.hasKey("utmMedium")) utms.getString("utmMedium") else null
+                //         val utmCampaign = if(utms.hasKey("utmCampaign")) utms.getString("utmCampaign") else null
+                //         val utmContent = if(utms.hasKey("utmContent")) utms.getString("utmContent") else null
+                //         val utmTerm = if(utms.hasKey("utmTerm")) utms.getString("utmTerm") else null
+
+                //         utmParamsNative = UtmParams(
+                //             utmSource = utmSource.toString(),
+                //             utmMedium = utmMedium.toString(),
+                //             utmCampaign = utmCampaign.toString(),
+                //             utmContent = utmContent.toString(),
+                //             utmTerm = utmTerm.toString()
+                //         )
+                //         }
+                //     }
+
+                //     val retargeting = if(signUpConfig.hasKey("retargeting")) signUpConfig.getBoolean("retargeting") else null
+
+                //     signUpConfigNative = SignUpConfig(
+                //         opaqueId = opaqueId.toString(),
+                //         notes = notes.toString(),
+                //         utmParams = utmParamsNative,
+                //         retargeting = retargeting
+                //     )  
+                // }
         }
 
-        // val additionalConfigNative = readableMapToStrHashMap(additionalConfig)
+        val additionalConfigNative = readableMapToStrHashMap(additionalConfig)
 
         currentActivity?.let { activity ->
             SmallcaseGatewaySdk.openUsEquitiesAccount(
                 activity = activity,
                 signUpConfig = signUpConfigNative,
-                // additionalConfig = additionalConfigNative,
+                additionalConfig = additionalConfigNative,
                 useAccountOpeningListener = object : USEAccountOpeningListener {
 
                 override fun onSuccess(response: Any) {

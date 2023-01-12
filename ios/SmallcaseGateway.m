@@ -490,7 +490,9 @@ RCT_REMAP_METHOD(openUsEquitiesAccount,
             
             if(signUpConfig[@"utmParams"] != nil) {
                 
-                utmParams = [[UtmParams alloc] initWithUtmSource:signUpConfig[@"utmSource"] utmMedium:signUpConfig[@"utmMedium"] utmCampaign:signUpConfig[@"utmCampaign"] utmContent:signUpConfig[@"utmContent"] utmTerm:signUpConfig[@"utmTerm"]];
+                NSDictionary *utmParamMap = signUpConfig[@"utmParams"];
+                
+                utmParams = [[UtmParams alloc] initWithUtmSource:utmParamMap[@"utmSource"] utmMedium:utmParamMap[@"utmMedium"] utmCampaign:utmParamMap[@"utmCampaign"] utmContent:utmParamMap[@"utmContent"] utmTerm:utmParamMap[@"utmTerm"]];
             }
             
             NSNumber *retargeting = [NSNumber numberWithBool:YES];
