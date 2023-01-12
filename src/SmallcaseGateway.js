@@ -276,13 +276,16 @@ const getSdkVersion = async () => {
  * Triggers the US Equities Account Opening Journey
  * 
  * @param {SignUpConfig} signUpConfig
+ * @param {Object} [additionalConfig]
  * @returns {Promise<String>}
  */
-const openUsEquitiesAccount = async (signUpConfig) => {
+const openUsEquitiesAccount = async (signUpConfig, additionalConfig) => {
   const safeSignUpConfig = safeObject(signUpConfig);
-
+  const safeAdditionalParam = safeObject(additionalConfig);
+  
   return SmallcaseGatewayNative.openUsEquitiesAccount(
-    safeSignUpConfig
+    safeSignUpConfig,
+    safeAdditionalParam
   );
 }
 
