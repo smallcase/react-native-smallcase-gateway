@@ -8,6 +8,7 @@ import com.smallcase.gateway.data.listeners.*
 import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.models.accountOpening.SignUpConfig
 import com.smallcase.gateway.data.models.accountOpening.UtmParams
+import com.smallcase.gateway.data.models.accountOpening.UserInfo
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
@@ -295,10 +296,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
          }
      }
 
+  
   @ReactMethod
   fun openUsEquitiesAccount(signUpConfig: ReadableMap?, additionalConfig: ReadableMap?, promise: Promise) {
 
-        var signUpConfigNative: SignUpConfig? = null
+        var signUpConfigNative: SignUpConfig = SignUpConfig("", UserInfo("",""))
 
         if (signUpConfig != null) {
 
@@ -308,10 +310,10 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
                 if (opaqueId != null && userInfoMap != null) {
 
-                    val userId = if (userInfoMap.hasKey("userId")) userInfoMap.getString("userId") else null
-                    val idType = if (userInfoMap.hasKey("idType")) userInfoMap.getString("idType") else null
+                    val userId = if (userInfoMap.hasKey("userId")) userInfoMap.getString("userId") else ""
+                    val idType = if (userInfoMap.hasKey("idType")) userInfoMap.getString("idType") else ""
 
-                    val userInfo = UserInfo(userId = userId, idType = idType)
+                    val userInfo = UserInfo(userId = userId!!, idType = idType!!)
 
                     var utmParamsNative: UtmParams? = null
 
@@ -347,47 +349,9 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                         retargeting = retargeting
                     )  
                 }
-
-                // opaqueId?.let { userId ->
-
-                //     val notes = if (signUpConfig.hasKey("notes")) signUpConfig.getString("notes") else null
-
-                //     var utmParamsNative: UtmParams? = null
-
-                //     val utmParams = if (signUpConfig.hasKey("utmParams")) signUpConfig.getMap("utmParams") else null
-
-                //     utmParams?.let { utms ->
-
-                //         if (utms is ReadableMap) {
-
-                //         val utmSource = if(utms.hasKey("utmSource")) utms.getString("utmSource") else null
-                //         val utmMedium = if(utms.hasKey("utmMedium")) utms.getString("utmMedium") else null
-                //         val utmCampaign = if(utms.hasKey("utmCampaign")) utms.getString("utmCampaign") else null
-                //         val utmContent = if(utms.hasKey("utmContent")) utms.getString("utmContent") else null
-                //         val utmTerm = if(utms.hasKey("utmTerm")) utms.getString("utmTerm") else null
-
-                //         utmParamsNative = UtmParams(
-                //             utmSource = utmSource.toString(),
-                //             utmMedium = utmMedium.toString(),
-                //             utmCampaign = utmCampaign.toString(),
-                //             utmContent = utmContent.toString(),
-                //             utmTerm = utmTerm.toString()
-                //         )
-                //         }
-                //     }
-
-                //     val retargeting = if(signUpConfig.hasKey("retargeting")) signUpConfig.getBoolean("retargeting") else null
-
-                //     signUpConfigNative = SignUpConfig(
-                //         opaqueId = opaqueId.toString(),
-                //         notes = notes.toString(),
-                //         utmParams = utmParamsNative,
-                //         retargeting = retargeting
-                //     )  
-                // }
         }
 
-        val additionalConfigNative = readableMapToStrHashMap(additionalConfig)
+        val additionalConfigNative = readableMapToAnyHashMap(additionalConfig)
 
         currentActivity?.let { activity ->
             SmallcaseGatewaySdk.openUsEquitiesAccount(
@@ -415,6 +379,23 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
             "staging" -> Environment.PROTOCOL.STAGING
             else -> Environment.PROTOCOL.PRODUCTION
         }
+    }
+
+    private fun readableMapToAnyHashMap(params: ReadableMap?): HashMap<String, Any> {
+        val data = HashMap<String, Any>()
+
+        if (params != null) {
+            val keyIterator = params.keySetIterator()
+
+            while (keyIterator.hasNextKey()) {
+                val key = keyIterator.nextKey()
+                params.getString(key)?.let {
+                    data.put(key, it)
+                }
+            }
+        }
+
+        return data
     }
 
     private fun readableMapToStrHashMap(params: ReadableMap?): HashMap<String, String> {
