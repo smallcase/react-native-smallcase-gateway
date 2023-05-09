@@ -3,6 +3,8 @@
 #import <SCGateway/SCGateway.h>
 #import <SCGateway/SCGateway-Swift.h>
 
+#import <Loans/Loans.h>
+
 @interface RCT_EXTERN_MODULE(SmallcaseGateway, NSObject)
 
 //MARK: SDK version helpers
@@ -483,4 +485,34 @@ RCT_REMAP_METHOD(logoutUser,
     });
 }
 
+//MARK: Loans
+
+RCT_REMAP_METHOD(triggerLoanJourney,
+                 loanInfo: (NSDictionary *)loanInfo
+                 triggerLoanJourneyWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
+            
+            NSString *interactionToken = loanInfo[@"interactionToken"];
+            NSLog(@" ----------- Interaction Token: %@", interactionToken);
+            
+            NSString *loanId = loanInfo[@"loanId"];
+            NSLog(@" ----------- LoanId: %@", loanId);
+            
+            NSNumber *amount = loanInfo[@"amount"];
+            NSLog(@" ----------- Amount: %@", amount);
+            
+            LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken loanId:loanId amount:amount];
+            
+            [SCGateway.shared triggerLoanJourneyWithPresentingViewController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCGatewaySuccess * success, SCGatewayError * error) {
+                
+                resolve(success.data);
+            }];
+        }
+        
+    });
+}
 @end

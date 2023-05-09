@@ -24,12 +24,17 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
- * 
+ *
  * @typedef {Object} SmallplugUiConfig
  * @property {String} headerColor - color of the header background
  * @property {Number} headerOpacity - opacity of the header background
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
+ *
+ * @typedef {Object} LoanInfo
+ * @property {String} interactionToken
+ * @property {String} loanId
+ * @property {Number} amount
  */
 
 let defaultBrokerList = [];
@@ -120,7 +125,7 @@ const triggerMfTransaction = async (transactionId) => {
 
 /**
  * launches smallcases module
- * 
+ *
  * @param {string} targetEndpoint
  * @param {string} params
  */
@@ -138,7 +143,7 @@ const triggerMfTransaction = async (transactionId) => {
 const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
 /**
  * launches smallcases module
- * 
+ *
  * @param {string} targetEndpoint
  * @param {string} params
  * @param {string} headerColor
@@ -149,7 +154,7 @@ const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
 const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
   const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
   const safeParams = typeof params === "string" ? params : ""
-  const safeHeaderColor = typeof headerColor === "string" ? headerColor : platformSpecificColorHex("2F363F") 
+  const safeHeaderColor = typeof headerColor === "string" ? headerColor : platformSpecificColorHex("2F363F")
   const safeHeaderOpacity = typeof headerOpacity === "number" ? headerOpacity : 1
   const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : platformSpecificColorHex("FFFFFF")
   const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
@@ -188,7 +193,7 @@ const logoutUser = async () => {
 /**
  * This will display a list of all the orders that a user recently placed.
  * This includes pending, successful, and failed orders.
- * @returns 
+ * @returns
  */
 const showOrders = async () => {
   return SmallcaseGatewayNative.showOrders();
@@ -259,6 +264,20 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 }
 
+/**
+ * Triggers the LOS Journey
+ *
+ * @param {LoanInfo} loanInfo
+ * @returns {Promise<String>}
+ */
+const triggerLoanJourney = async (loanInfo) => {
+  const safeLoanInfo = safeObject(loanInfo);
+
+  return SmallcaseGatewayNative.triggerLoanJourney(
+    safeLoanInfo
+  );
+}
+
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -272,7 +291,8 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders
+  showOrders,
+  triggerLoanJourney
 };
 
 export default SmallcaseGateway;
