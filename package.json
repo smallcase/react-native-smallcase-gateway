@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [
@@ -148,5 +148,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "standard-version": "^9.5.0"
   }
 }

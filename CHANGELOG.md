@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.0.0...v2.1.1) (2023-05-17)
+
+
+### Bug Fixes
+
+* SDK init response undefined ([99a4606](https://github.com/smallcase/react-native-smallcase-gateway/commit/99a460665240dc68b183aabd5bc088a9c8751f24))
+
+### [1.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v1.7.0...v1.7.1) (2022-12-01)
 
 ## [2.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.0.2...v2.1.0) (2023-04-11)
 
