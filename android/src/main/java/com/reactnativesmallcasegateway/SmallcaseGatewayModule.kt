@@ -1,6 +1,7 @@
 package com.reactnativesmallcasegateway
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
@@ -9,7 +10,12 @@ import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
-import kotlin.Error
+import com.smallcase.loans.core.external.ScGatewayConfig
+import com.smallcase.loans.core.external.ScLoan
+import com.smallcase.loans.core.external.ScLoanConfig
+import com.smallcase.loans.core.external.ScLoanResponseListener
+import com.smallcase.loans.core.internal.ScLoansError
+import com.smallcase.loans.core.internal.ScLoansSuccess
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -49,6 +55,8 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         } catch (e: Exception) {
             promise.reject(e)
         }
+
+      ScLoan.setup(ScGatewayConfig("gatewaydemo-dev"))
     }
 
     @ReactMethod
@@ -293,6 +301,35 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
          }
      }
 
+    @ReactMethod
+    fun apply(loanConfig: ScLoanConfig, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      ScLoan.apply(appCompatActivity, loanConfig, object : ScLoanResponseListener {
+        override fun onFailure(error: ScLoansError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: ScLoansSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
+
+  @ReactMethod
+    fun pay(loanConfig: ScLoanConfig, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      ScLoan.pay(appCompatActivity, loanConfig, object : ScLoanResponseListener {
+        override fun onFailure(error: ScLoansError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: ScLoansSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
             "production" -> Environment.PROTOCOL.PRODUCTION

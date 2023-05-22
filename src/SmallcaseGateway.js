@@ -33,9 +33,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  *
  * @typedef {Object} LoanInfo
  * @property {String} interactionToken
- * @property {String} loanId
- * @property {Number} amount
- * @property {String} type
  */
 
 let defaultBrokerList = [];
@@ -292,6 +289,18 @@ const apply = async (loanInfo) => {
   return SmallcaseGatewayNative.apply(safeLoanInfo);
 };
 
+/**
+ * Triggers the Repayment Journey
+ *
+ * @param {LoanInfo} loanInfo
+ * @returns {Promise<String>}
+ */
+const pay = async (loanInfo) => {
+  const safeLoanInfo = safeObject(loanInfo);
+
+  return SmallcaseGatewayNative.pay(safeLoanInfo);
+};
+
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -307,6 +316,7 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   apply,
+  pay
 };
 
 export default SmallcaseGateway;
