@@ -302,9 +302,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
      }
 
     @ReactMethod
-    fun apply(loanConfig: ScLoanConfig, promise: Promise) {
+    fun apply(loanConfig: ReadableMap, promise: Promise) {
       val appCompatActivity = currentActivity as? AppCompatActivity ?: return
-      ScLoan.apply(appCompatActivity, loanConfig, object : ScLoanResponseListener {
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = ScLoanConfig(interactionToken)
+      ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResponseListener {
         override fun onFailure(error: ScLoansError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
@@ -317,9 +324,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
   @ReactMethod
-    fun pay(loanConfig: ScLoanConfig, promise: Promise) {
+    fun pay(loanConfig: ReadableMap, promise: Promise) {
       val appCompatActivity = currentActivity as? AppCompatActivity ?: return
-      ScLoan.pay(appCompatActivity, loanConfig, object : ScLoanResponseListener {
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = ScLoanConfig(interactionToken)
+      ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResponseListener {
         override fun onFailure(error: ScLoansError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
