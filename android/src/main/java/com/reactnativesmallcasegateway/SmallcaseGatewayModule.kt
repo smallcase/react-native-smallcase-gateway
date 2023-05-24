@@ -317,7 +317,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanConfig(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken)
       ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
@@ -339,7 +339,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanConfig(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken)
       ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
