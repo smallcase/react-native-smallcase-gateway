@@ -31,8 +31,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
  *
- * @typedef {Object} LoanInfo
- * @property {String} interactionToken
  */
 
 let defaultBrokerList = [];
@@ -277,30 +275,6 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
-/**
- * Triggers the LOS Journey
- *
- * @param {LoanInfo} loanInfo
- * @returns {Promise<String>}
- */
-const apply = async (loanInfo) => {
-  const safeLoanInfo = safeObject(loanInfo);
-
-  return SmallcaseGatewayNative.apply(safeLoanInfo);
-};
-
-/**
- * Triggers the Repayment Journey
- *
- * @param {LoanInfo} loanInfo
- * @returns {Promise<String>}
- */
-const pay = async (loanInfo) => {
-  const safeLoanInfo = safeObject(loanInfo);
-
-  return SmallcaseGatewayNative.pay(safeLoanInfo);
-};
-
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -314,9 +288,7 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders,
-  apply,
-  pay
+  showOrders
 };
 
 export default SmallcaseGateway;
