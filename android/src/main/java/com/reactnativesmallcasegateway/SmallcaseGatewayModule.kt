@@ -55,8 +55,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         } catch (e: Exception) {
             promise.reject(e)
         }
-
-      ScLoan.setup(ScGatewayConfig("gatewaydemo-dev"))
     }
 
     @ReactMethod
@@ -302,6 +300,20 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
      }
 
     @ReactMethod
+    fun setupLoans(config: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(config)
+      val gateway = hashMap["gatewayName"]
+      if(gateway == null) {
+        promise.reject(Throwable("gatewayName is null"))
+        return
+      }
+      val scGatewayConfig = ScGatewayConfig(gateway)
+      ScLoan.setup(scGatewayConfig)
+      promise.resolve(null)
+    }
+
+  @ReactMethod
     fun apply(loanConfig: ReadableMap, promise: Promise) {
       val appCompatActivity = currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
