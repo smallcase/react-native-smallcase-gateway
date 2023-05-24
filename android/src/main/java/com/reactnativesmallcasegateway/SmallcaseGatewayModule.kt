@@ -10,12 +10,7 @@ import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
-import com.smallcase.loans.core.external.ScGatewayConfig
-import com.smallcase.loans.core.external.ScLoan
-import com.smallcase.loans.core.external.ScLoanConfig
-import com.smallcase.loans.core.external.ScLoanResponseListener
-import com.smallcase.loans.core.internal.ScLoansError
-import com.smallcase.loans.core.internal.ScLoansSuccess
+import com.smallcase.loans.core.external.*
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
