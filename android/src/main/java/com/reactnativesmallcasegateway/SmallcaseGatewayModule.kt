@@ -303,7 +303,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("gatewayName is null"))
         return
       }
-      val scGatewayConfig = ScGatewayConfig(gateway)
+      val scGatewayConfig = ScLoanConfig(gateway)
       ScLoan.setup(scGatewayConfig)
       promise.resolve(null)
     }
@@ -318,13 +318,13 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         return
       }
       val loanConfigObj = ScLoanConfig(interactionToken)
-      ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResponseListener {
-        override fun onFailure(error: ScLoansError) {
+      ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: ScLoansSuccess) {
+        override fun onSuccess(response: ScLoanSuccess) {
           promise.resolve(response.toString())
         }
       })
@@ -340,13 +340,13 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         return
       }
       val loanConfigObj = ScLoanConfig(interactionToken)
-      ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResponseListener {
-        override fun onFailure(error: ScLoansError) {
+      ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
           val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: ScLoansSuccess) {
+        override fun onSuccess(response: ScLoanSuccess) {
           promise.resolve(response.toString())
         }
       })
