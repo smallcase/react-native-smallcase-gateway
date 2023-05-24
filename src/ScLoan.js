@@ -4,7 +4,7 @@ import { safeObject } from './util';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
- * @typedef {Object} ScGatewayConfig
+ * @typedef {Object} ScLoanConfig
  * @property {String} gatewayName
  * 
  * @typedef {Object} LoanInfo
