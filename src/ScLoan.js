@@ -6,20 +6,20 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 /**
  * @typedef {Object} ScLoanConfig
  * @property {String} gatewayName
- * 
+ *
  * @typedef {Object} LoanInfo
  * @property {String} interactionToken
  */
 
 /**
- * Triggers the Repayment Journey
+ * Setup ScLoans
  *
- * @param {ScGatewayConfig} config
+ * @param {ScLoanConfig} config
  * @returns {Promise<String>}
  */
 const setup = async (config) => {
     const safeConfig = safeObject(config);
-  
+
     return SmallcaseGatewayNative.setupLoans(safeConfig);
   };
 
@@ -31,7 +31,7 @@ const setup = async (config) => {
  */
 const apply = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-  
+
     return SmallcaseGatewayNative.apply(safeLoanInfo);
   };
 
@@ -43,7 +43,7 @@ const apply = async (loanInfo) => {
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-  
+
     return SmallcaseGatewayNative.pay(safeLoanInfo);
   };
 

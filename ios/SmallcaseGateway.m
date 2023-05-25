@@ -487,6 +487,42 @@ RCT_REMAP_METHOD(logoutUser,
 
 //MARK: Loans
 
+RCT_REMAP_METHOD(setupLoans,
+                 loanConfig: (NSDictionary *)loanConfig
+                 setupLoansWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        if(loanConfig != nil && loanConfig[@"gatewayName"] != nil) {
+            
+            NSString *gatewayName = loanConfig[@"gatewayName"];
+            NSLog(@" ----------- Gateway Name: %@", gatewayName);
+            
+            ScLoanConfig *gatewayLoanConfig = [[ScLoanConfig alloc] initWithGatewayName:gatewayName];
+            
+            [SCLoans.instance setupSCGatewayLoansWithLasConfig:gatewayLoanConfig completion:^(ScLoanSuccess * success, ScLoanError * error) {
+                
+                if(error != nil) {
+                    if(error != nil) {
+                        NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                        [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                        [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                        
+                        NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+                        
+                        reject(@"apply", @"Error while applying for Loan", err);
+                        return;
+                    }
+                }
+                
+                resolve(success.data);
+            }];
+        }
+        
+    });
+}
+
 RCT_REMAP_METHOD(apply,
                  loanInfo: (NSDictionary *)loanInfo
                  applyWithResolver:(RCTPromiseResolveBlock)resolve
@@ -509,8 +545,8 @@ RCT_REMAP_METHOD(apply,
             NSLog(@" ----------- LoanId: %@", type);
             
             LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken loanId:loanId amount:amount type:type];
-
-            [SCGateway.shared applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCGatewaySuccess * success, SCGatewayError * error) {
+            
+            [SCLoans.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
                 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -525,10 +561,49 @@ RCT_REMAP_METHOD(apply,
                 
                     resolve(success.data);
             }];
-//            [SCGateway.shared triggerLoanJourneyWithPresentingViewController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCGatewaySuccess * success, SCGatewayError * error) {
-//
-//                resolve(success.data);
-//            }];
+        }
+        
+    });
+}
+
+RCT_REMAP_METHOD(pay,
+                 loanInfo: (NSDictionary *)loanInfo
+                 payWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
+            
+            NSString *interactionToken = loanInfo[@"interactionToken"];
+            NSLog(@" ----------- Interaction Token: %@", interactionToken);
+            
+            NSString *loanId = loanInfo[@"loanId"];
+            NSLog(@" ----------- LoanId: %@", loanId);
+            
+            NSNumber *amount = loanInfo[@"amount"];
+            NSLog(@" ----------- Amount: %@", amount);
+            
+            NSString *type = loanInfo[@"type"];
+            NSLog(@" ----------- LoanId: %@", type);
+            
+            LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken loanId:loanId amount:amount type:type];
+            
+            [SCLoans.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+                
+                if(error != nil) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                    
+                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+                    
+                    reject(@"apply", @"Error while applying for Loan", err);
+                    return;
+                }
+                
+                resolve(success.data);
+            }];
         }
         
     });
