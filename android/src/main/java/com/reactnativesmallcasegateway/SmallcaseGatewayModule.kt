@@ -11,6 +11,7 @@ import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
 import com.smallcase.loans.core.external.*
+import com.google.gson.Gson
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -308,7 +309,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
       val writableMap: WritableMap = Arguments.createMap()
       writableMap.putString("version", setupResponse.version)
       writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
-      promise.resolve(writableMap.toHashMap().toString())
+      promise.resolve(Gson().toJson(writableMap.toHashMap()))
     }
 
   @ReactMethod
