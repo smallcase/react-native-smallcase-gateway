@@ -304,8 +304,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         return
       }
       val scGatewayConfig = ScLoanConfig(gateway)
-      ScLoan.setup(scGatewayConfig)
-      promise.resolve(null)
+      val setupResponse = ScLoan.setup(scGatewayConfig)
+      val writableMap: WritableMap = Arguments.createMap()
+      writableMap.putString("version", setupResponse.version)
+      writableMap.putInt("version", setupResponse.versionCode.toInt())
+      promise.resolve(writableMap.toHashMap().toString())
     }
 
   @ReactMethod
