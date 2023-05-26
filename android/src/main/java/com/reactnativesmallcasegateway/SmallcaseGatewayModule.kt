@@ -307,7 +307,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
       val setupResponse = ScLoan.setup(scGatewayConfig)
       val writableMap: WritableMap = Arguments.createMap()
       writableMap.putString("version", setupResponse.version)
-      writableMap.putInt("version", setupResponse.versionCode.toInt())
+      writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
       promise.resolve(writableMap.toHashMap().toString())
     }
 
