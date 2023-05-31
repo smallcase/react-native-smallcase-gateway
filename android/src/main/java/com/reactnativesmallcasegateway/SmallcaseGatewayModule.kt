@@ -312,7 +312,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
             "development" -> ScLoanEnvironment.DEVELOPMENT
             else -> ScLoanEnvironment.PRODUCTION
         }
-      val scGatewayConfig = ScLoanConfig(gateway)
+      val scGatewayConfig = ScLoanConfig(gateway, scEnvironment)
       val setupResponse = ScLoan.setup(scGatewayConfig)
       val writableMap: WritableMap = Arguments.createMap()
       writableMap.putString("version", setupResponse.version)
