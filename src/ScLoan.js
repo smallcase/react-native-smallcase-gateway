@@ -1,11 +1,13 @@
 import { NativeModules } from 'react-native';
 import { safeObject } from './util';
+import { ENV } from './constants';
 
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
  * @typedef {Object} ScLoanConfig
  * @property {String} gatewayName
+ * @property {'production' | 'staging' | 'development'}  environment - environment
  *
  * @typedef {Object} LoanInfo
  * @property {String} interactionToken
@@ -19,6 +21,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  */
 const setup = async (config) => {
     const safeConfig = safeObject(config);
+    if(safeConfig.environment === undefined || safeConfig.environment === null) safeConfig.environment = ENV.PROD
 
     return SmallcaseGatewayNative.setupLoans(safeConfig);
   };

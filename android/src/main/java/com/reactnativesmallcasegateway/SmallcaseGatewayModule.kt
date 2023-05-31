@@ -11,6 +11,7 @@ import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
 import com.smallcase.loans.core.external.*
+import com.smallcase.loans.core.internal.*
 import com.google.gson.Gson
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -300,10 +301,17 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
       val appCompatActivity = currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(config)
       val gateway = hashMap["gatewayName"]
+      val environment = hashMap["environment"]
       if(gateway == null) {
         promise.reject(Throwable("gatewayName is null"))
         return
       }
+      val scEnvironment = when(environment) {
+            "production" -> ScLoanEnvironment.PRODUCTION
+            "staging" -> ScLoanEnvironment.STAGING
+            "development" -> ScLoanEnvironment.DEVELOPMENT
+            else -> ScLoanEnvironment.PRODUCTION
+        }
       val scGatewayConfig = ScLoanConfig(gateway)
       val setupResponse = ScLoan.setup(scGatewayConfig)
       val writableMap: WritableMap = Arguments.createMap()
