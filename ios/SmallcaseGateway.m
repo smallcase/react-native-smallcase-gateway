@@ -17,12 +17,12 @@ RCT_REMAP_METHOD(getSdkVersion,
                  reactNativeSdkVersion: (NSString *)reactNativeSdkVersion
                  initWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     NSString *nativeSdkString = [NSString stringWithFormat: @"ios:%@", [SCGateway.shared getSdkVersion]];
     NSString *reactNativeSdkString = [NSString stringWithFormat: @",react-native:%@", reactNativeSdkVersion];
-    
+
     NSString *result = [nativeSdkString stringByAppendingString: reactNativeSdkString];
-    
+
     resolve(result);
 }
 
@@ -65,7 +65,7 @@ RCT_REMAP_METHOD(setConfigEnvironment,
 
             reject(@"setConfigEnvironment", @"Env setup failed", err);
         }
-        
+
     }];
 }
 
@@ -187,7 +187,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 if (trxResponse.response != nil) {
                     [responseDict setValue:trxResponse.response forKey:@"data"];
                 }
-                
+
                 resolve(responseDict);
                 return;
             }
@@ -217,7 +217,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
                 [dict setValue: trxResponse.signup forKey:@"signup"];
-                
+
                 [dict setValue:[NSNumber numberWithDouble:trxResponse.fund] forKey:@"fund"];
 
                 [responseDict setValue:dict forKey:@"data"];
@@ -258,7 +258,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                 [dict setValue: trxResponse.authToken  forKey:@"smallcaseAuthToken"];
                 [dict setValue: trxResponse.transactionId forKey:@"transactionId"];
                 [dict setValue: trxResponse.signup forKey:@"signup"];
-                
+
                 [dict setValue: [NSNumber numberWithBool:trxResponse.status] forKey:@"status"];
 
                 [responseDict setValue:dict forKey:@"data"];
@@ -278,13 +278,13 @@ RCT_REMAP_METHOD(showOrders,
                  showOrdersWithResolver: (RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-        
+
         [SCGateway.shared
          showOrdersWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
          completion:^(BOOL success, NSError * error) {
-         
+
             if(success){
                 resolve(@(YES));
             } else {
@@ -304,13 +304,13 @@ RCT_REMAP_METHOD(launchSmallplug,
                   launchSmallplugWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-       
+
         SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
-        
+
         [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData completion:^(id smallplugResponse, NSError * error) {
-            
+
             NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-            
+
             if (error != nil) {
                 NSLog(@"%@", error.domain);
                 double delayInSeconds = 0.5;
@@ -320,29 +320,29 @@ RCT_REMAP_METHOD(launchSmallplug,
                     [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"error"];
-                    
+
                     resolve(responseDict);
                     return;
                 });
             } else {
-                
+
                 if ([smallplugResponse isKindOfClass: [NSString class]]) {
                     NSLog(@"%@", smallplugResponse);
-                    
+
                     [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
                     [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
-                    
+
                     double delayInSeconds = 0.5;
                     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-                    
+
                         resolve(responseDict);
                         return;
-                        
+
                     });
                 }
             }
-            
+
         }];
     });
 }
@@ -359,14 +359,14 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
         SmallplugUiConfig *smallplugUiConfig = [[SmallplugUiConfig alloc] initWithSmallplugHeaderColor:headerColor headerColorOpacity:headerOpacity backIconColor:backIconColor backIconColorOpacity:backIconOpacity];
-        
+
         [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData smallplugUiConfig:smallplugUiConfig completion:^(id smallplugResponse, NSError * error) {
-            
+
             NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-            
+
             if (error != nil) {
                 NSLog(@"%@", error.domain);
                 double delayInSeconds = 0.5;
@@ -376,29 +376,29 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
                     [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"error"];
-                    
+
                     resolve(responseDict);
                     return;
                 });
             } else {
-                
+
                 if ([smallplugResponse isKindOfClass: [NSString class]]) {
                     NSLog(@"%@", smallplugResponse);
-                    
+
                     [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
                     [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
-                    
+
                     double delayInSeconds = 0.5;
                     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-                        
+
                         resolve(responseDict);
                         return;
-                        
+
                     });
                 }
             }
-            
+
         }];
     });
 }
@@ -413,18 +413,18 @@ RCT_REMAP_METHOD(archiveSmallcase,
             NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
             [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
             [responseDict setValue:error.domain  forKey:@"errorMessage"];
-            
+
             NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-            
+
             reject(@"archiveSmallcase", @"Error during transaction", err);
             return;
         }
-        
+
         NSString *archiveResponseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
-        
+
         NSMutableDictionary *responseDict =  [[NSMutableDictionary alloc] init];
         [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
-        
+
         [responseDict setObject:archiveResponseString forKey:@"data"];
         resolve(responseDict);
         return;
@@ -437,13 +437,13 @@ RCT_REMAP_METHOD(triggerLeadGenWithStatus,
                  leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         [SCGateway.shared triggerLeadGenWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] params:userParams
                                                       completion:^(NSString * leadGenResponse) {
             resolve(leadGenResponse);
         }
         ];
-        
+
     });
 }
 
@@ -493,17 +493,17 @@ RCT_REMAP_METHOD(setupLoans,
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         if(loanConfig != nil && loanConfig[@"gatewayName"] != nil) {
-            
+
             NSString *gatewayName = loanConfig[@"gatewayName"];
             NSLog(@" ----------- Gateway Name: %@", gatewayName);
-            
+
             NSInteger environment = SCLoanEnvironmentProduction;
-            
+
             NSString *envName = loanConfig[@"environment"];
             NSLog(@" ----------- Env Name: %@", envName);
-            
+
             if([envName isEqualToString:@"production"]) {
                 environment = SCLoanEnvironmentProduction;
             }
@@ -512,30 +512,30 @@ RCT_REMAP_METHOD(setupLoans,
             } else {
                 environment = SCLoanEnvironmentStaging;
             }
-            
+
             NSNumber *lasEnv = [NSNumber numberWithInteger:environment];
-            
+
             ScLoanConfig *gatewayLoanConfig = [[ScLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
-            
+
             [SCLoans.instance setupSCGatewayLoansWithLasConfig:gatewayLoanConfig completion:^(ScLoanSuccess * success, ScLoanError * error) {
-                
+
                 if(error != nil) {
                     if(error != nil) {
                         NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                         [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                         [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                        
+
                         NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-                        
+
                         reject(@"apply", @"Error while applying for Loan", err);
                         return;
                     }
                 }
-                
-                resolve(success.data);
+
+                resolve(@(YES));
             }];
         }
-        
+
     });
 }
 
@@ -545,31 +545,31 @@ RCT_REMAP_METHOD(apply,
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
-            
+
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
-            
+
             LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
-            
+
             [SCLoans.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
-                
+
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    
+
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-                    
+
                     reject(@"apply", @"Error while applying for Loan", err);
                     return;
                 }
-                
+
                     resolve(success.data);
             }];
         }
-        
+
     });
 }
 
@@ -579,31 +579,31 @@ RCT_REMAP_METHOD(pay,
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
-            
+
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
-            
+
             LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
-            
+
             [SCLoans.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
-                
+
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    
+
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-                    
+
                     reject(@"apply", @"Error while applying for Loan", err);
                     return;
                 }
-                
+
                 resolve(success.data);
             }];
         }
-        
+
     });
 }
 
@@ -613,31 +613,31 @@ RCT_REMAP_METHOD(withdraw,
                  rejecter:(RCTPromiseRejectBlock)reject
                  ) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        
+
         if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
-            
+
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
-            
+
             LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
-            
+
             [SCLoans.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
-                
+
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    
+
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-                    
+
                     reject(@"apply", @"Error while applying for Loan", err);
                     return;
                 }
-                
+
                 resolve(success.data);
             }];
         }
-        
+
     });
 }
 
