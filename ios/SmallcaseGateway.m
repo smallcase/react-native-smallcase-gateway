@@ -499,21 +499,22 @@ RCT_REMAP_METHOD(setupLoans,
             NSString *gatewayName = loanConfig[@"gatewayName"];
             NSLog(@" ----------- Gateway Name: %@", gatewayName);
 
-            NSInteger environment = SCLoanEnvironmentProduction;
-
-            NSString *envName = loanConfig[@"environment"];
+            NSString *envName = [NSString stringWithFormat:@"%@", loanConfig[@"environment"]];
             NSLog(@" ----------- Env Name: %@", envName);
+
+            NSNumber *lasEnv = [NSNumber numberWithInteger:environment];
 
             if([envName isEqualToString:@"production"]) {
                 environment = SCLoanEnvironmentProduction;
+                lasEnv = @0;
             }
             else if([envName isEqualToString:@"development"]) {
                 environment = SCLoanEnvironmentDevelopment;
+                lasEnv = @1;
             } else {
                 environment = SCLoanEnvironmentStaging;
+                lasEnv = @2;
             }
-
-            NSNumber *lasEnv = [NSNumber numberWithInteger:environment];
 
             ScLoanConfig *gatewayLoanConfig = [[ScLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
 
