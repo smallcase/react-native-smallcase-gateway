@@ -502,7 +502,7 @@ RCT_REMAP_METHOD(setupLoans,
             NSString *envName = [NSString stringWithFormat:@"%@", loanConfig[@"environment"]];
             NSLog(@" ----------- Env Name: %@", envName);
 
-            NSNumber *lasEnv = [NSNumber numberWithInteger:environment];
+            NSNumber *lasEnv = @0;
 
             if([envName isEqualToString:@"production"]) {
                 lasEnv = @0;
