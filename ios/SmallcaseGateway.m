@@ -505,14 +505,11 @@ RCT_REMAP_METHOD(setupLoans,
             NSNumber *lasEnv = [NSNumber numberWithInteger:environment];
 
             if([envName isEqualToString:@"production"]) {
-                environment = SCLoanEnvironmentProduction;
                 lasEnv = @0;
             }
             else if([envName isEqualToString:@"development"]) {
-                environment = SCLoanEnvironmentDevelopment;
                 lasEnv = @1;
             } else {
-                environment = SCLoanEnvironmentStaging;
                 lasEnv = @2;
             }
 
