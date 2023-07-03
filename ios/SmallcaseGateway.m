@@ -513,9 +513,9 @@ RCT_REMAP_METHOD(setupLoans,
                 lasEnv = @2;
             }
 
-            ScLoanConfig *gatewayLoanConfig = [[ScLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
+            SCLoanConfig *gatewayLoanConfig = [[SCLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
 
-            [SCLoans.instance setupSCGatewayLoansWithLasConfig:gatewayLoanConfig completion:^(ScLoanSuccess * success, ScLoanError * error) {
+            [SCLoans.instance setupWithConfig:gatewayLoanConfig completion:^(SCLoanSuccess * success, SCLoanError * error) {
 
                 if(error != nil) {
                     if(error != nil) {
@@ -549,9 +549,9 @@ RCT_REMAP_METHOD(apply,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
+            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+            [SCLoans.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -583,9 +583,9 @@ RCT_REMAP_METHOD(pay,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
+            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+            [SCLoans.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
@@ -617,9 +617,9 @@ RCT_REMAP_METHOD(withdraw,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            LoanInfo *gatewayLoanInfo = [[LoanInfo alloc] initWithInteractionToken:interactionToken];
+            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+            [SCLoans.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
