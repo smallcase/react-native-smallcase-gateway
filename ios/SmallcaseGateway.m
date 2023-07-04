@@ -520,6 +520,7 @@ RCT_REMAP_METHOD(setupLoans,
                 if(error != nil) {
                     if(error != nil) {
                         NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                        [responseDict setValue:false forKey:@"isSuccess"];
                         [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                         [responseDict setValue:error.domain  forKey:@"errorMessage"];
 
@@ -555,8 +556,10 @@ RCT_REMAP_METHOD(apply,
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                    [responseDict setValue:error.userInfo  forKey:@"data"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -589,8 +592,10 @@ RCT_REMAP_METHOD(pay,
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                    [responseDict setValue:error.userInfo  forKey:@"data"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -623,8 +628,10 @@ RCT_REMAP_METHOD(withdraw,
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
+                    [responseDict setValue:error.userInfo  forKey:@"data"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
