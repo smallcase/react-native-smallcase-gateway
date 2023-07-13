@@ -77,8 +77,8 @@ const setConfigEnvironment = async (envConfig) => {
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
-  const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  await SmallcaseGatewayNative.init(safeToken);
+  const safeToken = typeof sdkToken === "string" ? sdkToken : "";
+  return SmallcaseGatewayNative.init(safeToken);
 };
 
 /**
