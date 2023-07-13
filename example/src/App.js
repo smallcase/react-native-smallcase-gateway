@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import SmallcaseGateway, { GATEWAY_ENV } from 'react-native-smallcase-gateway';
 
+import ScLoan from 'react-native-smallcase-gateway';
 const App = () => {
   const [log, setLog] = useState<string>('');
   const [env, setEnv] = useState<GATEWAY_ENV>(GATEWAY_ENV.PROD);

@@ -1,7 +1,7 @@
-import { NativeModules, Platform } from "react-native";
-import { ENV } from "./constants";
-import { safeObject, platformSpecificColorHex } from "./util";
-import { version } from "../package.json";
+import { NativeModules, Platform } from 'react-native';
+import { ENV } from './constants';
+import { safeObject, platformSpecificColorHex } from './util';
+import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -24,12 +24,13 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
- * 
+ *
  * @typedef {Object} SmallplugUiConfig
  * @property {String} headerColor - color of the header background
  * @property {Number} headerOpacity - opacity of the header background
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
+ *
  */
 
 let defaultBrokerList = [];
@@ -54,9 +55,9 @@ const setConfigEnvironment = async (envConfig) => {
   const safeIsLeprechaun = Boolean(isLeprechaun);
   const safeIsAmoEnabled = Boolean(isAmoEnabled);
   const safeBrokerList = Array.isArray(brokerList) ? brokerList : [];
-  const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
+  const safeGatewayName = typeof gatewayName === 'string' ? gatewayName : '';
   const safeEnvName =
-    typeof environmentName === "string" ? environmentName : ENV.PROD;
+    typeof environmentName === 'string' ? environmentName : ENV.PROD;
 
   defaultBrokerList = safeBrokerList;
 
@@ -90,7 +91,7 @@ const init = async (sdkToken) => {
  */
 const triggerTransaction = async (transactionId, utmParams, brokerList) => {
   const safeUtm = safeObject(utmParams);
-  const safeId = typeof transactionId === "string" ? transactionId : "";
+  const safeId = typeof transactionId === 'string' ? transactionId : '';
 
   const safeBrokerList =
     Array.isArray(brokerList) && brokerList.length
@@ -111,34 +112,29 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
  * @returns {Promise<transactionRes>}
  */
 const triggerMfTransaction = async (transactionId) => {
-  const safeTransactionId = typeof transactionId === "string" ? transactionId : "";
+  const safeTransactionId =
+    typeof transactionId === 'string' ? transactionId : '';
 
-  return SmallcaseGatewayNative.triggerMfTransaction(
-    safeTransactionId
-  );
-}
+  return SmallcaseGatewayNative.triggerMfTransaction(safeTransactionId);
+};
 
 /**
  * launches smallcases module
- * 
+ *
  * @param {string} targetEndpoint
  * @param {string} params
  */
- const launchSmallplug = async (targetEndpoint, params) => {
-  const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
-  const safeParams = typeof params === "string" ? params : ""
+const launchSmallplug = async (targetEndpoint, params) => {
+  const safeEndpoint = typeof targetEndpoint === 'string' ? targetEndpoint : '';
+  const safeParams = typeof params === 'string' ? params : '';
 
-  return SmallcaseGatewayNative.launchSmallplug(
-    safeEndpoint,
-    safeParams
-  );
+  return SmallcaseGatewayNative.launchSmallplug(safeEndpoint, safeParams);
+};
 
-}
-
-const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
+const safeGatewayName = typeof gatewayName === 'string' ? gatewayName : '';
 /**
  * launches smallcases module
- * 
+ *
  * @param {string} targetEndpoint
  * @param {string} params
  * @param {string} headerColor
@@ -146,33 +142,49 @@ const safeGatewayName = typeof gatewayName === "string" ? gatewayName : "";
  * @param {string} backIconColor
  * @param {number} backIconOpacity
  */
-const launchSmallplugWithBranding = async (targetEndpoint, params, headerColor, headerOpacity, backIconColor, backIconOpacity) => {
-  const safeEndpoint = typeof targetEndpoint === "string" ? targetEndpoint : ""
-  const safeParams = typeof params === "string" ? params : ""
-  const safeHeaderColor = typeof headerColor === "string" ? headerColor : platformSpecificColorHex("2F363F") 
-  const safeHeaderOpacity = typeof headerOpacity === "number" ? headerOpacity : 1
-  const safeBackIconColor = typeof backIconColor === "string" ? backIconColor : platformSpecificColorHex("FFFFFF")
-  const safeBackIconOpacity = typeof backIconOpacity === "number" ? backIconOpacity : 1
+const launchSmallplugWithBranding = async (
+  targetEndpoint,
+  params,
+  headerColor,
+  headerOpacity,
+  backIconColor,
+  backIconOpacity
+) => {
+  const safeEndpoint = typeof targetEndpoint === 'string' ? targetEndpoint : '';
+  const safeParams = typeof params === 'string' ? params : '';
+  const safeHeaderColor =
+    typeof headerColor === 'string'
+      ? headerColor
+      : platformSpecificColorHex('2F363F');
+  const safeHeaderOpacity =
+    typeof headerOpacity === 'number' ? headerOpacity : 1;
+  const safeBackIconColor =
+    typeof backIconColor === 'string'
+      ? backIconColor
+      : platformSpecificColorHex('FFFFFF');
+  const safeBackIconOpacity =
+    typeof backIconOpacity === 'number' ? backIconOpacity : 1;
 
-  return Platform.OS === 'android' ?
-    SmallcaseGatewayNative.launchSmallplugWithBranding(
-      safeEndpoint, safeParams,
-      {
-        headerColor: safeHeaderColor,
-        headerOpacity: safeHeaderOpacity,
-        backIconColor: safeBackIconColor,
-        backIconOpacity: safeBackIconOpacity
-      })
+  return Platform.OS === 'android'
+    ? SmallcaseGatewayNative.launchSmallplugWithBranding(
+        safeEndpoint,
+        safeParams,
+        {
+          headerColor: safeHeaderColor,
+          headerOpacity: safeHeaderOpacity,
+          backIconColor: safeBackIconColor,
+          backIconOpacity: safeBackIconOpacity,
+        }
+      )
     : SmallcaseGatewayNative.launchSmallplugWithBranding(
-      safeEndpoint,
-      safeParams,
-      safeHeaderColor,
-      safeHeaderOpacity,
-      safeBackIconColor,
-      safeBackIconOpacity
-    );
-
-}
+        safeEndpoint,
+        safeParams,
+        safeHeaderColor,
+        safeHeaderOpacity,
+        safeBackIconColor,
+        safeBackIconOpacity
+      );
+};
 
 /**
  * Logs the user out and removes the web session.
@@ -188,7 +200,7 @@ const logoutUser = async () => {
 /**
  * This will display a list of all the orders that a user recently placed.
  * This includes pending, successful, and failed orders.
- * @returns 
+ * @returns
  */
 const showOrders = async () => {
   return SmallcaseGatewayNative.showOrders();
@@ -217,7 +229,7 @@ const triggerLeadGenWithStatus = async (userDetails) => {
   const safeParams = safeObject(userDetails);
 
   return SmallcaseGatewayNative.triggerLeadGenWithStatus(safeParams);
-}
+};
 
 /**
  * triggers the lead gen flow with an option of "login here" cta
@@ -227,7 +239,11 @@ const triggerLeadGenWithStatus = async (userDetails) => {
  * @param {boolean} [showLoginCta]
  * @returns {Promise}
  */
-const triggerLeadGenWithLoginCta = async (userDetails, utmParams, showLoginCta) => {
+const triggerLeadGenWithLoginCta = async (
+  userDetails,
+  utmParams,
+  showLoginCta
+) => {
   const safeParams = safeObject(userDetails);
   const safeUtm = safeObject(utmParams);
   const safeShowLoginCta = Boolean(showLoginCta);
@@ -237,7 +253,7 @@ const triggerLeadGenWithLoginCta = async (userDetails, utmParams, showLoginCta) 
     safeUtm,
     safeShowLoginCta
   );
-}
+};
 
 /**
  * Marks a smallcase as archived
@@ -245,7 +261,7 @@ const triggerLeadGenWithLoginCta = async (userDetails, utmParams, showLoginCta) 
  * @param {String} iscid
  */
 const archiveSmallcase = async (iscid) => {
-  const safeIscid = typeof iscid === "string" ? iscid : "";
+  const safeIscid = typeof iscid === 'string' ? iscid : '';
 
   return SmallcaseGatewayNative.archiveSmallcase(safeIscid);
 };
@@ -257,7 +273,7 @@ const archiveSmallcase = async (iscid) => {
  */
 const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
-}
+};
 
 const SmallcaseGateway = {
   init,

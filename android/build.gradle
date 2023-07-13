@@ -60,6 +60,7 @@ android {
 repositories {
   mavenCentral()
   google()
+  mavenLocal()
 
   maven {
       url "https://artifactory.smallcase.com/artifactory/gradle-dev-local"
@@ -68,6 +69,21 @@ repositories {
           password "reactNativeUser123"
       }
   }
+
+  maven {
+        url "${artifactory_contextUrl}/SCGateway-internal"
+        credentials {
+            username "${artifactory_user}"
+            password "${artifactory_password}"
+            }
+        }
+        maven {
+        url "${artifactory_contextUrl}/SCLoans-internal"
+        credentials {
+            username "${artifactory_user}"
+            password "${artifactory_password}"
+        }
+        }
 
   def found = false
   def defaultDir = null
@@ -140,7 +156,7 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 dependencies {
    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.smallcase.gateway:sdk:3.9.0'
+    implementation 'com.smallcase.gateway:sdk:3.9.5-loans-internal-release-11'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

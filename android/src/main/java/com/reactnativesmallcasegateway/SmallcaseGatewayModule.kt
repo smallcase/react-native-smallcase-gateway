@@ -1,6 +1,7 @@
 package com.reactnativesmallcasegateway
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.smallcase.gateway.data.SmallcaseGatewayListeners
 import com.smallcase.gateway.data.SmallcaseLogoutListener
@@ -9,7 +10,9 @@ import com.smallcase.gateway.data.models.*
 import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
-import kotlin.Error
+import com.smallcase.loans.core.external.*
+import com.smallcase.loans.core.internal.*
+import com.google.gson.Gson
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -292,6 +295,108 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                  })
          }
      }
+
+    @ReactMethod
+    fun setupLoans(config: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(config)
+      val gateway = hashMap["gatewayName"]
+      val environment = hashMap["environment"]
+      if(gateway == null) {
+        promise.reject(Throwable("gatewayName is null"))
+        return
+      }
+      val scEnvironment = when(environment) {
+            "staging" -> SCLoanEnvironment.STAGING
+            "development" -> SCLoanEnvironment.DEVELOPMENT
+            else -> SCLoanEnvironment.PRODUCTION
+        }
+      val writableMap: WritableMap = Arguments.createMap()
+      val scGatewayConfig = SCLoanConfig(gateway, scEnvironment)
+      SCLoan.setup(scGatewayConfig, object : SCLoanResult {
+        override fun onFailure(error: SCLoanError) {
+          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: SCLoanSuccess) {
+          writableMap.putBoolean("success", true)
+          promise.resolve(Gson().toJson(writableMap.toHashMap()))
+        }
+
+      })
+
+//      writableMap.putBoolean("success", true)
+    //   writableMap.putString("version", setupResponse.version)
+    //   writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
+
+    }
+
+  @ReactMethod
+    fun apply(loanConfig: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = SCLoanInfo(interactionToken)
+      SCLoan.apply(appCompatActivity, loanConfigObj, object : SCLoanResult {
+        override fun onFailure(error: SCLoanError) {
+          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: SCLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
+
+  @ReactMethod
+    fun pay(loanConfig: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = SCLoanInfo(interactionToken)
+      SCLoan.pay(appCompatActivity, loanConfigObj, object : SCLoanResult {
+        override fun onFailure(error: SCLoanError) {
+          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: SCLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
+
+  @ReactMethod
+    fun withdraw(loanConfig: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = SCLoanInfo(interactionToken)
+      SCLoan.withdraw(appCompatActivity, loanConfigObj, object : SCLoanResult {
+        override fun onFailure(error: SCLoanError) {
+          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: SCLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
