@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.1.1...v2.2.1) (2023-07-25)
+
+
+### Features
+
+* add artifactory creds in gradle.properties ([4da3731](https://github.com/smallcase/react-native-smallcase-gateway/commit/4da3731d6530d6b8981ba2808b12fafc90fa6b07))
+* android bridge SetupResponse ([a9ef115](https://github.com/smallcase/react-native-smallcase-gateway/commit/a9ef11535640cf13c86cc5a188f649e9afb2bbf6))
+* las internal android ([0d7da50](https://github.com/smallcase/react-native-smallcase-gateway/commit/0d7da503b69f93ce2fe7652c9f219491b41dfc6a))
+* **las:** withdraw servicing method ([3eb4b89](https://github.com/smallcase/react-native-smallcase-gateway/commit/3eb4b8976bc03d05165c54f726749816a98d6b75))
+* **Loans:** added repayment Loans Servicing method ([702eb0b](https://github.com/smallcase/react-native-smallcase-gateway/commit/702eb0b0140679a333183144fd8d0a6a77932024))
+* ScLoan environment ([fc6c1be](https://github.com/smallcase/react-native-smallcase-gateway/commit/fc6c1be22c6e479667af816a250d40ef014c2012))
+* ScLoan withdraw flow ([04b26da](https://github.com/smallcase/react-native-smallcase-gateway/commit/04b26da5de347ff1e954b8779b46540070c36c0b))
+
+
+### Bug Fixes
+
+* android bridge loans params ([51e8430](https://github.com/smallcase/react-native-smallcase-gateway/commit/51e84308152a37935cfd23ffc3dd677a24deaa96))
+* android bridge setup response to json ([c1a0bd6](https://github.com/smallcase/react-native-smallcase-gateway/commit/c1a0bd675e4d706b6471fa436e34bd85202ebb43))
+* android bridge setupLoans - scGatewayConfig ([0068c83](https://github.com/smallcase/react-native-smallcase-gateway/commit/0068c834813efe664b56f639c13d39c6c3643a90))
+* android bridge setupLoans versionCode key ([a0d71d3](https://github.com/smallcase/react-native-smallcase-gateway/commit/a0d71d3bb1daf02c88882821483d8c54b91d8a75))
+* bug fixes for WITHDRAW intent ([8e76670](https://github.com/smallcase/react-native-smallcase-gateway/commit/8e76670db5bf78294ce6063be3b774f7c295c06e))
+* environment mismatch ([fdb16dc](https://github.com/smallcase/react-native-smallcase-gateway/commit/fdb16dc83a7e4dd9d2d3b65fb153159f3ee971b9))
+* export ScLoan ([33a1d75](https://github.com/smallcase/react-native-smallcase-gateway/commit/33a1d7504d01dc06b56d1e2c92aa543b28afd046))
+* interaction updation race condition ([390c377](https://github.com/smallcase/react-native-smallcase-gateway/commit/390c377abd2bbca0b0a26c6737f49b390295ccd0))
+* iOS nil error data with SCLoan error ([5f8f589](https://github.com/smallcase/react-native-smallcase-gateway/commit/5f8f589d053a37703aec8b81bd6e9b06a9edaea0))
+* loans internal SDK version number ([6b35d6c](https://github.com/smallcase/react-native-smallcase-gateway/commit/6b35d6c484d90b4340e1ade8e03197bb698baae7))
+* loans setup being called on platform, inc. in js ([6cf7c46](https://github.com/smallcase/react-native-smallcase-gateway/commit/6cf7c462dc2ff2afbc9280698d68a7c40518d58d))
+* **loans:** response parse error in loans setup ([67350f8](https://github.com/smallcase/react-native-smallcase-gateway/commit/67350f821d0af43b290bff72f49188853638c401))
+* refactoring SDK contracts ([c0602ce](https://github.com/smallcase/react-native-smallcase-gateway/commit/c0602ce1ee2b31c4eccbbb43f9a76934f183b8dd))
+* ScGatewayConfig to ScLoanConfig ([ef3a90b](https://github.com/smallcase/react-native-smallcase-gateway/commit/ef3a90bc52ed1206102d1cc3d99996dfc4f5a944))
+* ScLoanConfig to ScLoanInfo for flow methods ([31741c2](https://github.com/smallcase/react-native-smallcase-gateway/commit/31741c2e8dd9f1e654fcf4b7debfe7d7cf7d8852))
+* setup loans environment mismatch ([906e27c](https://github.com/smallcase/react-native-smallcase-gateway/commit/906e27c5343ae2dfb17682af7cdb075c9ddfcde4))
+* unknown envrionment reference ([576c840](https://github.com/smallcase/react-native-smallcase-gateway/commit/576c840355f88f931bd57d4c002f6ffacc35be6d))
+
 ## [2.2.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.1.1...v2.2.0) (2023-07-13)
 
 
