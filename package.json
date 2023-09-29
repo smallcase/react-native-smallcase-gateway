@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "2.2.0-internal-loans",
+  "version": "2.3.0-internal-loans",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [

@@ -313,11 +313,20 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
             else -> ScLoanEnvironment.PRODUCTION
         }
       val scGatewayConfig = ScLoanConfig(gateway, scEnvironment)
-      val setupResponse = ScLoan.setup(scGatewayConfig)
-      val writableMap: WritableMap = Arguments.createMap()
-      writableMap.putString("version", setupResponse.version)
-      writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
-      promise.resolve(Gson().toJson(writableMap.toHashMap()))
+      val setupResponse = ScLoan.setup(scGatewayConfig, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: ScLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    //   val writableMap: WritableMap = Arguments.createMap()
+    //   writableMap.putString("version", setupResponse.version)
+    //   writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
+    //   promise.resolve(Gson().toJson(writableMap.toHashMap()))
     }
 
   @ReactMethod
