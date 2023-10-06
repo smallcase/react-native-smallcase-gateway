@@ -639,4 +639,38 @@ RCT_REMAP_METHOD(withdraw,
     });
 }
 
+RCT_REMAP_METHOD(service,
+                 loanInfo: (NSDictionary *)loanInfo
+                 serviceWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+
+        if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
+
+            NSString *interactionToken = loanInfo[@"interactionToken"];
+            NSLog(@" ----------- Interaction Token: %@", interactionToken);
+
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+
+            [ScLoan.instance serviceWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+
+                if(error != nil) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
+
+                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+
+                    reject(@"apply", @"Error while applying for Loan", err);
+                    return;
+                }
+
+                resolve(success.data);
+            }];
+        }
+
+    });
+}
+
 @end
