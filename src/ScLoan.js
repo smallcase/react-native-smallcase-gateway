@@ -62,11 +62,24 @@ const withdraw = async (loanInfo) => {
     return SmallcaseGatewayNative.withdraw(safeLoanInfo);
   };
 
+/**
+ * Triggers the Servicing Journey
+ *
+ * @param {LoanInfo} loanInfo
+ * @returns {Promise<String>}
+ */
+const service = async (loanInfo) => {
+    const safeLoanInfo = safeObject(loanInfo);
+
+    return SmallcaseGatewayNative.service(safeLoanInfo);
+  };
+
 const ScLoan = {
     setup,
     apply,
     pay,
-    withdraw
+    withdraw,
+    service
 }
 
 export default ScLoan;
