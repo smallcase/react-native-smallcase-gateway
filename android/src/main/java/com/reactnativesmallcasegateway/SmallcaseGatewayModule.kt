@@ -394,6 +394,28 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         }
       })
     }
+  
+  @ReactMethod
+    fun service(loanConfig: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = ScLoanInfo(interactionToken)
+      ScLoan.service(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: ScLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
         return when (envName) {
