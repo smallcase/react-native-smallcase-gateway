@@ -9,7 +9,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} gatewayName
  * @property {'production' | 'staging' | 'development'}  environment - environment
  *
- * @typedef {Object} LoanInfo
+ * @typedef {Object} ScLoanInfo
  * @property {String} interactionToken
  */
 
@@ -29,7 +29,7 @@ const setup = async (config) => {
 /**
  * Triggers the LOS Journey
  *
- * @param {LoanInfo} loanInfo
+ * @param {ScLoanInfo} loanInfo
  * @returns {Promise<String>}
  */
 const apply = async (loanInfo) => {
@@ -41,7 +41,7 @@ const apply = async (loanInfo) => {
 /**
  * Triggers the Repayment Journey
  *
- * @param {LoanInfo} loanInfo
+ * @param {ScLoanInfo} loanInfo
  * @returns {Promise<String>}
  */
 const pay = async (loanInfo) => {
@@ -53,7 +53,7 @@ const pay = async (loanInfo) => {
 /**
  * Triggers the Withdraw Journey
  *
- * @param {LoanInfo} loanInfo
+ * @param {ScLoanInfo} loanInfo
  * @returns {Promise<String>}
  */
 const withdraw = async (loanInfo) => {
@@ -65,7 +65,7 @@ const withdraw = async (loanInfo) => {
 /**
  * Triggers the Servicing Journey
  *
- * @param {LoanInfo} loanInfo
+ * @param {ScLoanInfo} loanInfo
  * @returns {Promise<String>}
  */
 const service = async (loanInfo) => {
