@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.2.2...v2.3.0) (2023-10-17)
+
+
+### Features
+
+* add service method to ScLoan ([3c25226](https://github.com/smallcase/react-native-smallcase-gateway/commit/3c252265aed8f8279491e139a212cced686da80d))
+* ios loans servicing ([50e7cb2](https://github.com/smallcase/react-native-smallcase-gateway/commit/50e7cb2375fe0d35e227576c207b7552eeb3371a))
+* loans servicing android ([ea3f211](https://github.com/smallcase/react-native-smallcase-gateway/commit/ea3f211f729af45cda2bfb95e53d7259102978dc))
+
+
+### Bug Fixes
+
+* update .m file for ios loans refactor changes ([11a2c21](https://github.com/smallcase/react-native-smallcase-gateway/commit/11a2c21990d164928c5f1088eb515d73db6bc09f))
+
 ### [2.2.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.2.1...v2.2.2) (2023-08-03)
 
 ### [2.2.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.1.1...v2.2.1) (2023-07-25)
