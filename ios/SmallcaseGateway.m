@@ -513,14 +513,13 @@ RCT_REMAP_METHOD(setupLoans,
                 lasEnv = @2;
             }
 
-            SCLoanConfig *gatewayLoanConfig = [[SCLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
+            ScLoanConfig *gatewayLoanConfig = [[ScLoanConfig alloc] initWithGatewayName:gatewayName environment:lasEnv];
 
-            [SCLoans.instance setupWithConfig:gatewayLoanConfig completion:^(SCLoanSuccess * success, SCLoanError * error) {
+            [ScLoan.instance setupWithConfig:gatewayLoanConfig completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
                     if(error != nil) {
                         NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                        [responseDict setValue:false forKey:@"isSuccess"];
                         [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                         [responseDict setValue:error.domain  forKey:@"errorMessage"];
 
@@ -550,16 +549,14 @@ RCT_REMAP_METHOD(apply,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
+            [ScLoan.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    [responseDict setValue:error.userInfo  forKey:@"data"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -586,16 +583,14 @@ RCT_REMAP_METHOD(pay,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
+            [ScLoan.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    [responseDict setValue:error.userInfo  forKey:@"data"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -622,16 +617,48 @@ RCT_REMAP_METHOD(withdraw,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            SCLoanInfo *gatewayLoanInfo = [[SCLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
 
-            [SCLoans.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(SCLoanSuccess * success, SCLoanError * error) {
+            [ScLoan.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
                     NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:false forKey:@"isSuccess"];
                     [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
                     [responseDict setValue:error.domain  forKey:@"errorMessage"];
-                    [responseDict setValue:error.userInfo  forKey:@"data"];
+
+                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+
+                    reject(@"apply", @"Error while applying for Loan", err);
+                    return;
+                }
+
+                resolve(success.data);
+            }];
+        }
+
+    });
+}
+
+RCT_REMAP_METHOD(service,
+                 loanInfo: (NSDictionary *)loanInfo
+                 serviceWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+
+        if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
+
+            NSString *interactionToken = loanInfo[@"interactionToken"];
+            NSLog(@" ----------- Interaction Token: %@", interactionToken);
+
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+
+            [ScLoan.instance serviceWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+
+                if(error != nil) {
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
+                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
 
                     NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
 
@@ -647,3 +674,4 @@ RCT_REMAP_METHOD(withdraw,
 }
 
 @end
+

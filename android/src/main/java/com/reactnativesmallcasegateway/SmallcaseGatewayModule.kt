@@ -307,29 +307,26 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         return
       }
       val scEnvironment = when(environment) {
-            "staging" -> SCLoanEnvironment.STAGING
-            "development" -> SCLoanEnvironment.DEVELOPMENT
-            else -> SCLoanEnvironment.PRODUCTION
+            "production" -> ScLoanEnvironment.PRODUCTION
+            "staging" -> ScLoanEnvironment.STAGING
+            "development" -> ScLoanEnvironment.DEVELOPMENT
+            else -> ScLoanEnvironment.PRODUCTION
         }
-      val writableMap: WritableMap = Arguments.createMap()
-      val scGatewayConfig = SCLoanConfig(gateway, scEnvironment)
-      SCLoan.setup(scGatewayConfig, object : SCLoanResult {
-        override fun onFailure(error: SCLoanError) {
-          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+      val scGatewayConfig = ScLoanConfig(gateway, scEnvironment)
+      val setupResponse = ScLoan.setup(scGatewayConfig, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: SCLoanSuccess) {
-          writableMap.putBoolean("success", true)
-          promise.resolve(Gson().toJson(writableMap.toHashMap()))
+        override fun onSuccess(response: ScLoanSuccess) {
+          promise.resolve(response.toString())
         }
-
       })
-
-//      writableMap.putBoolean("success", true)
+    //   val writableMap: WritableMap = Arguments.createMap()
     //   writableMap.putString("version", setupResponse.version)
     //   writableMap.putInt("versionCode", setupResponse.versionCode.toInt())
-
+    //   promise.resolve(Gson().toJson(writableMap.toHashMap()))
     }
 
   @ReactMethod
@@ -341,14 +338,14 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = SCLoanInfo(interactionToken)
-      SCLoan.apply(appCompatActivity, loanConfigObj, object : SCLoanResult {
-        override fun onFailure(error: SCLoanError) {
-          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+      val loanConfigObj = ScLoanInfo(interactionToken)
+      ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: SCLoanSuccess) {
+        override fun onSuccess(response: ScLoanSuccess) {
           promise.resolve(response.toString())
         }
       })
@@ -363,14 +360,14 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = SCLoanInfo(interactionToken)
-      SCLoan.pay(appCompatActivity, loanConfigObj, object : SCLoanResult {
-        override fun onFailure(error: SCLoanError) {
-          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+      val loanConfigObj = ScLoanInfo(interactionToken)
+      ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: SCLoanSuccess) {
+        override fun onSuccess(response: ScLoanSuccess) {
           promise.resolve(response.toString())
         }
       })
@@ -385,14 +382,36 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = SCLoanInfo(interactionToken)
-      SCLoan.withdraw(appCompatActivity, loanConfigObj, object : SCLoanResult {
-        override fun onFailure(error: SCLoanError) {
-          val errorWritableMap = createErrorJSON(error.errorCode, error.errorMessage, error.data)
+      val loanConfigObj = ScLoanInfo(interactionToken)
+      ScLoan.withdraw(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
           promise.reject("error", errorWritableMap)
         }
 
-        override fun onSuccess(response: SCLoanSuccess) {
+        override fun onSuccess(response: ScLoanSuccess) {
+          promise.resolve(response.toString())
+        }
+      })
+    }
+  
+  @ReactMethod
+    fun service(loanConfig: ReadableMap, promise: Promise) {
+      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val hashMap = readableMapToStrHashMap(loanConfig)
+      val interactionToken = hashMap["interactionToken"]
+      if(interactionToken == null) {
+        promise.reject(Throwable("Interaction token is null"))
+        return
+      }
+      val loanConfigObj = ScLoanInfo(interactionToken)
+      ScLoan.service(appCompatActivity, loanConfigObj, object : ScLoanResult {
+        override fun onFailure(error: ScLoanError) {
+          val errorWritableMap = createErrorJSON(error.code, error.message, error.data)
+          promise.reject("error", errorWritableMap)
+        }
+
+        override fun onSuccess(response: ScLoanSuccess) {
           promise.resolve(response.toString())
         }
       })
@@ -454,3 +473,4 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
 }
+
