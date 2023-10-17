@@ -473,3 +473,4 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
 }
+
