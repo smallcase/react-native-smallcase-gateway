@@ -107,11 +107,12 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 
 /**
  * triggers a transaction with a transaction id
- *
+ * @deprecated triggerMfTransaction will be removed soon. Please use triggerTransaction.
  * @param {string} transactionId
  * @returns {Promise<transactionRes>}
  */
 const triggerMfTransaction = async (transactionId) => {
+  console.warn("Calling deprecated function! triggerMfTransaction will be removed soon. Please use triggerTransaction.");
   const safeTransactionId =
     typeof transactionId === 'string' ? transactionId : '';
 
