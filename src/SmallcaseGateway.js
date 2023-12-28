@@ -77,7 +77,7 @@ const setConfigEnvironment = async (envConfig) => {
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
-  const safeToken = typeof sdkToken === "string" ? sdkToken : "";
+  const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
   return SmallcaseGatewayNative.init(safeToken);
 };
 
@@ -275,6 +275,10 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
+const multiply = async (a, b) => {
+  return SmallcaseGatewayNative.multiply(a, b);
+};
+
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -288,7 +292,8 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders
+  showOrders,
+  multiply,
 };
 
 export default SmallcaseGateway;
