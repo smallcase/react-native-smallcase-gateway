@@ -191,6 +191,19 @@ RCT_REMAP_METHOD(triggerTransaction,
                 resolve(responseDict);
                 return;
             }
+            
+            //MARK: intent - connect
+            if([response isKindOfClass: [ObjCTransactionIntentOnboarding class]]) {
+                ObjCTransactionIntentOnboarding *trxResponse = response;
+                [responseDict setValue:@"ONBOARDING"  forKey:@"transaction"];
+
+                if (trxResponse.response != nil) {
+                    [responseDict setValue:trxResponse.response forKey:@"data"];
+                }
+
+                resolve(responseDict);
+                return;
+            }
 
             //MARK: intent - holdings import
             if([response isKindOfClass: [ObjcTransactionIntentHoldingsImport class]]) {
