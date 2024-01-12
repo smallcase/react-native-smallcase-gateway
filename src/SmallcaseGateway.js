@@ -272,7 +272,7 @@ const archiveSmallcase = async (iscid) => {
  * @returns {Promise}
  */
 const getSdkVersion = async () => {
-  return SmallcaseGatewayNative.getSdkVersion(version);
+  return SmallcaseGatewayNative.signInWith(version);
 };
 
 const SmallcaseGateway = {
