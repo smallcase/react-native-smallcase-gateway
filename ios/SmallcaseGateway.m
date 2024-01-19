@@ -518,19 +518,10 @@ RCT_REMAP_METHOD(setupLoans,
             [ScLoan.instance setupWithConfig:gatewayLoanConfig completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
-                    if(error != nil) {
-                        NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                        [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                        [responseDict setValue:error.domain  forKey:@"errorMessage"];
-
-                        NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-
-                        reject(@"apply", @"Error while applying for Loan", err);
-                        return;
-                    }
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
+                    return;
                 }
-
-                resolve(@(YES));
+                resolve([self scLoanSuccessToDict:success]);
             }];
         }
 
@@ -554,17 +545,10 @@ RCT_REMAP_METHOD(apply,
             [ScLoan.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
-
-                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-
-                    reject(@"apply", @"Error while applying for Loan", err);
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
                     return;
                 }
-
-                    resolve(success.data);
+                resolve([self scLoanSuccessToDict:success]);
             }];
         }
 
@@ -588,17 +572,10 @@ RCT_REMAP_METHOD(pay,
             [ScLoan.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
-
-                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-
-                    reject(@"apply", @"Error while applying for Loan", err);
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
                     return;
                 }
-
-                resolve(success.data);
+                resolve([self scLoanSuccessToDict:success]);
             }];
         }
 
@@ -622,17 +599,10 @@ RCT_REMAP_METHOD(withdraw,
             [ScLoan.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
-
-                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-
-                    reject(@"apply", @"Error while applying for Loan", err);
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
                     return;
                 }
-
-                resolve(success.data);
+                resolve([self scLoanSuccessToDict:success]);
             }];
         }
 
@@ -656,21 +626,40 @@ RCT_REMAP_METHOD(service,
             [ScLoan.instance serviceWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
                 if(error != nil) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"errorMessage"];
-
-                    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
-
-                    reject(@"apply", @"Error while applying for Loan", err);
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
                     return;
                 }
-
-                resolve(success.data);
+                resolve([self scLoanSuccessToDict:success]);
+     
             }];
         }
 
     });
+}
+
+- (NSDictionary *)scLoanSuccessToDict:(ScLoanSuccess *)success {
+    NSMutableDictionary *successDict = [NSMutableDictionary dictionary];
+    successDict[@"isSuccess"] = @(success.isSuccess);
+
+    id data = success.data;
+    if (data && ![data isKindOfClass:[NSNull class]]) {
+    successDict[@"data"] = data;
+    }
+
+    return successDict;
+}
+
+- (NSError *)scLoanErrorToDict:(ScLoanError *)error {
+    
+    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+    [responseDict setValue:[NSNumber numberWithInteger:error.errorCode]  forKey:@"code"];
+    [responseDict setValue:error.errorMessage  forKey:@"message"];
+    [responseDict setValue:error.data  forKey:@"data"];
+    [responseDict setValue:@NO  forKey:@"isSuccess"];
+
+    NSError *err = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:responseDict];
+    return err;
+
 }
 
 @end

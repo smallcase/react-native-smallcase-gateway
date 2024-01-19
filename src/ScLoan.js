@@ -11,13 +11,24 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  *
  * @typedef {Object} ScLoanInfo
  * @property {String} interactionToken
+ *
+ * @typedef {Object} ScLoanSuccess
+ * @property {boolean} isSuccess
+ * @property {string} data
+ *
+ * @typedef {Object} ScLoanError
+ * @property {boolean} isSuccess
+ * @property {number} code
+ * @property {string} message
+ * @property {string} data
  */
 
 /**
  * Setup ScLoans
  *
  * @param {ScLoanConfig} config
- * @returns {Promise<String>}
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
  */
 const setup = async (config) => {
     const safeConfig = safeObject(config);
@@ -30,7 +41,8 @@ const setup = async (config) => {
  * Triggers the LOS Journey
  *
  * @param {ScLoanInfo} loanInfo
- * @returns {Promise<String>}
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
  */
 const apply = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -42,7 +54,8 @@ const apply = async (loanInfo) => {
  * Triggers the Repayment Journey
  *
  * @param {ScLoanInfo} loanInfo
- * @returns {Promise<String>}
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -54,7 +67,8 @@ const pay = async (loanInfo) => {
  * Triggers the Withdraw Journey
  *
  * @param {ScLoanInfo} loanInfo
- * @returns {Promise<String>}
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
  */
 const withdraw = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -66,7 +80,8 @@ const withdraw = async (loanInfo) => {
  * Triggers the Servicing Journey
  *
  * @param {ScLoanInfo} loanInfo
- * @returns {Promise<String>}
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
  */
 const service = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
