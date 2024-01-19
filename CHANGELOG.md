@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.3.1...v2.4.0) (2024-01-19)
+
+
+### Features
+
+* loans ([1ac32dc](https://github.com/smallcase/react-native-smallcase-gateway/commit/1ac32dc1506b5511ab7924a73bfd2b31d471fe8a))
+
 ### [2.3.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.3.0...v2.3.1) (2023-12-08)
 
 ## [2.3.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.2.2...v2.3.0) (2023-10-17)
