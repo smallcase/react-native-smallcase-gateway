@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.3.1...v3.0.0) (2024-01-19)
+
+
+### Features
+
+* loans ([1ac32dc](https://github.com/smallcase/react-native-smallcase-gateway/commit/1ac32dc1506b5511ab7924a73bfd2b31d471fe8a))
+
+
+### Bug Fixes
+
+* **native:** changed Bridge method responses to conform to ScLoanResponse ([6f1a2b6](https://github.com/smallcase/react-native-smallcase-gateway/commit/6f1a2b621f90b7677d37e6dd2150487f46e3d5a7))
+
 ### [2.3.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.3.0...v2.3.1) (2023-12-08)
 
 ## [2.3.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.2.2...v2.3.0) (2023-10-17)
