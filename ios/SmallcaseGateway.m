@@ -1,8 +1,8 @@
 #import <React/RCTBridgeModule.h>
 
-#import <SCGateway/SCGateway.h>
-#import <SCGateway/SCGateway-Swift.h>
-#import <Loans/Loans.h>
+// #import <SCGateway/SCGateway.h>
+// #import <SCGateway/SCGateway-Swift.h>
+// #import <Loans/Loans.h>
 
 //#import <SmallcaseGateway/SmallcaseGateway-Swift.h>
 

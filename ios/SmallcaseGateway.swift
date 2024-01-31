@@ -1,4 +1,5 @@
 //import SCGateway
+import Loans
 @objc(SmallcaseGateway)
 class SmallcaseGateway: NSObject {
     @objc public func signInWith(_ provider: String, resolver resolve: @escaping RCTPromiseResolveBlock,  rejecter reject: @escaping RCTPromiseRejectBlock) {
@@ -7,6 +8,6 @@ class SmallcaseGateway: NSObject {
         //     let result = nativeSdkString + reactNativeSdkString
 
         //    resolve(result)
-            resolve("kkkkkkkk")
+            resolve("experimenting 9999999")
     }
 }
