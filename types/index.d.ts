@@ -1,0 +1,51 @@
+export { ScLoan };
+declare const _default: {
+    ENV: {
+        STAG: string;
+        DEV: string;
+        PROD: string;
+    };
+    ERROR_MSG: {
+        init_sdk: string;
+        no_order: string;
+        no_broker: string;
+        invalid_jwt: string;
+        market_closed: string;
+        user_mismatch: string;
+        order_pending: string;
+        internal_error: string;
+        user_cancelled: string;
+        consent_denied: string;
+        order_in_queue: string;
+        invalid_gateway: string;
+        transaction_expired: string;
+        invalid_transactionId: string;
+        insufficient_holdings: string;
+        transaction_in_process: string;
+        no_compatible_browser: string;
+    };
+    TRANSACTION_TYPE: {
+        connect: string;
+        sipSetup: string;
+        fetchFunds: string;
+        transaction: string;
+        holdingsImport: string;
+        authorizeHoldings: string;
+        mfHoldingsImport: string;
+    };
+    init: (sdkToken: string) => unknown;
+    logoutUser: () => Promise;
+    triggerLeadGen: (userDetails?: import("./SmallcaseGateway").userDetails, utmParams?: any) => any;
+    triggerLeadGenWithStatus: (userDetails?: import("./SmallcaseGateway").userDetails) => Promise;
+    triggerLeadGenWithLoginCta: (userDetails?: import("./SmallcaseGateway").userDetails, utmParams?: any, showLoginCta?: boolean) => Promise;
+    archiveSmallcase: (iscid: string) => unknown;
+    triggerTransaction: (transactionId: string, utmParams?: any, brokerList?: string[]) => Promise<import("./SmallcaseGateway").transactionRes>;
+    triggerMfTransaction: (transactionId: string) => Promise<import("./SmallcaseGateway").transactionRes>;
+    setConfigEnvironment: (envConfig: import("./SmallcaseGateway").envConfig) => any;
+    launchSmallplug: (targetEndpoint: string, params: string) => unknown;
+    launchSmallplugWithBranding: (targetEndpoint: string, params: string, headerColor: string, headerOpacity: number, backIconColor: string, backIconOpacity: number) => unknown;
+    getSdkVersion: () => Promise;
+    showOrders: () => unknown;
+};
+export default _default;
+import ScLoan from "./ScLoan";

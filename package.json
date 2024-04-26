@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [
@@ -10,6 +10,7 @@
     "android",
     "ios",
     "cpp",
+    "types",
     "react-native-smallcase-gateway.podspec",
     "!lib/typescript/example",
     "!android/build",
@@ -18,9 +19,11 @@
     "!**/__fixtures__",
     "!**/__mocks__"
   ],
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
+    "genTypes": "tsc src/index.js --declaration --emitDeclarationOnly --allowJs --noLib --outDir types",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "release": "release-it",
@@ -47,7 +50,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "standard-version": "^9.1.0",
     "@arkweid/lefthook": "^0.7.7",
     "@babel/eslint-parser": "^7.18.2",
     "@commitlint/config-conventional": "^17.0.2",
@@ -67,6 +69,7 @@
     "react-native": "0.68.2",
     "react-native-builder-bob": "^0.18.3",
     "release-it": "^15.0.0",
+    "standard-version": "^9.1.0",
     "typescript": "^4.5.2"
   },
   "resolutions": {

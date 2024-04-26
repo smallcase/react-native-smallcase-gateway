@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v3.0.1...v3.1.0) (2024-04-26)
+
+
+### Features
+
+* **ios:** handle Onboarding intent on bridge ([1afb21a](https://github.com/smallcase/react-native-smallcase-gateway/commit/1afb21a7ee30870ffeebd23e86a486afcf41172c))
+
 ## [3.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v2.3.1...v3.0.0) (2024-01-19)
 
 

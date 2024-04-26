@@ -77,7 +77,7 @@ const setConfigEnvironment = async (envConfig) => {
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
-  const safeToken = typeof sdkToken === "string" ? sdkToken : "";
+  const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
   return SmallcaseGatewayNative.init(safeToken);
 };
 
@@ -107,11 +107,14 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 
 /**
  * triggers a transaction with a transaction id
- *
+ * @deprecated triggerMfTransaction will be removed soon. Please use triggerTransaction.
  * @param {string} transactionId
  * @returns {Promise<transactionRes>}
  */
 const triggerMfTransaction = async (transactionId) => {
+  console.warn(
+    'Calling deprecated function! triggerMfTransaction will be removed soon. Please use triggerTransaction.'
+  );
   const safeTransactionId =
     typeof transactionId === 'string' ? transactionId : '';
 
@@ -131,7 +134,6 @@ const launchSmallplug = async (targetEndpoint, params) => {
   return SmallcaseGatewayNative.launchSmallplug(safeEndpoint, safeParams);
 };
 
-const safeGatewayName = typeof gatewayName === 'string' ? gatewayName : '';
 /**
  * launches smallcases module
  *
@@ -288,7 +290,7 @@ const SmallcaseGateway = {
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
-  showOrders
+  showOrders,
 };
 
 export default SmallcaseGateway;
