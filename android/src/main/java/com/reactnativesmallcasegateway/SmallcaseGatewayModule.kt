@@ -11,7 +11,6 @@ import com.smallcase.gateway.data.requests.InitRequest
 import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
 import com.smallcase.loans.core.external.*
-import com.smallcase.loans.core.internal.*
 import com.google.gson.Gson
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
