@@ -6,8 +6,8 @@ install! 'cocoapods', :deterministic_uuids => false
 
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
-# source 'git@github.com:smallcase/cocoapodspecs.git'
-source 'https://github.com/smallcase/cocoapodspec-internal.git'
+ source 'git@github.com:smallcase/cocoapodspecs.git'
+#source 'https://github.com/smallcase/cocoapodspecs.git'
 # source 'https://github.com/smallcase/las-cocoapodspec-internal.git'
 source 'https://cdn.cocoapods.org'
 
