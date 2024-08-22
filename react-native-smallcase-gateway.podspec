@@ -34,5 +34,5 @@ Pod::Spec.new do |s|
   end
 
   s.dependency 'SCGateway', '4.0.1'
-  s.dependency 'SCLoans', '3.0.0'
+  s.dependency 'SCLoans-internal', '3.0.0-24-release'
 end
