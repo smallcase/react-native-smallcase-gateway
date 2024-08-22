@@ -25,6 +25,7 @@ declare namespace ScLoan {
     export { pay };
     export { withdraw };
     export { service };
+    export { triggerInteraction };
 }
 /**
  * @typedef {Object} ScLoanConfig
@@ -84,3 +85,12 @@ declare function withdraw(loanInfo: ScLoanInfo): Promise<ScLoanSuccess>;
  * @throws {ScLoanError}
  */
 declare function service(loanInfo: ScLoanInfo): Promise<ScLoanSuccess>;
+
+/**
+ * Triggers the triggerInteraction Journey
+ *
+ * @param {ScLoanInfo} loanInfo
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
+ */
+declare function triggerInteraction(loanInfo: ScLoanInfo): Promise<ScLoanSuccess>;

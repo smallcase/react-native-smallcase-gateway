@@ -43,6 +43,7 @@ const setup = async (config) => {
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise<ScLoanSuccess>}
  * @throws {ScLoanError}
+ * @deprecated This method is deprecated use triggerInteraction() instead.
  */
 const apply = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -56,6 +57,7 @@ const apply = async (loanInfo) => {
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise<ScLoanSuccess>}
  * @throws {ScLoanError}
+ * @deprecated This method is deprecated use triggerInteraction() instead.
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -69,6 +71,7 @@ const pay = async (loanInfo) => {
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise<ScLoanSuccess>}
  * @throws {ScLoanError}
+ * @deprecated This method is deprecated use triggerInteraction() instead.
  */
 const withdraw = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -82,6 +85,7 @@ const withdraw = async (loanInfo) => {
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise<ScLoanSuccess>}
  * @throws {ScLoanError}
+ * @deprecated This method is deprecated use triggerInteraction() instead.
  */
 const service = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
@@ -89,12 +93,26 @@ const service = async (loanInfo) => {
     return SmallcaseGatewayNative.service(safeLoanInfo);
   };
 
+/**
+ * Triggers the triggerInteraction function
+ *
+ * @param {ScLoanInfo} loanInfo
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
+ */
+const triggerInteraction = async (loanInfo) => {
+  const safeLoanInfo = safeObject(loanInfo);
+
+  return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
+};
+
 const ScLoan = {
-    setup,
-    apply,
-    pay,
-    withdraw,
-    service
-}
+  setup,
+  apply,
+  pay,
+  withdraw,
+  service,
+  triggerInteraction,
+};
 
 export default ScLoan;
