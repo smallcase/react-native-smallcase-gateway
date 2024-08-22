@@ -661,6 +661,34 @@ RCT_REMAP_METHOD(service,
     });
 }
 
+RCT_REMAP_METHOD(triggerInteraction,
+                 loanInfo: (NSDictionary *)loanInfo
+                 triggerInteractionWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject
+                 ) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+
+        if(loanInfo != nil && loanInfo[@"interactionToken"] != nil) {
+
+            NSString *interactionToken = loanInfo[@"interactionToken"];
+            NSLog(@" ----------- Interaction Token: %@", interactionToken);
+
+            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+
+            [ScLoan.instance triggerInteractionWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
+
+                if(error != nil) {
+                    reject([NSString stringWithFormat:@"%li", (long)error.errorCode], error.errorMessage, [self scLoanErrorToDict:error]);
+                    return;
+                }
+                resolve([self scLoanSuccessToDict:success]);
+     
+            }];
+        }
+
+    });
+}
+
 - (NSDictionary *)scLoanSuccessToDict:(ScLoanSuccess *)success {
     NSMutableDictionary *successDict = [NSMutableDictionary dictionary];
     successDict[@"isSuccess"] = @(success.isSuccess);

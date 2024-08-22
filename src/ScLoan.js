@@ -31,11 +31,12 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @throws {ScLoanError}
  */
 const setup = async (config) => {
-    const safeConfig = safeObject(config);
-    if(safeConfig.environment === undefined || safeConfig.environment === null) safeConfig.environment = ENV.PROD
+  const safeConfig = safeObject(config);
+  if (safeConfig.environment === undefined || safeConfig.environment === null)
+    safeConfig.environment = ENV.PROD;
 
-    return SmallcaseGatewayNative.setupLoans(safeConfig);
-  };
+  return SmallcaseGatewayNative.setupLoans(safeConfig);
+};
 
 /**
  * Triggers the LOS Journey
@@ -45,10 +46,10 @@ const setup = async (config) => {
  * @throws {ScLoanError}
  */
 const apply = async (loanInfo) => {
-    const safeLoanInfo = safeObject(loanInfo);
+  const safeLoanInfo = safeObject(loanInfo);
 
-    return SmallcaseGatewayNative.apply(safeLoanInfo);
-  };
+  return SmallcaseGatewayNative.apply(safeLoanInfo);
+};
 
 /**
  * Triggers the Repayment Journey
@@ -58,10 +59,10 @@ const apply = async (loanInfo) => {
  * @throws {ScLoanError}
  */
 const pay = async (loanInfo) => {
-    const safeLoanInfo = safeObject(loanInfo);
+  const safeLoanInfo = safeObject(loanInfo);
 
-    return SmallcaseGatewayNative.pay(safeLoanInfo);
-  };
+  return SmallcaseGatewayNative.pay(safeLoanInfo);
+};
 
 /**
  * Triggers the Withdraw Journey
@@ -71,10 +72,10 @@ const pay = async (loanInfo) => {
  * @throws {ScLoanError}
  */
 const withdraw = async (loanInfo) => {
-    const safeLoanInfo = safeObject(loanInfo);
+  const safeLoanInfo = safeObject(loanInfo);
 
-    return SmallcaseGatewayNative.withdraw(safeLoanInfo);
-  };
+  return SmallcaseGatewayNative.withdraw(safeLoanInfo);
+};
 
 /**
  * Triggers the Servicing Journey
@@ -84,17 +85,31 @@ const withdraw = async (loanInfo) => {
  * @throws {ScLoanError}
  */
 const service = async (loanInfo) => {
-    const safeLoanInfo = safeObject(loanInfo);
+  const safeLoanInfo = safeObject(loanInfo);
 
-    return SmallcaseGatewayNative.service(safeLoanInfo);
-  };
+  return SmallcaseGatewayNative.service(safeLoanInfo);
+};
+
+/**
+ * Triggers the triggerInteraction function
+ *
+ * @param {ScLoanInfo} loanInfo
+ * @returns {Promise<ScLoanSuccess>}
+ * @throws {ScLoanError}
+ */
+const triggerInteraction = async (loanInfo) => {
+  const safeLoanInfo = safeObject(loanInfo);
+
+  return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
+};
 
 const ScLoan = {
-    setup,
-    apply,
-    pay,
-    withdraw,
-    service
-}
+  setup,
+  apply,
+  pay,
+  withdraw,
+  service,
+  triggerInteraction,
+};
 
 export default ScLoan;
