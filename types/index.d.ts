@@ -33,7 +33,7 @@ declare const _default: {
         authorizeHoldings: string;
         mfHoldingsImport: string;
     };
-    init: (sdkToken: string) => unknown;
+    initSDK: (sdkToken: string) => unknown;
     logoutUser: () => Promise;
     triggerLeadGen: (userDetails?: import("./SmallcaseGateway").userDetails, utmParams?: any) => any;
     triggerLeadGenWithStatus: (userDetails?: import("./SmallcaseGateway").userDetails) => Promise;

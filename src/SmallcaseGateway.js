@@ -76,9 +76,9 @@ const setConfigEnvironment = async (envConfig) => {
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
  */
-const init = async (sdkToken) => {
+const initSDK = async (sdkToken) => {
   const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  return SmallcaseGatewayNative.init(safeToken);
+  return SmallcaseGatewayNative.initSDK(safeToken);
 };
 
 /**
@@ -278,7 +278,7 @@ const getSdkVersion = async () => {
 };
 
 const SmallcaseGateway = {
-  init,
+  initSDK,
   logoutUser,
   triggerLeadGen,
   triggerLeadGenWithStatus,
