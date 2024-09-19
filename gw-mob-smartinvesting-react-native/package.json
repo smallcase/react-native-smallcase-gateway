@@ -23,7 +23,7 @@
     "react-native-element-dropdown": "^2.10.1",
     "react-native-safe-area-context": "3.4.1",
     "react-native-screens": "^3.13.1",
-    "react-native-smallcase-gateway": "file:../react-native-smallcase-gateway-4.2.0.tgz"
+    "react-native-smallcase-gateway": "file:../../react-native-smallcase-gateway"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
