@@ -68,7 +68,7 @@ const App = () => {
   const init = useCallback(async () => {
     setLog((p) => p + '\n starting init');
     try {
-      await SmallcaseGateway.init(sdkToken);
+      await SmallcaseGateway.initSDK(sdkToken);
       setLog((p) => p + '\n init success');
     } catch (err: any) {
       setLog((p) => p + '\n error during init' + JSON.stringify(err.userInfo));

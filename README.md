@@ -93,7 +93,7 @@ await SmallcaseGateway.setConfigEnvironment({
 });
 
 // initialize session
-await SmallcaseGateway.init(sdkToken);
+await SmallcaseGateway.initSDK(sdkToken);
 
 // execute a transaction
 const res = await SmallcaseGateway.triggerTransaction(transactionId);
