@@ -1,0 +1,50 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext {
+        buildToolsVersion = "33.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
+        ndkVersion = "23.1.7779620"
+        kotlinVersion = "1.8.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+        url "${artifactory_contextUrl}/SCGateway"
+        }
+        maven {
+        url "${artifactory_contextUrl}/SCLoans"
+        }
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven {
+        url "${artifactory_contextUrl}/SCGateway"
+        }
+        maven {
+        url "${artifactory_contextUrl}/SCLoans"
+        }
+        maven {
+        url "https://artifactory.smallcase.com/artifactory/SCGateway-internal"
+         credentials {
+            username "react_native_user"
+            password "reactNativeUser123"
+             }
+         }
+    }
+}

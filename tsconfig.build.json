@@ -1,5 +1,5 @@
 
 {
   "extends": "./tsconfig",
-  "exclude": ["example"]
+  "exclude": ["gw-mob-smartinvesting-react-native"]
 }
