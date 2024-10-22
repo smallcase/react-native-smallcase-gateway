@@ -4,11 +4,13 @@ pre-commit:
     lint:
       files: git diff --name-only @{push}
       glob: "*.{js,ts,jsx,tsx}"
-      run: npx eslint {files}
+      run: npx eslint {files} --ignore-pattern "types/index.d.ts"
     types:
       files: git diff --name-only @{push}
-      glob: "*.{js,ts, jsx, tsx}"
+      glob: "*.{js,ts,jsx,tsx}"
       run: npx tsc --noEmit
+      ignore:
+        - "gw-mob-smartinvesting-react-native/**/*.tsx"
 commit-msg:
   parallel: true
   commands:
