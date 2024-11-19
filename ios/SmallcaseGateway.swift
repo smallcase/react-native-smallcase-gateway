@@ -19,7 +19,7 @@ class SmallcaseGateway: NSObject {
                        rejecter reject: @escaping RCTPromiseRejectBlock) {
         DispatchQueue.main.async {
             let nativeSdkString = "ios:\(SCGateway.shared.getSdkVersion())"
-            let reactNativeSdkString = ",react-native:\(reactNativeSdkVersion)"
+            let reactNativeSdkString = ",react-native lol okay:\(reactNativeSdkVersion)"
             let result = nativeSdkString + reactNativeSdkString
             
             resolve(result)
