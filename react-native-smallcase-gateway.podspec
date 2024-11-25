@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "11.0" }
+  s.platforms    = { :ios => "13.0" }
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
   s.vendored_frameworks = 'SCGateway.xcframework'
   s.source_files = "ios/**/*.{h,m,mm,swift}"
@@ -33,6 +33,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-noMixpanel', '4.0.1-375-release'
+  s.dependency 'SCGateway-combineMixpanelCallbackFOUR', '4.1.1-378-release'
   s.dependency 'SCLoans-noMixpanelSDK', '3.1.0-25-release'
 end

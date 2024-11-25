@@ -8,13 +8,7 @@
 
 import Combine
 import React
-
-final class EventPublisher {
-    static let shared = EventPublisher()
-    let eventSubject = PassthroughSubject<[String: Any], Never>()
-
-    private init() {}
-}
+import SCGateway
 
 @objc(EventBridge)
 class EventBridge: RCTEventEmitter {
@@ -23,6 +17,7 @@ class EventBridge: RCTEventEmitter {
     override init() {
         super.init()
 
+        print("AD::: EventBridge has been initialized")
         // Observe the Combine publisher
         cancellable = EventPublisher.shared.eventSubject
             .sink { [weak self] event in
@@ -30,16 +25,15 @@ class EventBridge: RCTEventEmitter {
             }
     }
 
-    private func sendEventToReactNative(event: [String: Any]) {
-        // Pass the event to React Native via RCTEventEmitter
-        if let bridge = bridge {
-            sendEvent(withName: event["eventName"] as? String ?? "unknownEvent", body: event)
-        }
+     func sendEventToReactNative(event: [String: Any]) {
+         if let bridge = bridge {
+             self.sendEvent(withName: event["eventName"] as? String ?? "unknownEvent", body: event)
+       }
     }
     
     // MARK: - Required Methods
     override func supportedEvents() -> [String]! {
-        return ["SDK - Transaction triggered"] // List of event names
+        return ["sample"] // List of event names
     }
 
     deinit {
