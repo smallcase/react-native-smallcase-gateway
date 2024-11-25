@@ -33,6 +33,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-combineMixpanelCallbackFOUR', '4.1.1-378-release'
+  s.dependency 'SCGateway-combineMixpanelCallbackFIVE', '4.1.1-378-release'
   s.dependency 'SCLoans-noMixpanelSDK', '3.1.0-25-release'
 end
