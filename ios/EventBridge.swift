@@ -15,13 +15,17 @@ struct MixpanelConstants {
     static let EVENT_GATEWAY_CONNECT_VIEWED = "SDK - Gateway connect viewed"
     static let EVENT_BROKER_CHOOSER_VIEWED = "SDK - Broker-chooser viewed"
     static let EVENT_BROKER_SELECTED = "SDK - Broker selected"
+    static let EVENT_NATIVE_APP_LAUNCHED = "SDK - Native App Launched"
+    static let EVENT_NATIVE_LOGIN_FALLBACK = "SDK - Triggered native login fallback"
+    static let EVENT_NATIVE_LOGIN_FALLBACK_USER_CANCELLED = "SDK - User closed"
     static let EVENT_BROKER_PLATFORM_OPENED = "SDK - Broker Platform Opened"
+    static let EVENT_BROKER_PLATFORM_LOADED = "SDK - Broker Platform Loaded"
+    static let EVENT_TRANSACTION_STATUS_FETCHED = "SDK - Transaction Status Fetched"
     static let EVENT_SDK_INTENT_RETURNED = "SDK - Intent Returned"
     static let EVENT_BP_RESPONSE_TO_PARTNER = "SDK - Response to partner"
     static let EVENT_LAUNCHED_LEAD_GEN_FROM_BROKER_CHOOSER = "SDK - Launched LeadGen from broker chooser"
+    static let EVENT_DEVICE_BACK_BUTTON_CLICKED = "SDK - Device Back Button Clicked"
     static let EVENT_USER_CLOSED = "SDK - User closed"
-    static let EVENT_NATIVE_APP_LAUNCHED = "SDK - Native App Launched"
-    static let EVENT_NATIVE_LOGIN_FALLBACK = "SDK - Triggered native login fallback"
 }
 
 @objc(EventBridge)
@@ -58,8 +62,13 @@ class EventBridge: RCTEventEmitter {
     MixpanelConstants.EVENT_LAUNCHED_LEAD_GEN_FROM_BROKER_CHOOSER,
     MixpanelConstants.EVENT_USER_CLOSED,
     MixpanelConstants.EVENT_NATIVE_APP_LAUNCHED,
-    MixpanelConstants.EVENT_NATIVE_LOGIN_FALLBACK
-        ] 
+    MixpanelConstants.EVENT_NATIVE_LOGIN_FALLBACK,
+    MixpanelConstants.EVENT_NATIVE_LOGIN_FALLBACK_USER_CANCELLED,
+    MixpanelConstants.EVENT_BROKER_PLATFORM_LOADED,
+    MixpanelConstants.EVENT_TRANSACTION_STATUS_FETCHED,
+    MixpanelConstants.EVENT_DEVICE_BACK_BUTTON_CLICKED
+]
+
     }
 
     deinit {
