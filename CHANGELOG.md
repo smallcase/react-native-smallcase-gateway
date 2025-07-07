@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.3...v5.1.0) (2025-07-07)
+
 ### [5.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.0...v5.0.1) (2025-05-05)
 
 ## [5.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v4.3.3...v5.0.0) (2025-01-21)
