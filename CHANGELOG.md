@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0-rc.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.3...v6.0.0-rc.0) (2025-07-09)
+
+
+### Features
+
+* **release:** add 'release:major:rc' script for prerelease management ([5602fa6](https://github.com/smallcase/react-native-smallcase-gateway/commit/5602fa62bf7f0e24d27353b2b93ebdfaea11466d))
+
 ## [5.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.3...v5.1.0) (2025-07-07)
 
 ### [5.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.0...v5.0.1) (2025-05-05)
