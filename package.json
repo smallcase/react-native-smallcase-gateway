@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "5.1.0",
+  "version": "6.0.0-rc.7",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [
@@ -32,7 +32,8 @@
     "commit": "yarn cz",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "release:major": "standard-version --release-as major",
+    "release:major:rc": "standard-version --release-as major --prerelease rc"
   },
   "keywords": [
     "react-native",
