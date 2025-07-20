@@ -9,6 +9,7 @@ buildscript {
     }
     repositories {
         google()
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -19,3 +20,21 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url 'https://www.jitpack.io' }
+        maven { url "https://maven.google.com" }
+
+        // smallcase gateway PROD SDKs
+        maven { url "${artifactory_contextUrl}/SCGateway" }
+
+        // checkout juspay
+        maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
+    }
+}

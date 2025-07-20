@@ -19,7 +19,7 @@
     "@react-navigation/stack": "6.3.29",
     "react-native-element-dropdown": "^2.10.1",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "3.34.0",
+    "react-native-screens": "^3.34.0",
     "react-native-smallcase-gateway": "file:../"
   },
   "devDependencies": {
