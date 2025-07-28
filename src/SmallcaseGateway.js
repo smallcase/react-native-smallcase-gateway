@@ -288,36 +288,20 @@ const getSdkVersion = async () => {
  */
 const startAnalyticsListener = async (callback) => {
   if (_analyticsListener) {
-    console.warn('SmallcaseGateway: Analytics listener already active');
+    console.warn('Already active');
     return false;
   }
 
-  if (typeof callback !== 'function') {
-    throw new Error('SmallcaseGateway: Callback must be a function');
-  }
-
-  try {
-    if (Platform.OS === 'ios') {
-      // Start the native observer
-      await SmallcaseGatewayNative.startAnalyticsListener();
-      
-      // Listen to analytics notifications
-      _analyticsListener = analyticsEventEmitter.addListener(
-        'scg_notification',
-        callback
-      );
-      
-      return true;
-    } else {
-      // Android implementation when ready
-      console.warn('SmallcaseGateway: Analytics listener not yet supported on Android');
-      return false;
-    }
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to start analytics listener', error);
-    throw error;
+  if (Platform.OS === 'ios') {
+    await SmallcaseGatewayNative.startAnalyticsListener();
+    _analyticsListener = analyticsEventEmitter.addListener(
+      'scg_notification',
+      callback
+    );
+    return true;
   }
 };
+
 
 /**
  * Stop listening to analytics notifications
@@ -325,26 +309,14 @@ const startAnalyticsListener = async (callback) => {
  * @returns {Promise<boolean>}
  */
 const stopAnalyticsListener = async () => {
-  if (!_analyticsListener) {
-    return false;
-  }
-
-  try {
-    // Remove the event listener
+  if (_analyticsListener) {
     _analyticsListener.remove();
     _analyticsListener = null;
-    
-    if (Platform.OS === 'ios') {
-      // Stop the native observer
-      await SmallcaseGatewayNative.stopAnalyticsListener();
-    }
-    
+    await SmallcaseGatewayNative.stopAnalyticsListener();
     return true;
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to stop analytics listener', error);
-    throw error;
   }
 };
+
 
 const SmallcaseGateway = {
   init,
