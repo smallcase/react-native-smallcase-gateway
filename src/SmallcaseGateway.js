@@ -4,9 +4,9 @@ import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
-const analyticsEventEmitter = Platform.OS === 'ios' 
-  ? new NativeEventEmitter(SmallcaseGatewayNative)
-  : null;
+const analyticsEventEmitter =
+  Platform.OS === 'ios' ? new NativeEventEmitter(SmallcaseGatewayNative) : null;
+
 /**
  *
  * @typedef {Object} envConfig
@@ -282,7 +282,7 @@ const getSdkVersion = async () => {
 
 /**
  * Start listening to analytics notifications from the native framework
- * 
+ *
  * @param {function} callback - Function to handle analytics notifications
  * @returns {Promise<boolean>}
  */
@@ -302,10 +302,9 @@ const startAnalyticsListener = async (callback) => {
   }
 };
 
-
 /**
  * Stop listening to analytics notifications
- * 
+ *
  * @returns {Promise<boolean>}
  */
 const stopAnalyticsListener = async () => {
@@ -316,7 +315,6 @@ const stopAnalyticsListener = async () => {
     return true;
   }
 };
-
 
 const SmallcaseGateway = {
   init,
