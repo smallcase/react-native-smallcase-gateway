@@ -689,6 +689,27 @@ RCT_REMAP_METHOD(triggerInteraction,
     });
 }
 
+//MARK: MixPanel Events
+RCT_REMAP_METHOD(startAnalyticsListener,
+                 startAnalyticsListenerWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        // Add observer for the single notification name that handles all analytics events
+        // [SCGateway addAnalyticsObserver:self selector:@selector(handleAnalyticsNotification:)];
+        resolve(@(YES));
+    });
+}
+
+// Method to stop listening to analytics notifications
+RCT_REMAP_METHOD(stopAnalyticsListener,
+                 stopAnalyticsListenerWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [SCGateway removeAnalyticsObserver:self];
+        resolve(@(YES));
+    });   
+}
+
 - (NSDictionary *)scLoanSuccessToDict:(ScLoanSuccess *)success {
     NSMutableDictionary *successDict = [NSMutableDictionary dictionary];
     successDict[@"isSuccess"] = @(success.isSuccess);
@@ -713,29 +734,6 @@ RCT_REMAP_METHOD(triggerInteraction,
     return err;
 
 }
-
-
-//MARK: MixPanel Events
-RCT_REMAP_METHOD(startAnalyticsListener,
-                 startAnalyticsListenerWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        // Add observer for the single notification name that handles all analytics events
-        // [SCGateway addAnalyticsObserver:self selector:@selector(handleAnalyticsNotification:)];
-        resolve(@(YES));
-    });
-}
-
-// Method to stop listening to analytics notifications
-RCT_REMAP_METHOD(stopAnalyticsListener,
-                 stopAnalyticsListenerWithResolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [SCGateway removeAnalyticsObserver:self];
-        resolve(@(YES));
-    });   
-}
-
 
 @end
 
