@@ -277,6 +277,72 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
+/**
+ * Start listening to analytics notifications from the native framework
+ * 
+ * @param {function} callback - Function to handle analytics notifications
+ * @returns {Promise<boolean>}
+ */
+const startAnalyticsListener = async (callback) => {
+  if (_analyticsListener) {
+    console.warn('SmallcaseGateway: Analytics listener already active');
+    return false;
+  }
+
+  if (typeof callback !== 'function') {
+    throw new Error('SmallcaseGateway: Callback must be a function');
+  }
+
+  try {
+    if (Platform.OS === 'ios') {
+      // Start the native observer
+      await SmallcaseGatewayNative.startAnalyticsListener();
+      
+      // Listen to analytics notifications
+      _analyticsListener = analyticsEventEmitter.addListener(
+        'SCGAnalyticsNotification',
+        callback
+      );
+      
+      return true;
+    } else {
+      // Android implementation when ready
+      console.warn('SmallcaseGateway: Analytics listener not yet supported on Android');
+      return false;
+    }
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to start analytics listener', error);
+    throw error;
+  }
+};
+
+/**
+ * Stop listening to analytics notifications
+ * 
+ * @returns {Promise<boolean>}
+ */
+const stopAnalyticsListener = async () => {
+  if (!_analyticsListener) {
+    return false;
+  }
+
+  try {
+    // Remove the event listener
+    _analyticsListener.remove();
+    _analyticsListener = null;
+    
+    if (Platform.OS === 'ios') {
+      // Stop the native observer
+      await SmallcaseGatewayNative.stopAnalyticsListener();
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to stop analytics listener', error);
+    throw error;
+  }
+};
+
 const SmallcaseGateway = {
   init,
   logoutUser,
@@ -291,6 +357,8 @@ const SmallcaseGateway = {
   launchSmallplugWithBranding,
   getSdkVersion,
   showOrders,
+  startAnalyticsListener,
+  stopAnalyticsListener,
 };
 
 export default SmallcaseGateway;
