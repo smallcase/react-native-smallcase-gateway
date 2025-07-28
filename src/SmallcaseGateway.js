@@ -1,9 +1,12 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
+const analyticsEventEmitter = Platform.OS === 'ios' 
+  ? new NativeEventEmitter(SmallcaseGatewayNative)
+  : null;
 /**
  *
  * @typedef {Object} envConfig
@@ -32,7 +35,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {Number} backIconOpacity - opacity of the back icon
  *
  */
-
+let _analyticsListener = null;
 let defaultBrokerList = [];
 
 /**
@@ -300,7 +303,7 @@ const startAnalyticsListener = async (callback) => {
       
       // Listen to analytics notifications
       _analyticsListener = analyticsEventEmitter.addListener(
-        'SCGAnalyticsNotification',
+        'scg_notification',
         callback
       );
       
