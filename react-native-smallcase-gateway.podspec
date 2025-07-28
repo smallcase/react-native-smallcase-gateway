@@ -33,6 +33,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-internal-extract-mixpanel-from-sdk-1', '4.1.4-2-release'
+  s.dependency 'SCGateway-internal-extract-mixpanel-from-sdk-2', '4.1.4-3-release'
   s.dependency 'SCLoans', '4.0.0'
 end
