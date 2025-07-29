@@ -1,5 +1,4 @@
 export default SmallcaseGateway;
-
 export type envConfig = {
     /**
      * - unique name on consumer
@@ -22,7 +21,6 @@ export type envConfig = {
      */
     environmentName: 'production' | 'staging' | 'development';
 };
-
 export type transactionRes = {
     /**
      * - response data
@@ -41,7 +39,6 @@ export type transactionRes = {
      */
     transaction: string;
 };
-
 export type userDetails = {
     /**
      * - name of user
@@ -60,7 +57,6 @@ export type userDetails = {
      */
     pinCode: string;
 };
-
 export type SmallplugUiConfig = {
     /**
      * - color of the header background
@@ -79,34 +75,6 @@ export type SmallplugUiConfig = {
      */
     backIconOpacity: number;
 };
-
-// Analytics-related types
-export interface AnalyticsEvent {
-    type: 'track' | 'super_properties_updated' | 'user_reset' | 'user_identify' | 'error' | 'unknown';
-    eventName?: string;
-    properties?: Record<string, any>;
-    timestamp?: string;
-    data?: Record<string, any>;
-    userId?: string;
-    deviceId?: string;
-    error?: string;
-    originalType?: string;
-    originalData?: any;
-}
-
-export interface AnalyticsSubscription {
-    remove: () => void;
-}
-
-export type AnalyticsEventCallback = (event: AnalyticsEvent) => void;
-
-export interface AnalyticsEventTypesInterface {
-    ANALYTICS_EVENT: 'analytics_event';
-    SUPER_PROPERTIES_UPDATED: 'analytics_super_properties_updated';
-    USER_RESET: 'user_reset';
-    USER_IDENTIFY: 'user_identify';
-}
-
 declare namespace SmallcaseGateway {
     export { init };
     export { logoutUser };
@@ -121,21 +89,14 @@ declare namespace SmallcaseGateway {
     export { launchSmallplugWithBranding };
     export { getSdkVersion };
     export { showOrders };
-    
-    // Analytics methods
-    export { addAnalyticsEventListener };
-    export { removeAnalyticsEventListener };
-    export { AnalyticsEventTypes };
 }
-
 /**
  * initialize sdk with a session
  *
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
  */
-declare function init(sdkToken: string): Promise<any>;
-
+declare function init(sdkToken: string): unknown;
 /**
  * Logs the user out and removes the web session.
  *
@@ -143,8 +104,7 @@ declare function init(sdkToken: string): Promise<any>;
  *
  * @returns {Promise}
  */
-declare function logoutUser(): Promise<any>;
-
+declare function logoutUser(): Promise;
 /**
  * triggers the lead gen flow
  *
@@ -152,15 +112,13 @@ declare function logoutUser(): Promise<any>;
  * @param {Object} [utmParams]
  */
 declare function triggerLeadGen(userDetails?: userDetails, utmParams?: any): any;
-
 /**
  * triggers the lead gen flow
  *
  * @param {userDetails} [userDetails]
- * @returns {Promise}
+ * * @returns {Promise}
  */
-declare function triggerLeadGenWithStatus(userDetails?: userDetails): Promise<any>;
-
+declare function triggerLeadGenWithStatus(userDetails?: userDetails): Promise;
 /**
  * triggers the lead gen flow with an option of "login here" cta
  *
@@ -169,15 +127,13 @@ declare function triggerLeadGenWithStatus(userDetails?: userDetails): Promise<an
  * @param {boolean} [showLoginCta]
  * @returns {Promise}
  */
-declare function triggerLeadGenWithLoginCta(userDetails?: userDetails, utmParams?: any, showLoginCta?: boolean): Promise<any>;
-
+declare function triggerLeadGenWithLoginCta(userDetails?: userDetails, utmParams?: any, showLoginCta?: boolean): Promise;
 /**
  * Marks a smallcase as archived
  *
  * @param {String} iscid
  */
-declare function archiveSmallcase(iscid: string): Promise<any>;
-
+declare function archiveSmallcase(iscid: string): unknown;
 /**
  * triggers a transaction with a transaction id
  *
@@ -187,29 +143,25 @@ declare function archiveSmallcase(iscid: string): Promise<any>;
  * @returns {Promise<transactionRes>}
  */
 declare function triggerTransaction(transactionId: string, utmParams?: any, brokerList?: Array<string>): Promise<transactionRes>;
-
 /**
  * triggers a transaction with a transaction id
- * @deprecated triggerMfTransaction will be removed soon. Please use triggerTransaction.
+ *
  * @param {string} transactionId
  * @returns {Promise<transactionRes>}
  */
 declare function triggerMfTransaction(transactionId: string): Promise<transactionRes>;
-
 /**
  * configure the sdk with
  * @param {envConfig} envConfig
  */
-declare function setConfigEnvironment(envConfig: envConfig): Promise<any>;
-
+declare function setConfigEnvironment(envConfig: envConfig): any;
 /**
  * launches smallcases module
  *
  * @param {string} targetEndpoint
  * @param {string} params
  */
-declare function launchSmallplug(targetEndpoint: string, params: string): Promise<any>;
-
+declare function launchSmallplug(targetEndpoint: string, params: string): unknown;
 /**
  * launches smallcases module
  *
@@ -220,43 +172,16 @@ declare function launchSmallplug(targetEndpoint: string, params: string): Promis
  * @param {string} backIconColor
  * @param {number} backIconOpacity
  */
-declare function launchSmallplugWithBranding(
-    targetEndpoint: string, 
-    params: string, 
-    headerColor: string, 
-    headerOpacity: number, 
-    backIconColor: string, 
-    backIconOpacity: number
-): Promise<any>;
-
+declare function launchSmallplugWithBranding(targetEndpoint: string, params: string, headerColor: string, headerOpacity: number, backIconColor: string, backIconOpacity: number): unknown;
 /**
  * Returns the native android/ios and react-native sdk version
  * (internal-tracking)
  * @returns {Promise}
  */
-declare function getSdkVersion(): Promise<string>;
-
+declare function getSdkVersion(): Promise;
 /**
  * This will display a list of all the orders that a user recently placed.
  * This includes pending, successful, and failed orders.
- * @returns {Promise}
+ * @returns
  */
-declare function showOrders(): Promise<any>;
-
-/**
- * Add analytics event listener with proper event type handling
- * @param {AnalyticsEventCallback} callback - Callback function to handle analytics events
- * @returns {AnalyticsSubscription} - Event subscription object
- */
-declare function addAnalyticsEventListener(callback: AnalyticsEventCallback): AnalyticsSubscription;
-
-/**
- * Remove analytics event listener
- * @param {AnalyticsSubscription} subscription - Subscription object to remove
- */
-declare function removeAnalyticsEventListener(subscription: AnalyticsSubscription): void;
-
-/**
- * Analytics event types constant
- */
-declare const AnalyticsEventTypes: AnalyticsEventTypesInterface;
+declare function showOrders(): unknown;
