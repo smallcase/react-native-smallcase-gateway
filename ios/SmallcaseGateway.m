@@ -689,6 +689,19 @@ RCT_REMAP_METHOD(triggerInteraction,
     });
 }
 
+RCT_EXTERN_METHOD(startAnalyticsListener:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(testAnalyticsEvent:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(getPluginDebugInfo:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(testNotificationCenter:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+                  
+
 - (NSDictionary *)scLoanSuccessToDict:(ScLoanSuccess *)success {
     NSMutableDictionary *successDict = [NSMutableDictionary dictionary];
     successDict[@"isSuccess"] = @(success.isSuccess);
