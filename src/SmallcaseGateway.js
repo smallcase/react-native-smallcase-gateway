@@ -2,6 +2,8 @@ import { NativeModules, Platform } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
+import scGatewayEventManager, { SCGatewayEvents, SCGatewayEventTypes } from './SCGatewayEventEmitter';
+
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -291,6 +293,11 @@ const SmallcaseGateway = {
   launchSmallplugWithBranding,
   getSdkVersion,
   showOrders,
+  
+  // Analytics Event Support
+  events: SCGatewayEvents,
+  eventTypes: SCGatewayEventTypes,
+  eventManager: scGatewayEventManager,
 };
 
 export default SmallcaseGateway;
