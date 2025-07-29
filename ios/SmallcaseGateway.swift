@@ -3,179 +3,75 @@ import UIKit
 
 @objc(SmallcaseGateway)
 class SmallcaseGateway: RCTEventEmitter {
-    
-    // MARK: - RCTEventEmitter Required Methods
-    
+
+    private var hasListeners = false
+
+    // MARK: - Events
+
     override func supportedEvents() -> [String]! {
         return ["scg_analytics_event"]
     }
-    
+
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-    
+
+    // MARK: - Lifecycle
+
     override func startObserving() {
-        print("🎯 SmallcaseGateway: Starting to observe SCGateway notifications")
-        
-        // Add observer for SCGateway analytics notifications
+        hasListeners = true
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAnalyticsNotification(_:)),
             name: SCGateway.shared.scgNotificationName,
             object: nil
         )
-        
-        print("✅ SmallcaseGateway: Observer added for notification: \(SCGateway.shared.scgNotificationName)")
     }
-    
+
     override func stopObserving() {
-        print("🛑 SmallcaseGateway: Stopping observation of SCGateway notifications")
-        
+        hasListeners = false
         NotificationCenter.default.removeObserver(
             self,
             name: SCGateway.shared.scgNotificationName,
             object: nil
         )
     }
-    
+
     // MARK: - Notification Handler
-    
+
     @objc private func handleAnalyticsNotification(_ notification: Notification) {
-        print("🔥 SmallcaseGateway: Received notification: \(notification.name)")
-        print("🔥 SmallcaseGateway: Notification object type: \(type(of: notification.object))")
-        
-        // According to SCGateway implementation, the notification.object contains the complete JSON string
-        guard let jsonString = notification.object as? String else {
-            print("❌ SmallcaseGateway: Expected JSON string in notification.object, got: \(String(describing: notification.object))")
-            return
+        guard hasListeners else { return }
+
+        var eventPayload: [String: Any] = [:]
+
+        if let jsonString = notification.object as? String {
+            eventPayload = parseJSONString(jsonString) ?? [:]
+        } else if let userInfo = notification.userInfo {
+            eventPayload = userInfo as? [String: Any] ?? [:]
+        } else if let dict = notification.object as? [String: Any] {
+            eventPayload = dict
         }
-        
-        print("📝 SmallcaseGateway: Raw JSON string: \(jsonString)")
-        
-        // Parse the JSON string to get the notification structure
-        guard let notificationData = parseJSONString(jsonString) else {
-            print("❌ SmallcaseGateway: Failed to parse JSON string")
-            return
-        }
-        
-        print("✅ SmallcaseGateway: Parsed notification data: \(notificationData)")
-        
-        // The parsed data contains: type, timestamp, and data (which is another JSON string)
-        guard let notificationType = notificationData["type"] as? String,
-              let timestamp = notificationData["timestamp"] as? String,
-              let dataString = notificationData["data"] as? String else {
-            print("❌ SmallcaseGateway: Invalid notification structure")
-            return
-        }
-        
-        // Parse the inner data JSON string
-        let innerData = parseJSONString(dataString) ?? [:]
-        
-        // Create the final event data structure for React Native
-        let eventData: [String: Any] = [
-            "type": notificationType,
-            "timestamp": timestamp,
-            "data": innerData
-        ]
-        
-        print("🚀 SmallcaseGateway: Sending to React Native: \(eventData)")
-        
-        // Send event to React Native
-        self.sendEvent(withName: "scg_analytics_event", body: eventData)
+
+        sendEvent(withName: "scg_analytics_event", body: eventPayload)
     }
-    
-    // MARK: - Helper Methods
-    
+
+    // MARK: - JSON Parser
+
     private func parseJSONString(_ jsonString: String) -> [String: Any]? {
-        guard let data = jsonString.data(using: .utf8) else {
-            print("❌ SmallcaseGateway: Failed to convert string to data")
-            return nil
-        }
-        
+        guard let data = jsonString.data(using: .utf8) else { return nil }
         do {
-            let json = try JSONSerialization.jsonObject(with: data, options: [])
-            return json as? [String: Any]
+            return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
         } catch {
-            print("❌ SmallcaseGateway: Error parsing JSON: \(error)")
-            print("❌ SmallcaseGateway: JSON string was: \(jsonString)")
+            print("❌ JSON parse error:", error.localizedDescription)
             return nil
         }
     }
-    
-    // MARK: - React Native Analytics Methods
-    
-    @RCT_REMAP_METHOD(addAnalyticsEventListener,
-                     addAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func addAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        print("🎯 SmallcaseGateway: addAnalyticsEventListener called from React Native")
-        
-        // Return subscription info that the host app expects
-        let subscriptionInfo: [String: Any] = [
-            "status": "active",
-            "eventName": "scg_analytics_event",
-            "notificationName": SCGateway.shared.scgNotificationName.rawValue,
-            "isAnalyticsActive": SCGateway.isAnalyticsActive,
-            "message": "Analytics listener setup complete"
-        ]
-        
-        resolve(subscriptionInfo)
+
+    // MARK: - Example Exported Method
+
+    @objc func startAnalyticsListener(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+        // Logic if needed before the listener starts
+        print("🎯 Analytics listener start requested.")
+        resolve("Listener started successfully 🚀")
     }
-    
-    @RCT_REMAP_METHOD(removeAnalyticsEventListener,
-                     removeAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func removeAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        print("🗑️ SmallcaseGateway: removeAnalyticsEventListener called")
-        resolve("Analytics listener removed")
-    }
-    
-    // MARK: - Debug Methods
-    
-    @RCT_REMAP_METHOD(testNotificationFlow, 
-                     testNotificationFlowWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func testNotificationFlow(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        // Test if SCGateway analytics is active
-        let isActive = SCGateway.isAnalyticsActive
-        
-        // Create a test event to verify the flow
-        let testData: [String: Any] = [
-            "isAnalyticsActive": isActive,
-            "notificationName": SCGateway.shared.scgNotificationName.rawValue,
-            "sdkVersion": SCGateway.shared.getSdkVersion()
-        ]
-        
-        // Send test event
-        self.sendEvent(withName: "scg_analytics_event", body: [
-            "type": "test_event",
-            "timestamp": ISO8601DateFormatter().string(from: Date()),
-            "data": testData
-        ])
-        
-        resolve(testData)
-    }
-    
-    @RCT_REMAP_METHOD(triggerTestAnalyticsEvent,
-                     triggerTestAnalyticsEventWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func triggerTestAnalyticsEvent(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        // Trigger a test analytics event via SCGateway
-        SCGateway.shared.registerAnalyticsEvent(
-            eventName: "test_react_native_bridge", 
-            additionalProperties: [
-                "source": "react_native_bridge",
-                "timestamp": Date().timeIntervalSince1970
-            ]
-        )
-        
-        resolve("Test analytics event triggered")
-    }
-    
-    // Add all your existing RCT_REMAP_METHOD implementations here...
-    // Keep all existing methods from your .m file like init, triggerTransaction, etc.
 }
