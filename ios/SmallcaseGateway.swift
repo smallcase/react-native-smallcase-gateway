@@ -39,19 +39,20 @@ class SmallcaseGateway: RCTEventEmitter {
 
     // MARK: - Notification Handler
 
-    @objc private func handleAnalyticsNotification(_ notification: Notification) {
-        guard hasListeners else { return }
+   @objc private func handleAnalyticsNotification(_ notification: Notification) {
+    print("📬 [RN Plugin] Received notification from iOS Native SDK")
 
-        var eventPayload: [String: Any] = [:]
-
-         guard let jsonString = notification.object as? String,
-         let data = jsonString.data(using: .utf8),
-         let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-         return
-         }
-         sendEvent(withName: "scg_analytics_event", body: payload)
-
+    guard let jsonString = notification.object as? String,
+          let data = jsonString.data(using: .utf8),
+          let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+        print("❌ [RN Plugin] Failed to parse notification payload")
+        return
     }
+
+    print("📦 [RN Plugin] Sending event to JS: \(payload)")
+    sendEvent(withName: "scg_analytics_event", body: payload)
+}
+
 
     // MARK: - JSON Parser
 

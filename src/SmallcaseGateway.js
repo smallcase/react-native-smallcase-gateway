@@ -140,7 +140,7 @@ const addAnalyticsEventListener = (callback) => {
   console.log('🎯 Setting up SCGateway analytics event listener');
   
   const subscription = eventEmitter.addListener('scg_analytics_event', (eventData) => {
-    console.log('📊 Raw analytics event received:', eventData);
+    console.log('📊 [JS] Received native event/your React Native layer is receiving from the iOS plugin.:', eventData);
     
     try {
       const { type, timestamp, data } = eventData;
