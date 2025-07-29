@@ -434,7 +434,8 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   addAnalyticsEventListener,
-  removeAnalyticsEventListener
+  removeAnalyticsEventListener,
+  AnalyticsEventTypes
 };
 
 export default SmallcaseGateway;
