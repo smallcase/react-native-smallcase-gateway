@@ -3,7 +3,6 @@ import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
-const eventEmitter = new NativeEventEmitter(SmallcaseGatewayNative);
 
 /**
  *
@@ -35,6 +34,16 @@ const eventEmitter = new NativeEventEmitter(SmallcaseGatewayNative);
  */
 
 let defaultBrokerList = [];
+
+// Analytics event types from SCGateway
+const AnalyticsEventTypes = {
+  ANALYTICS_EVENT: 'analytics_event',
+  SUPER_PROPERTIES_UPDATED: 'analytics_super_properties_updated',
+  USER_RESET: 'user_reset',
+  USER_IDENTIFY: 'user_identify'
+};
+
+const eventEmitter = new NativeEventEmitter(SmallcaseGatewayNative);
 
 /**
  * configure the sdk with
@@ -122,9 +131,136 @@ const triggerMfTransaction = async (transactionId) => {
   return SmallcaseGatewayNative.triggerMfTransaction(safeTransactionId);
 };
 
-
+/**
+ * Add analytics event listener with proper event type handling
+ * @param {Function} callback - Callback function to handle analytics events
+ * @returns {Object} - Event subscription object
+ */
 const addAnalyticsEventListener = (callback) => {
-    return eventEmitter.addListener('scg_analytics_event', callback);
+  console.log('🎯 Setting up SCGateway analytics event listener');
+  
+  const subscription = eventEmitter.addListener('scg_analytics_event', (eventData) => {
+    console.log('📊 Raw analytics event received:', eventData);
+    
+    try {
+      const { type, timestamp, data } = eventData;
+      
+      // Handle different types of analytics events
+      switch (type) {
+        case AnalyticsEventTypes.ANALYTICS_EVENT:
+          handleTrackingEvent(data, timestamp, callback);
+          break;
+          
+        case AnalyticsEventTypes.SUPER_PROPERTIES_UPDATED:
+          handleSuperPropertiesUpdate(data, timestamp, callback);
+          break;
+          
+        case AnalyticsEventTypes.USER_RESET:
+          handleUserReset(data, timestamp, callback);
+          break;
+          
+        case AnalyticsEventTypes.USER_IDENTIFY:
+          handleUserIdentify(data, timestamp, callback);
+          break;
+          
+        default:
+          console.log('🔍 Unknown analytics event type:', type);
+          // Still call callback with raw data
+          callback({
+            type: 'unknown',
+            timestamp,
+            data,
+            originalType: type
+          });
+      }
+    } catch (error) {
+      console.error('❌ Error processing analytics event:', error);
+      console.error('❌ Event data was:', eventData);
+      
+      // Call callback with error info
+      callback({
+        type: 'error',
+        error: error.message,
+        originalData: eventData
+      });
+    }
+  });
+  
+  console.log('✅ Analytics listener subscription created');
+  return subscription;
+};
+
+
+/**
+ * Handle tracking events (regular analytics events)
+ */
+const handleTrackingEvent = (data, timestamp, callback) => {
+  const { eventName, properties } = data;
+  
+  console.log(`📈 Analytics Event: ${eventName}`, properties);
+  
+  callback({
+    type: 'track',
+    eventName,
+    properties,
+    timestamp
+  });
+};
+
+/**
+ * Handle super properties updates
+ */
+const handleSuperPropertiesUpdate = (data, timestamp, callback) => {
+  const { properties } = data;
+  
+  console.log('🔧 Super Properties Updated:', properties);
+  
+  callback({
+    type: 'super_properties_updated',
+    properties,
+    timestamp
+  });
+};
+
+/**
+ * Handle user reset events
+ */
+const handleUserReset = (data, timestamp, callback) => {
+  const { id, device_id_sc } = data;
+  
+  console.log('🔄 User Reset:', { id, device_id_sc });
+  
+  callback({
+    type: 'user_reset',
+    userId: id,
+    deviceId: device_id_sc,
+    timestamp
+  });
+};
+
+/**
+ * Handle user identify events
+ */
+const handleUserIdentify = (data, timestamp, callback) => {
+  const { id } = data;
+  
+  console.log('👤 User Identify:', id);
+  
+  callback({
+    type: 'user_identify',
+    userId: id,
+    timestamp
+  });
+};
+
+/**
+ * Remove analytics event listener
+ */
+const removeAnalyticsEventListener = (subscription) => {
+  if (subscription && typeof subscription.remove === 'function') {
+    subscription.remove();
+    console.log('🗑️ Analytics event listener removed');
+  }
 };
 
 /**
@@ -298,6 +434,7 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   addAnalyticsEventListener,
+  removeAnalyticsEventListener
 };
 
 export default SmallcaseGateway;

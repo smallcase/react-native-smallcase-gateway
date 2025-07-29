@@ -15,21 +15,25 @@ class SmallcaseGateway: RCTEventEmitter {
     }
     
     override func startObserving() {
+        print("🎯 SmallcaseGateway: Starting to observe SCGateway notifications")
+        
         // Add observer for SCGateway analytics notifications
-        // Replace 'scgNotificationName' with the actual notification name from your SDK
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAnalyticsNotification(_:)),
-            name: SCGateway.shared.scgNotificationName, // Replace with actual notification name
+            name: SCGateway.shared.scgNotificationName,
             object: nil
         )
+        
+        print("✅ SmallcaseGateway: Observer added for notification: \(SCGateway.shared.scgNotificationName)")
     }
     
     override func stopObserving() {
-        // Remove observer when React Native stops listening
+        print("🛑 SmallcaseGateway: Stopping observation of SCGateway notifications")
+        
         NotificationCenter.default.removeObserver(
             self,
-            name: SCGateway.shared.scgNotificationName, // Replace with actual notification name
+            name: SCGateway.shared.scgNotificationName,
             object: nil
         )
     }
@@ -37,19 +41,44 @@ class SmallcaseGateway: RCTEventEmitter {
     // MARK: - Notification Handler
     
     @objc private func handleAnalyticsNotification(_ notification: Notification) {
-        var eventData: [String: Any] = [:]
+        print("🔥 SmallcaseGateway: Received notification: \(notification.name)")
+        print("🔥 SmallcaseGateway: Notification object type: \(type(of: notification.object))")
         
-        // Handle different types of notification data
-        if let jsonString = notification.object as? String {
-            // If notification contains JSON string
-            eventData = parseJSONString(jsonString) ?? [:]
-        } else if let userInfo = notification.userInfo {
-            // If notification contains userInfo dictionary
-            eventData = userInfo as? [String: Any] ?? [:]
-        } else if let dataDict = notification.object as? [String: Any] {
-            // If notification contains dictionary directly
-            eventData = dataDict
+        // According to SCGateway implementation, the notification.object contains the complete JSON string
+        guard let jsonString = notification.object as? String else {
+            print("❌ SmallcaseGateway: Expected JSON string in notification.object, got: \(String(describing: notification.object))")
+            return
         }
+        
+        print("📝 SmallcaseGateway: Raw JSON string: \(jsonString)")
+        
+        // Parse the JSON string to get the notification structure
+        guard let notificationData = parseJSONString(jsonString) else {
+            print("❌ SmallcaseGateway: Failed to parse JSON string")
+            return
+        }
+        
+        print("✅ SmallcaseGateway: Parsed notification data: \(notificationData)")
+        
+        // The parsed data contains: type, timestamp, and data (which is another JSON string)
+        guard let notificationType = notificationData["type"] as? String,
+              let timestamp = notificationData["timestamp"] as? String,
+              let dataString = notificationData["data"] as? String else {
+            print("❌ SmallcaseGateway: Invalid notification structure")
+            return
+        }
+        
+        // Parse the inner data JSON string
+        let innerData = parseJSONString(dataString) ?? [:]
+        
+        // Create the final event data structure for React Native
+        let eventData: [String: Any] = [
+            "type": notificationType,
+            "timestamp": timestamp,
+            "data": innerData
+        ]
+        
+        print("🚀 SmallcaseGateway: Sending to React Native: \(eventData)")
         
         // Send event to React Native
         self.sendEvent(withName: "scg_analytics_event", body: eventData)
@@ -58,15 +87,63 @@ class SmallcaseGateway: RCTEventEmitter {
     // MARK: - Helper Methods
     
     private func parseJSONString(_ jsonString: String) -> [String: Any]? {
-        guard let data = jsonString.data(using: .utf8) else { return nil }
+        guard let data = jsonString.data(using: .utf8) else {
+            print("❌ SmallcaseGateway: Failed to convert string to data")
+            return nil
+        }
         
         do {
             let json = try JSONSerialization.jsonObject(with: data, options: [])
             return json as? [String: Any]
         } catch {
-            print("Error parsing JSON: \(error)")
+            print("❌ SmallcaseGateway: Error parsing JSON: \(error)")
+            print("❌ SmallcaseGateway: JSON string was: \(jsonString)")
             return nil
         }
+    }
+    
+    // MARK: - Debug Methods (Optional)
+    
+    @RCT_REMAP_METHOD(testNotificationFlow, 
+                     testNotificationFlowWithResolver:(RCTPromiseResolveBlock)resolve 
+                     rejecter:(RCTPromiseRejectBlock)reject)
+    func testNotificationFlow(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        
+        // Test if SCGateway analytics is active
+        let isActive = SCGateway.isAnalyticsActive
+        
+        // Create a test event to verify the flow
+        let testData: [String: Any] = [
+            "isAnalyticsActive": isActive,
+            "notificationName": SCGateway.shared.scgNotificationName.rawValue,
+            "sdkVersion": SCGateway.shared.getSdkVersion()
+        ]
+        
+        // Send test event
+        self.sendEvent(withName: "scg_analytics_event", body: [
+            "type": "test_event",
+            "timestamp": ISO8601DateFormatter().string(from: Date()),
+            "data": testData
+        ])
+        
+        resolve(testData)
+    }
+    
+    @RCT_REMAP_METHOD(triggerTestAnalyticsEvent,
+                     triggerTestAnalyticsEventWithResolver:(RCTPromiseResolveBlock)resolve 
+                     rejecter:(RCTPromiseRejectBlock)reject)
+    func triggerTestAnalyticsEvent(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        
+        // Trigger a test analytics event via SCGateway
+        SCGateway.shared.registerAnalyticsEvent(
+            eventName: "test_react_native_bridge", 
+            additionalProperties: [
+                "source": "react_native_bridge",
+                "timestamp": Date().timeIntervalSince1970
+            ]
+        )
+        
+        resolve("Test analytics event triggered")
     }
     
     // Add all your existing RCT_REMAP_METHOD implementations here...
