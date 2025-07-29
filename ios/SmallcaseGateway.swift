@@ -104,80 +104,10 @@ class SmallcaseGateway: RCTEventEmitter {
     
     // MARK: - React Native Analytics Methods
     
-    // Store callback references (Note: This is a workaround - not ideal for React Native)
-    private static var callbackId: String?
-    
-    @RCT_REMAP_METHOD(addAnalyticsEventListener,
-                     addAnalyticsEventListenerWithCallbackId:(NSString*)callbackId
-                     resolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func addAnalyticsEventListener(callbackId: NSString, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        print("🎯 SmallcaseGateway: addAnalyticsEventListener called with callbackId: \(callbackId)")
-        
-        // Store the callback ID for later use
-        SmallcaseGateway.callbackId = callbackId as String
-        
-        // Return subscription-like object
-        let subscriptionInfo: [String: Any] = [
-            "status": "active",
-            "eventName": "scg_analytics_event", 
-            "callbackId": callbackId,
-            "remove": "Call removeAnalyticsEventListener to cleanup"
-        ]
-        
-        resolve(subscriptionInfo)
-    }
-    
-    @RCT_REMAP_METHOD(removeAnalyticsEventListener,
-                     removeAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func removeAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        SmallcaseGateway.callbackId = nil
-        print("🗑️ SmallcaseGateway: Analytics event listener removed")
-        resolve("Analytics listener removed")
-    }
-    
-    // Override the notification handler to also call JS callbacks
-    @objc override func handleAnalyticsNotification(_ notification: Notification) {
-        // First, handle the normal NativeEventEmitter flow
-        super.handleAnalyticsNotification(notification)
-        
-        // Then, if there's a stored callback ID, also trigger it
-        if let callbackId = SmallcaseGateway.callbackId {
-            // Parse notification data
-            guard let jsonString = notification.object as? String,
-                  let notificationData = parseJSONString(jsonString) else {
-                return
-            }
-            
-            guard let notificationType = notificationData["type"] as? String,
-                  let timestamp = notificationData["timestamp"] as? String,
-                  let dataString = notificationData["data"] as? String else {
-                return
-            }
-            
-            let innerData = parseJSONString(dataString) ?? [:]
-            
-            let eventData: [String: Any] = [
-                "type": notificationType,
-                "timestamp": timestamp,
-                "data": innerData
-            ]
-            
-            // Call the stored JavaScript callback
-            // Note: This is a complex workaround - normally React Native doesn't support this
-            print("📞 Would call JS callback \(callbackId) with: \(eventData)")
-        }
-    }
-    
-    // MARK: - Analytics Listener Method for Host App
-    
     @RCT_REMAP_METHOD(addAnalyticsEventListener,
                      addAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
                      rejecter:(RCTPromiseRejectBlock)reject)
-    func addAnalyticsEventListenerMethod(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    func addAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         
         print("🎯 SmallcaseGateway: addAnalyticsEventListener called from React Native")
         
@@ -193,7 +123,16 @@ class SmallcaseGateway: RCTEventEmitter {
         resolve(subscriptionInfo)
     }
     
-    // MARK: - Debug Methods (Optional)
+    @RCT_REMAP_METHOD(removeAnalyticsEventListener,
+                     removeAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
+                     rejecter:(RCTPromiseRejectBlock)reject)
+    func removeAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        
+        print("🗑️ SmallcaseGateway: removeAnalyticsEventListener called")
+        resolve("Analytics listener removed")
+    }
+    
+    // MARK: - Debug Methods
     
     @RCT_REMAP_METHOD(testNotificationFlow, 
                      testNotificationFlowWithResolver:(RCTPromiseResolveBlock)resolve 
@@ -237,25 +176,6 @@ class SmallcaseGateway: RCTEventEmitter {
         resolve("Test analytics event triggered")
     }
     
-    // MARK: - React Native Convenience Methods
-    
-    @RCT_REMAP_METHOD(addAnalyticsEventListener,
-                     addAnalyticsEventListenerWithResolver:(RCTPromiseResolveBlock)resolve 
-                     rejecter:(RCTPromiseRejectBlock)reject)
-    func addAnalyticsEventListener(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        
-        // This method just confirms that the listener is set up
-        // The actual listening happens through the NativeEventEmitter
-        let listenerInfo = [
-            "status": "active",
-            "eventName": "scg_analytics_event",
-            "notificationName": SCGateway.shared.scgNotificationName.rawValue,
-            "isAnalyticsActive": SCGateway.isAnalyticsActive
-        ]
-        
-        resolve(listenerInfo)
-    }
-    
     // Add all your existing RCT_REMAP_METHOD implementations here...
-    // (Keep all the existing methods from your .m file)
+    // Keep all existing methods from your .m file like init, triggerTransaction, etc.
 }
