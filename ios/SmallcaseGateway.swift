@@ -44,15 +44,13 @@ class SmallcaseGateway: RCTEventEmitter {
 
         var eventPayload: [String: Any] = [:]
 
-        if let jsonString = notification.object as? String {
-            eventPayload = parseJSONString(jsonString) ?? [:]
-        } else if let userInfo = notification.userInfo {
-            eventPayload = userInfo as? [String: Any] ?? [:]
-        } else if let dict = notification.object as? [String: Any] {
-            eventPayload = dict
-        }
+         guard let jsonString = notification.object as? String,
+         let data = jsonString.data(using: .utf8),
+         let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+         return
+         }
+         sendEvent(withName: "scg_analytics_event", body: payload)
 
-        sendEvent(withName: "scg_analytics_event", body: eventPayload)
     }
 
     // MARK: - JSON Parser
