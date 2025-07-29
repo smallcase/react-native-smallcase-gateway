@@ -2,10 +2,10 @@
 
 #import <SCGateway/SCGateway.h>
 #import <SCGateway/SCGateway-Swift.h>
-
+#import <React/RCTEventEmitter.h>
 #import <Loans/Loans.h>
 
-@interface RCT_EXTERN_MODULE(SmallcaseGateway, NSObject)
+@interface RCT_EXTERN_MODULE(SmallcaseGateway, RCTEventEmitter)
 
 //MARK: SDK version helpers
 RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {

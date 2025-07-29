@@ -1,8 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
+const eventEmitter = new NativeEventEmitter(SmallcaseGatewayNative);
 
 /**
  *
@@ -119,6 +120,11 @@ const triggerMfTransaction = async (transactionId) => {
     typeof transactionId === 'string' ? transactionId : '';
 
   return SmallcaseGatewayNative.triggerMfTransaction(safeTransactionId);
+};
+
+
+const addAnalyticsEventListener = (callback) => {
+    return eventEmitter.addListener('scg_analytics_event', callback);
 };
 
 /**
@@ -291,6 +297,7 @@ const SmallcaseGateway = {
   launchSmallplugWithBranding,
   getSdkVersion,
   showOrders,
+  addAnalyticsEventListener,
 };
 
 export default SmallcaseGateway;
