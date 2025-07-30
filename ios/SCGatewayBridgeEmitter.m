@@ -7,10 +7,10 @@
 //
 
 #import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
+#import "SmallcaseGateway-Bridging-Header.h"
 
-@interface RCT_EXTERN_REMAP_MODULE(SCGatewayBridgeEmitter, SCGatewayBridgeEmitter, RCTEventEmitter)
-
+@interface RCT_EXTERN_REMAP_MODULE(SCGatewayBridgeEmitter, SCGatewayEmitter, NSObject)
+// naming should be diff 
 RCT_EXTERN_METHOD(startListening:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

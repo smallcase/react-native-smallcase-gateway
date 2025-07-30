@@ -38,10 +38,11 @@ class SCGatewayEventManager {
       return Promise.resolve('Not available');
     }
 
+    console.log('SCGatewayEventManager: Attempting to start listening...');
     try {
       const result = await SCGatewayBridgeEmitter.startListening();
       this.isListening = true;
-      console.log('SCGatewayEventManager:', result);
+      console.log('SCGatewayEventManager: Started listening successfully:', result);
       return result;
     } catch (error) {
       console.error('SCGatewayEventManager: Failed to start listening:', error);
@@ -58,6 +59,7 @@ class SCGatewayEventManager {
       return Promise.resolve('Not available');
     }
 
+    console.log('SCGatewayEventManager: Attempting to stop listening...');
     try {
       const result = await SCGatewayBridgeEmitter.stopListening();
       this.isListening = false;
@@ -65,7 +67,7 @@ class SCGatewayEventManager {
       // Remove all listeners
       this.removeAllListeners();
       
-      console.log('SCGatewayEventManager:', result);
+      console.log('SCGatewayEventManager: Stopped listening successfully:', result);
       return result;
     } catch (error) {
       console.error('SCGatewayEventManager: Failed to stop listening:', error);
@@ -80,6 +82,7 @@ class SCGatewayEventManager {
    * @returns {object} - Subscription object with remove() method
    */
   addEventListener(eventType, callback) {
+    console.log(`SCGatewayEventManager: Attempting to add listener for event type: ${eventType}`);
     if (Platform.OS !== 'ios' || !eventEmitter) {
       console.warn('SCGatewayEventManager: Event listening not available on this platform');
       return { remove: () => {} };
@@ -92,6 +95,7 @@ class SCGatewayEventManager {
 
     // Start listening automatically if not already listening
     if (!this.isListening) {
+      console.log('SCGatewayEventManager: Not listening, starting automatically...');
       this.startListening().catch(console.error);
     }
 
@@ -103,12 +107,14 @@ class SCGatewayEventManager {
     }
     this.listeners.get(eventType).push(subscription);
 
-    console.log(`SCGatewayEventManager: Added listener for ${eventType}`);
+    console.log(`SCGatewayEventManager: Successfully added listener for ${eventType}`);
 
     return {
       remove: () => {
+        console.log(`SCGatewayEventManager: Removing listener for ${eventType}`);
         subscription.remove();
         this.removeListenerFromMap(eventType, subscription);
+        console.log(`SCGatewayEventManager: Listener for ${eventType} removed.`);
       }
     };
   }
@@ -119,12 +125,14 @@ class SCGatewayEventManager {
    * @param {function} callback - Callback function to remove
    */
   removeEventListener(eventType, callback) {
+    console.log(`SCGatewayEventManager: Attempting to remove listener for event type: ${eventType}`);
     if (Platform.OS !== 'ios' || !eventEmitter) {
+      console.warn('SCGatewayEventManager: Event emitter not available on this platform, cannot remove listener.');
       return;
     }
 
     eventEmitter.removeListener(eventType, callback);
-    console.log(`SCGatewayEventManager: Removed listener for ${eventType}`);
+    console.log(`SCGatewayEventManager: Successfully removed listener for ${eventType}`);
   }
 
   /**
@@ -132,7 +140,9 @@ class SCGatewayEventManager {
    * @param {string} eventType - Event type from SCGatewayEventTypes
    */
   removeAllListeners(eventType = null) {
+    console.log(`SCGatewayEventManager: Attempting to remove all listeners for event type: ${eventType || 'all'}`);
     if (Platform.OS !== 'ios' || !eventEmitter) {
+      console.warn('SCGatewayEventManager: Event emitter not available on this platform, cannot remove all listeners.');
       return;
     }
 
@@ -143,7 +153,7 @@ class SCGatewayEventManager {
       this.listeners.delete(eventType);
       
       eventEmitter.removeAllListeners(eventType);
-      console.log(`SCGatewayEventManager: Removed all listeners for ${eventType}`);
+      console.log(`SCGatewayEventManager: Successfully removed all listeners for ${eventType}`);
     } else {
       // Remove all listeners
       this.listeners.forEach((subscriptions, type) => {
@@ -152,7 +162,7 @@ class SCGatewayEventManager {
       });
       this.listeners.clear();
       
-      console.log('SCGatewayEventManager: Removed all listeners');
+      console.log('SCGatewayEventManager: Successfully removed all listeners');
     }
   }
 
@@ -166,12 +176,14 @@ class SCGatewayEventManager {
 
   // Private helper method
   removeListenerFromMap(eventType, targetSubscription) {
+    console.log(`SCGatewayEventManager: Removing listener from map for event type: ${eventType}`);
     const subscriptions = this.listeners.get(eventType) || [];
     const index = subscriptions.indexOf(targetSubscription);
     if (index > -1) {
       subscriptions.splice(index, 1);
       if (subscriptions.length === 0) {
         this.listeners.delete(eventType);
+        console.log(`SCGatewayEventManager: No more listeners for ${eventType}, removing event type from map.`);
       }
     }
   }

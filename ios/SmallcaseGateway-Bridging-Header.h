@@ -2,3 +2,5 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTEventEmitter.h>
 
+@interface SCGatewayBridgeEmitter: NSObject
+@end
