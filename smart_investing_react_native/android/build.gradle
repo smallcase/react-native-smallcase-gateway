@@ -1,0 +1,40 @@
+buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
+    }
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url 'https://www.jitpack.io' }
+        maven { url "https://maven.google.com" }
+
+        // smallcase gateway PROD SDKs
+        maven { url "${artifactory_contextUrl}/SCGateway" }
+
+        // checkout juspay
+        maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
+    }
+}
