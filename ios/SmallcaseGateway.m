@@ -30,8 +30,8 @@ RCT_REMAP_METHOD(getSdkVersion,
 RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
-                 isLeprechaunActive: (BOOL)isLeprechaunActive
-                 isAmoEnabled: (BOOL)isAmoEnabled
+                 isLeprechaunActive: (BOOL *)isLeprechaunActive
+                 isAmoEnabled: (BOOL *)isAmoEnabled
                  preProvidedBrokers: (NSArray *)preProvidedBrokers
                  setConfigEnvironmentWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
@@ -480,7 +480,7 @@ RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictio
 RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
                   userParams: (NSDictionary *)userParams
                   utmParams:(NSDictionary *)utmParams
-                  showLoginCta:(BOOL)showLoginCta
+                  showLoginCta:(BOOL *)showLoginCta
                   leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject
                   ) {
