@@ -261,4 +261,3 @@ export const SCGatewayEvents = {
    */
   removeAllListeners: () => scGatewayEventManager.removeAllListeners(),
 };
-

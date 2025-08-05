@@ -193,7 +193,7 @@ class SCGatewayEmitter: RCTEventEmitter {
         print("SCGatewayEmitter: Successfully parsed notification data: \(notificationData).")
         
         // Map notification type to React Native event name
-        let eventName = mapNotificationTypeToEventName(notificationData["type"] as? String)
+        let eventName: String = mapNotificationTypeToEventName(notificationData["type"] as? String)
         print("SCGatewayEmitter: Mapped notification type to event name: \(eventName).")
         
         // Emit the event to React Native
@@ -219,31 +219,36 @@ class SCGatewayEmitter: RCTEventEmitter {
         }
     }
     
-    private func mapNotificationTypeToEventName(_ type: String?) -> String {
-        print("SCGatewayEmitter: Mapping notification type to event name. Type: \(type ?? "nil").")
-        guard let type = type else {
-            print("SCGatewayEmitter: No event type found, using unknown_event.")
-            return "scgateway_unknown_event"
-        }
-        
-        switch type {
-        case "analytics_event":
-            print("SCGatewayEmitter: Mapped to analytics_event.")
-            return "scgateway_analytics_event"
-        case "analytics_super_properties_updated":
-            print("SCGatewayEmitter: Mapped to super_properties_updated.")
-            return "scgateway_super_properties_updated"
-        case "user_reset":
-            print("SCGatewayEmitter: Mapped to user_reset.")
-            return "scgateway_user_reset"
-        case "user_identify":
-            print("SCGatewayEmitter: Mapped to user_identify.")
-            return "scgateway_user_identify"
-        default:
-            print("SCGatewayEmitter: Unknown event type: \(type), using unknown_event.")
-            return "scgateway_unknown_event"
-        }
+   private func mapNotificationTypeToEventName(_ type: String?) -> String {
+    print("SCGatewayEmitter: Mapping notification type to event name. Type: \(type ?? "nil").")
+    
+    guard let rawType = type else {
+        print("SCGatewayEmitter: No event type found, using unknown_event.")
+        return "scgateway_unknown_event"
     }
+
+    let trimmedType = rawType.trimmingCharacters(in: .whitespacesAndNewlines)
+    print("SCGatewayEmitter: Trimmed event type: '\(trimmedType)'")
+
+    switch trimmedType {
+    case "scgateway_analytics_event":
+        print("SCGatewayEmitter: Mapped to analytics_event.")
+        return "scgateway_analytics_event"
+    case "scgateway_analytics_super_properties_updated":
+        print("SCGatewayEmitter: Mapped to super_properties_updated.")
+        return "scgateway_super_properties_updated"
+    case "scgateway_user_reset":
+        print("SCGatewayEmitter: Mapped to user_reset.")
+        return "scgateway_user_reset"
+    case "scgateway_user_identify":
+        print("SCGatewayEmitter: Mapped to user_identify.")
+        return "scgateway_user_identify"
+    default:
+        print("SCGatewayEmitter: Unknown event type: \(trimmedType), using unknown_event.")
+        return "scgateway_unknown_event"
+    }
+}
+
     
     // MARK: - Static Helper Methods for External Access
     
@@ -279,4 +284,3 @@ class SCGatewayEmitter: RCTEventEmitter {
         resolve(debugInfo)
     }
 }
-
