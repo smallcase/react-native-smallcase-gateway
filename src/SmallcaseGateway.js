@@ -3,7 +3,6 @@ import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
 import scGatewayEventManager, { SCGatewayEvents, SCGatewayEventTypes } from './SCGatewayEventEmitter';
-
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -37,10 +36,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 let defaultBrokerList = [];
 
-// Create the event emitter instance
-const eventEmitter = new NativeEventEmitter(SmallcaseGatewayNative);
-const SMALLCASE_GATEWAY_EVENT = 'scg_notification';
-
 // Event types constants for easy reference
 const EVENT_TYPES = {
   ANALYTICS_EVENT: 'scg_analytics_event',
@@ -53,34 +48,6 @@ const EVENT_TYPES = {
   LEADGEN_FAILED: 'scg_leadgen_failed'
 };
 
-/**
- * Add an event listener for all SmallcaseGateway events
- * @param {function} listener - Callback function that receives event data
- * @returns {object} - Subscription object with remove() method
- */
-function addEventsListener(listener) {
-  console.log('🔗 Adding SmallcaseGateway event listener...');
-  return eventEmitter.addListener(SMALLCASE_GATEWAY_EVENT, listener);
-}
-
-/**
- * Remove all event listeners for SmallcaseGateway events
- */
-function removeAllEventsListeners() {
-  console.log('🧹 Removing all SmallcaseGateway event listeners...');
-  eventEmitter.removeAllListeners(SMALLCASE_GATEWAY_EVENT);
-}
-
-/**
- * Remove a specific event listener
- * @param {object} subscription - The subscription object returned by addEventsListener
- */
-function removeEventsListener(subscription) {
-  if (subscription && subscription.remove) {
-    console.log('🧹 Removing specific SmallcaseGateway event listener...');
-    subscription.remove();
-  }
-}
 
 /**
  * configure the sdk with
@@ -340,18 +307,10 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   
-  // Event handling methods
-  addEventsListener,
-  removeEventsListener,
-  removeAllEventsListeners,
-  
-  // Event types for reference
   eventTypes: EVENT_TYPES,
-  
-  // Legacy event support (for backward compatibility)
-  events: SCGatewayEvents,
-  eventManager: scGatewayEventManager,
-  eventTypes_legacy: SCGatewayEventTypes,
+  gatewayEvents: SCGatewayEvents,
+  gatewayEventManager: scGatewayEventManager,
+  gatewayEventTypes: SCGatewayEventTypes,
 };
 
 export default SmallcaseGateway;

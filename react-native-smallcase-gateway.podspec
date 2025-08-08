@@ -34,5 +34,5 @@ Pod::Spec.new do |s|
   end
 
   s.dependency 'SCGateway-ios-extract-mixpanel-from-sdk-1', '4.1.5-4-release'
-  s.dependency 'SCLoans', '4.0.0'
+  s.dependency 'SCLoans-internal-ios-extract-mixpanel-from-sdk-2', '4.0.0-30-release'
 end

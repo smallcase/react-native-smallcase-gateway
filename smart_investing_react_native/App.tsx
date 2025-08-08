@@ -1,5 +1,5 @@
 import React from 'react';
-import SmallcaseGateway from 'react-native-smallcase-gateway';
+import SmallcaseGateway, { ScLoan } from 'react-native-smallcase-gateway';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { KeyboardAvoidingView, Platform as RNPlatform } from 'react-native';
@@ -20,6 +20,7 @@ interface AppState {
   isSdkInitialized: boolean;
   sdkVersion: string | null;
   lastEvent: any | null;
+  lastLoansEvent: any | null;
 }
 
 interface AppProps {
@@ -29,19 +30,22 @@ interface AppProps {
 class App extends React.Component<AppProps, AppState> {
   private eventSubscription: any = null;
   private legacyEventSubscriptions: any[] = [];
+  private loansEventSubscriptions: any[] = [];
 
   constructor(props: AppProps) {
     super(props);
     this.state = {
       isSdkInitialized: false,
       sdkVersion: null,
-      lastEvent: null
+      lastEvent: null,
+      lastLoansEvent: null
     };
   }
 
   componentDidMount() {
     console.log('🚀 App mounted - Initializing SmallcaseGateway SDK');
     this.initializeSDK();
+    this.setupEventListeners();
   }
 
   componentWillUnmount() {
@@ -87,12 +91,13 @@ class App extends React.Component<AppProps, AppState> {
     // Platform-specific event handling
     if (RNPlatform.OS === 'ios') {
       this.setupIOSEventListeners();
+      this.setupIOSLoansEventListeners();
     } else {
-      this.setupAndroidEventListeners();
+      // this.setupAndroidEventListeners();
     }
     
     // Also setup legacy event listeners for backward compatibility
-    this.setupLegacyEventListeners();
+    // this.setupLegacyEventListeners();
     
     console.log('✅ Event listeners setup complete');
   };
@@ -100,33 +105,33 @@ class App extends React.Component<AppProps, AppState> {
   setupIOSEventListeners = () => {
     console.log('🍎 Setting up iOS-specific event listeners...');
     
-    // Use the legacy event manager for iOS-specific events
-    const { eventManager, events } = SmallcaseGateway as any;
+    // Use the legacy event manager for iOS-specific gatewayEvents
+    const { gatewayEventManager, gatewayEvents } = SmallcaseGateway as any;
     
-    // Start listening to iOS events
-    eventManager.startListening().then(() => {
-      console.log('✅ iOS event manager started listening');
-    }).catch((error: any) => {
-      console.error('❌ Failed to start iOS event manager:', error);
-    });
+    // // Start listening to iOS gatewayEvents
+    // gatewayEventManager.startListening().then(() => {
+    //   console.log('✅ iOS event manager started listening');
+    // }).catch((error: any) => {
+    //   console.error('❌ Failed to start iOS event manager:', error);
+    // });
     
-    // Add listeners for iOS-specific events
-    const analyticsSubscription = events.onAnalyticsEvent((data: any) => {
+    // Add listeners for iOS-specific gatewayEvents
+    const analyticsSubscription = gatewayEvents.onAnalyticsEvent((data: any) => {
       console.log('📊 iOS Analytics Event:', data);
       this.handleAnalyticsEvent(data);
     });
     
-    const superPropsSubscription = events.onSuperPropertiesUpdated((data: any) => {
+    const superPropsSubscription = gatewayEvents.onSuperPropertiesUpdated((data: any) => {
       console.log('🔄 iOS Super Properties Updated:', data);
       this.handleSuperPropsUpdated(data);
     });
     
-    const userResetSubscription = events.onUserReset((data: any) => {
+    const userResetSubscription = gatewayEvents.onUserReset((data: any) => {
       console.log('🔄 iOS User Reset:', data);
       this.handleUserReset(data);
     });
     
-    const userIdentifySubscription = events.onUserIdentify((data: any) => {
+    const userIdentifySubscription = gatewayEvents.onUserIdentify((data: any) => {
       console.log('👤 iOS User Identify:', data);
       this.handleUserIdentify(data);
     });
@@ -140,82 +145,192 @@ class App extends React.Component<AppProps, AppState> {
     );
   };
 
-  setupAndroidEventListeners = () => {
-    console.log('🤖 Setting up Android event listeners...');
+  setupIOSLoansEventListeners = () => {
+    console.log('🏦 Setting up iOS-specific SCLoans event listeners...');
     
-    // Use the main event listener for Android
-    this.eventSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
-      console.log('\n🎉 === Android SmallcaseGateway Event Received ===');
-      console.log('Event Type:', event.type);
-      console.log('Event Data:', event.data);
-      console.log('Timestamp:', new Date().toISOString());
+    // Import ScLoan to get the correct event manager and events
+   const { loansEvents, loansEventManager } = ScLoan as any;
+    
+    // Check if the event manager is available
+    if (!loansEventManager) {
+      console.error('❌ SCLoans event manager is not available');
+      return;
+    }
+    
+    console.log('✅ SCLoans event manager found:', loansEventManager);
+    
+    // Start listening to SCLoans events
+    loansEventManager.startListening().then(() => {
+      console.log('✅ SCLoans event manager started listening');
+    }).catch((error: any) => {
+      console.error('❌ Failed to start SCLoans event manager:', error);
+    });
+    
+    // Add listener for SCLoans notifications
+    const loansNotificationSubscription = loansEvents.onAnalyticsEvent((data: any) => {
+      console.log('🏦 SCLoans Notification Event Received:', data);
       
-      this.setState({ lastEvent: event });
+      // Update state with the latest loans event
+      this.setState({ lastLoansEvent: data });
       
-      // Handle different event types
-      switch (event.type) {
-        case (SmallcaseGateway as any).eventTypes.ANALYTICS_EVENT:
-          this.handleAnalyticsEvent(event.data);
+      if (!data || !data.type) {
+        console.warn('SCLoans event missing type:', data);
+        return;
+      }
+      
+      // Handle different types of SCLoans events
+      switch (data.type) {
+        case 'scloans_analytics_event':
+          console.log("🏦 SCLoans Analytics Event:", data);
+          this.handleSCLoansAnalyticsEvent(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.SUPER_PROPS_UPDATED:
-          this.handleSuperPropsUpdated(event.data);
+        case 'scloans_super_properties_updated':
+          console.log("🏦 SCLoans Super Properties Updated:", data);
+          this.handleSCLoansSuperPropsUpdated(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.USER_RESET:
-          this.handleUserReset(event.data);
+        case 'scloans_user_reset':
+          console.log("🏦 SCLoans User Reset:", data);
+          this.handleSCLoansUserReset(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.USER_IDENTIFY:
-          this.handleUserIdentify(event.data);
+        case 'scloans_user_identify':
+          console.log("🏦 SCLoans User Identify:", data);
+          this.handleSCLoansUserIdentify(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.TRANSACTION_SUCCESS:
-          this.handleTransactionSuccess(event.data);
+        case 'scloans_loan_application_started':
+          console.log("🏦 SCLoans Loan Application Started:", data);
+          this.handleSCLoansLoanApplicationStarted(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.TRANSACTION_FAILED:
-          this.handleTransactionFailure(event.data);
+        case 'scloans_loan_application_completed':
+          console.log("🏦 SCLoans Loan Application Completed:", data);
+          this.handleSCLoansLoanApplicationCompleted(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.LEADGEN_SUCCESS:
-          this.handleLeadGenSuccess(event.data);
+        case 'scloans_loan_application_failed':
+          console.log("🏦 SCLoans Loan Application Failed:", data);
+          this.handleSCLoansLoanApplicationFailed(data);
           break;
           
-        case (SmallcaseGateway as any).eventTypes.LEADGEN_FAILED:
-          this.handleLeadGenFailure(event.data);
+        case 'scloans_loan_status_updated':
+          console.log("🏦 SCLoans Loan Status Updated:", data);
+          this.handleSCLoansLoanStatusUpdated(data);
           break;
           
         default:
-          console.log('🔍 Unknown event type:', event.type, 'Data:', event.data);
-          this.handleUnknownEvent(event);
+          console.warn('🔍 Unknown SCLoans event type:', data.type, 'Data:', data);
+          this.handleUnknownLoansEvent(data);
       }
-      
-      console.log('=== End Android SmallcaseGateway Event ===\n');
     });
+    
+    // Also try to listen directly for the specific event types that are being emitted
+    // This is a fallback in case the notification channel doesn't work
+    // try {
+    //   const { NativeEventEmitter, NativeModules } = require('react-native');
+    //   const { SCLoansBridgeEmitter } = NativeModules;
+      
+    //   if (SCLoansBridgeEmitter) {
+    //     console.log('🔧 Setting up direct SCLoans event listener...');
+    //     const directEventEmitter = new NativeEventEmitter(SCLoansBridgeEmitter);
+        
+    //     const directSubscription = directEventEmitter.addListener('scloans_notification', (data: any) => {
+    //       console.log('🏦 Direct SCLoans Analytics Event Received:', data);
+    //       this.setState({ lastLoansEvent: { type: 'scloans_notification', data } });
+    //       this.handleSCLoansAnalyticsEvent(data);
+    //     });
+        
+    //     this.loansEventSubscriptions.push(directSubscription);
+    //     console.log('✅ Direct SCLoans event listener added');
+    //   }
+    // } catch (error) {
+    //   console.error('❌ Failed to setup direct SCLoans event listener:', error);
+    // }
+    
+    // Store subscriptions for cleanup
+    this.loansEventSubscriptions.push(loansNotificationSubscription);
+    
+    console.log('✅ SCLoans event listeners setup complete');
   };
 
-  setupLegacyEventListeners = () => {
-    console.log('🔄 Setting up legacy event listeners for cross-platform compatibility...');
+  // setupAndroidEventListeners = () => {
+  //   console.log('🤖 Setting up Android event listeners...');
     
-    // Add a general event listener that works on both platforms
-    const generalSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
-      console.log('\n🎉 === General SmallcaseGateway Event Received ===');
-      console.log('Platform:', RNPlatform.OS);
-      console.log('Event Type:', event.type);
-      console.log('Event Data:', event.data);
-      console.log('Timestamp:', new Date().toISOString());
+  //   // Use the main event listener for Android
+  //   this.eventSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
+  //     console.log('\n🎉 === Android SmallcaseGateway Event Received ===');
+  //     console.log('Event Type:', event.type);
+  //     console.log('Event Data:', event.data);
+  //     console.log('Timestamp:', new Date().toISOString());
       
-      this.setState({ lastEvent: event });
+  //     this.setState({ lastEvent: event });
       
-      // Handle events regardless of platform
-      this.handleGeneralEvent(event);
+  //     // Handle different event types
+  //     switch (event.type) {
+  //       case (SmallcaseGateway as any).eventTypes.ANALYTICS_EVENT:
+  //         this.handleAnalyticsEvent(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.SUPER_PROPS_UPDATED:
+  //         this.handleSuperPropsUpdated(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.USER_RESET:
+  //         this.handleUserReset(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.USER_IDENTIFY:
+  //         this.handleUserIdentify(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.TRANSACTION_SUCCESS:
+  //         this.handleTransactionSuccess(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.TRANSACTION_FAILED:
+  //         this.handleTransactionFailure(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.LEADGEN_SUCCESS:
+  //         this.handleLeadGenSuccess(event.data);
+  //         break;
+          
+  //       case (SmallcaseGateway as any).eventTypes.LEADGEN_FAILED:
+  //         this.handleLeadGenFailure(event.data);
+  //         break;
+          
+  //       default:
+  //         console.log('🔍 Unknown event type:', event.type, 'Data:', event.data);
+  //         this.handleUnknownEvent(event);
+  //     }
       
-      console.log('=== End General SmallcaseGateway Event ===\n');
-    });
+  //     console.log('=== End Android SmallcaseGateway Event ===\n');
+  //   });
+  // };
+
+  // setupLegacyEventListeners = () => {
+  //   console.log('🔄 Setting up legacy event listeners for cross-platform compatibility...');
     
-    this.legacyEventSubscriptions.push(generalSubscription);
-  };
+  //   // Add a general event listener that works on both platforms
+  //   const generalSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
+  //     console.log('\n🎉 === General SmallcaseGateway Event Received ===');
+  //     console.log('Platform:', RNPlatform.OS);
+  //     console.log('Event Type:', event.type);
+  //     console.log('Event Data:', event.data);
+  //     console.log('Timestamp:', new Date().toISOString());
+      
+  //     this.setState({ lastEvent: event });
+      
+  //     // Handle gatewayEvents regardless of platform
+  //     this.handleGeneralEvent(event);
+      
+  //     console.log('=== End General SmallcaseGateway Event ===\n');
+  //   });
+    
+  //   this.legacyEventSubscriptions.push(generalSubscription);
+  // };
 
   cleanupAllEventListeners = () => {
     console.log('🧹 Cleaning up all event listeners...');
@@ -233,11 +348,20 @@ class App extends React.Component<AppProps, AppState> {
       }
     });
     this.legacyEventSubscriptions = [];
+
+    // Clean up loans event subscriptions
+    this.loansEventSubscriptions.forEach(subscription => {
+      if (subscription && subscription.remove) {
+        subscription.remove();
+      }
+    });
+    this.loansEventSubscriptions = [];
     
     // Stop iOS event manager if running
     if (RNPlatform.OS === 'ios') {
-      const { eventManager } = SmallcaseGateway as any;
-      eventManager.stopListening().catch(console.error);
+      const { gatewayEventManager, loansEventManager } = SmallcaseGateway as any;
+      gatewayEventManager.stopListening().catch(console.error);
+      loansEventManager.stopListening().catch(console.error);
     }
     
     console.log('✅ All event listeners cleaned up');
@@ -275,7 +399,365 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  // Event Handlers
+  // // Loans Event Handlers
+  // handleLoansNotificationEvent = (data: any) => {
+  //   console.log('🏦 Processing Loans Notification Event:', data);
+    
+  //   try {
+  //     // Update state with the latest loans event
+  //     this.setState({ lastLoansEvent: data });
+      
+  //     // Extract event type and properties from loans notification
+  //     const eventType = data.type || 'unknown_loans_event';
+  //     const eventData = data.data || data;
+      
+  //     // Handle different types of loans events
+  //     switch (eventType) {
+  //       case 'loans_application_started':
+  //         this.handleLoansApplicationStarted(eventData);
+  //         break;
+          
+  //       case 'loans_application_completed':
+  //         this.handleLoansApplicationCompleted(eventData);
+  //         break;
+          
+  //       case 'loans_application_failed':
+  //         this.handleLoansApplicationFailed(eventData);
+  //         break;
+          
+  //       case 'loans_status_updated':
+  //         this.handleLoansStatusUpdated(eventData);
+  //         break;
+          
+  //       case 'loans_document_uploaded':
+  //         this.handleLoansDocumentUploaded(eventData);
+  //         break;
+          
+  //       case 'loans_approval_received':
+  //         this.handleLoansApprovalReceived(eventData);
+  //         break;
+          
+  //       case 'loans_disbursement_completed':
+  //         this.handleLoansDisbursementCompleted(eventData);
+  //         break;
+          
+  //       default:
+  //         console.log('🔍 Unknown loans event type:', eventType, 'Data:', eventData);
+  //         this.handleUnknownLoansEvent({ type: eventType, data: eventData });
+  //     }
+      
+  //     // Track loans events in analytics
+  //     // analytics().logEvent('loans_notification', {
+  //     //   event_type: eventType,
+  //     //   timestamp: Date.now()
+  //     // });
+      
+  //   } catch (error) {
+  //     console.error('❌ Failed to process loans notification event:', error);
+  //   }
+  // };
+
+  handleSCLoansAnalyticsEvent = (data: any) => {
+    console.log('🏦 Processing SCLoans Analytics Event:', data);
+    
+    try {
+      // Extract event properties
+      const eventName = data.eventName || data.event || 'unknown_scloans_event';
+      const properties = data.properties || data.params || {};
+      
+      // Send to your analytics service
+      // Example integrations:
+      // Firebase Analytics
+      // analytics().logEvent(eventName, properties);
+      
+      // Mixpanel
+      // mixpanel.track(eventName, properties);
+      
+      // Custom Analytics
+      // yourAnalyticsService.track(eventName, properties);
+      
+      // console.log('✅ SCLoans Analytics event processed:', { eventName, properties });
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans analytics event:', error);
+    }
+  };
+
+  handleSCLoansSuperPropsUpdated = (data: any) => {
+    console.log('🔄 Processing SCLoans Super Properties Update:', data);
+    
+    try {
+      // Update user properties in your analytics service
+      // analytics().setUserProperties(data);
+      // mixpanel.people.set(data);
+      
+      console.log('✅ SCLoans Super properties updated');
+      
+    } catch (error) {
+      console.error('❌ Failed to update SCLoans super properties:', error);
+    }
+  };
+
+  handleSCLoansUserReset = (data: any) => {
+    console.log('🔄 Processing SCLoans User Reset');
+    
+    try {
+      // Reset user session in your analytics
+      // analytics().reset();
+      // mixpanel.reset();
+      
+      // Clear any user-specific data in your app
+      // this.clearUserData();
+      
+      console.log('✅ SCLoans User reset processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans user reset:', error);
+    }
+  };
+
+  handleSCLoansUserIdentify = (data: any) => {
+    console.log('👤 Processing SCLoans User Identify:', data);
+    
+    try {
+      const userId = data.userId || data.id;
+      const userProperties = data.properties || data.traits || {};
+      
+      // Identify user in your analytics
+      // analytics().identify(userId, userProperties);
+      // mixpanel.identify(userId);
+      // mixpanel.people.set(userProperties);
+      
+      console.log('✅ SCLoans User identified:', { userId, userProperties });
+      
+    } catch (error) {
+      console.error('❌ Failed to identify SCLoans user:', error);
+    }
+  };
+
+  handleSCLoansLoanApplicationStarted = (data: any) => {
+    console.log('🏦 Processing SCLoans Loan Application Started:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const loanAmount = data.loanAmount || data.amount;
+      const loanType = data.loanType || data.type;
+      
+      // Track loan application start
+      // analytics().logEvent('loans_application_started', {
+      //   application_id: applicationId,
+      //   loan_amount: loanAmount,
+      //   loan_type: loanType,
+      //   timestamp: Date.now()
+      // });
+      
+      // Update UI to show application in progress
+      // this.setState({ loanApplicationStatus: 'started' });
+      
+      console.log('✅ SCLoans loans application started processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans loans application started:', error);
+    }
+  };
+
+  handleSCLoansLoanApplicationCompleted = (data: any) => {
+    console.log('🏦 Processing SCLoans Loan Application Completed:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const loanAmount = data.loanAmount || data.amount;
+      
+      // Track successful loan application
+      // analytics().logEvent('loans_application_completed', {
+      //   application_id: applicationId,
+      //   loan_amount: loanAmount,
+      //   timestamp: Date.now()
+      // });
+      
+      // Show success message
+      // this.showSuccessMessage('Loan application submitted successfully!');
+      
+      // Update UI state
+      // this.setState({ loanApplicationStatus: 'completed' });
+      
+      console.log('✅ SCLoans loans application completed processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans loans application completed:', error);
+    }
+  };
+
+  handleSCLoansLoanApplicationFailed = (data: any) => {
+    console.log('🏦 Processing SCLoans Loan Application Failed:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const error = data.error || data.errorMessage;
+      const errorCode = data.errorCode;
+      
+      // Track failed loan application
+      // analytics().logEvent('loans_application_failed', {
+      //   application_id: applicationId,
+      //   error: error,
+      //   error_code: errorCode,
+      //   timestamp: Date.now()
+      // });
+      
+      // Show error message
+      // this.showErrorMessage(`Loan application failed: ${error}`);
+      
+      // Update UI state
+      // this.setState({ loanApplicationStatus: 'failed', lastError: error });
+      
+      console.log('✅ SCLoans loans application failed processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans loans application failed:', error);
+    }
+  };
+
+  handleSCLoansLoanStatusUpdated = (data: any) => {
+    console.log('🏦 Processing SCLoans Loan Status Updated:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const newStatus = data.status;
+      const previousStatus = data.previousStatus;
+      
+      // Track status update
+      // analytics().logEvent('loans_status_updated', {
+      //   application_id: applicationId,
+      //   new_status: newStatus,
+      //   previous_status: previousStatus,
+      //   timestamp: Date.now()
+      // });
+      
+      // Update UI with new status
+      // this.setState({ loanStatus: newStatus });
+      
+      // Show notification if status is significant
+      if (newStatus === 'approved' || newStatus === 'rejected') {
+        // this.showSuccessMessage(`Loan application ${newStatus}!`);
+      }
+      
+      console.log('✅ SCLoans loans status updated processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans loans status updated:', error);
+    }
+  };
+
+  handleSCLoansDocumentUploaded = (data: any) => {
+    console.log('🏦 Processing SCLoans Document Uploaded:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const documentType = data.documentType;
+      const documentId = data.documentId;
+      
+      // Track document upload
+      // analytics().logEvent('loans_document_uploaded', {
+      //   application_id: applicationId,
+      //   document_type: documentType,
+      //   document_id: documentId,
+      //   timestamp: Date.now()
+      // });
+      
+      // Show success message
+      // this.showSuccessMessage(`${documentType} uploaded successfully!`);
+      
+      console.log('✅ SCLoans document uploaded processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans document uploaded:', error);
+    }
+  };
+
+  handleSCLoansApprovalReceived = (data: any) => {
+    console.log('🏦 Processing SCLoans Approval Received:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const approvedAmount = data.approvedAmount || data.amount;
+      const interestRate = data.interestRate;
+      const tenure = data.tenure;
+      
+      // Track loan approval
+      // analytics().logEvent('loans_approval_received', {
+      //   application_id: applicationId,
+      //   approved_amount: approvedAmount,
+      //   interest_rate: interestRate,
+      //   tenure: tenure,
+      //   timestamp: Date.now()
+      // });
+      
+      // Show success message with details
+      // this.showSuccessMessage(
+      //   `Congratulations! Your loan of ₹${approvedAmount} has been approved at ${interestRate}% interest!`
+      // );
+      
+      // Update UI state
+      // this.setState({ 
+      //   loanStatus: 'approved',
+      //   approvedAmount: approvedAmount,
+      //   interestRate: interestRate
+      // });
+      
+      console.log('✅ SCLoans approval received processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process SCLoans approval received:', error);
+    }
+  };
+
+  handleSCLoansDisbursementCompleted = (data: any) => {
+    console.log('🏦 Processing SCLoans Disbursement Completed:', data);
+    
+    try {
+      const applicationId = data.applicationId || data.id;
+      const disbursedAmount = data.disbursedAmount || data.amount;
+      const bankAccount = data.bankAccount;
+      const referenceNumber = data.referenceNumber;
+      
+      // Track loan disbursement
+      // analytics().logEvent('loans_disbursement_completed', {
+      //   application_id: applicationId,
+      //   disbursed_amount: disbursedAmount,
+      //   reference_number: referenceNumber,
+      //   timestamp: Date.now()
+      // });
+      
+      // Show success message
+      // this.showSuccessMessage(
+      //   `Loan amount ₹${disbursedAmount} has been disbursed to your account!`
+      // );
+      
+      // Update UI state
+      // this.setState({ 
+      //   loanStatus: 'disbursed',
+      //   disbursedAmount: disbursedAmount
+      // });
+      
+      console.log('✅ Loans disbursement completed processed');
+      
+    } catch (error) {
+      console.error('❌ Failed to process loans disbursement completed:', error);
+    }
+  };
+
+  handleUnknownLoansEvent = (event: any) => {
+    console.log('🔍 Processing Unknown Loans Event:', event);
+    
+    // Log unknown loans events for debugging
+    // analytics().logEvent('unknown_loans_event', {
+    //   event_type: event.type,
+    //   event_data: JSON.stringify(event.data),
+    //   timestamp: Date.now()
+    // });
+  };
+
+  // Gateway Event Handlers (existing)
   handleAnalyticsEvent = (data: any) => {
     console.log('📊 Processing Analytics Event:', data);
     
@@ -295,7 +777,7 @@ class App extends React.Component<AppProps, AppState> {
       // Custom Analytics
       // yourAnalyticsService.track(eventName, properties);
       
-      console.log('✅ Analytics event processed:', { eventName, properties });
+      // console.log('✅ Analytics event processed:', { eventName, properties });
       
     } catch (error) {
       console.error('❌ Failed to process analytics event:', error);
@@ -472,7 +954,7 @@ class App extends React.Component<AppProps, AppState> {
   handleUnknownEvent = (event: any) => {
     console.log('🔍 Processing Unknown Event:', event);
     
-    // Log unknown events for debugging
+    // Log unknown gatewayEvents for debugging
     // analytics().logEvent('unknown_scgateway_event', {
     //   event_type: event.type,
     //   event_data: JSON.stringify(event.data),
@@ -497,7 +979,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   render() {
-    const { isSdkInitialized, sdkVersion, lastEvent } = this.state;
+    const { isSdkInitialized, sdkVersion, lastEvent, lastLoansEvent } = this.state;
     
     return (
       <KeyboardAvoidingView

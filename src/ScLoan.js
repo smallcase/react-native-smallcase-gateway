@@ -1,6 +1,8 @@
+// SCLoans.js - Fixed implementation
 import { NativeModules } from 'react-native';
 import { safeObject } from './util';
 import { ENV } from './constants';
+import scLoansEventManager, {SCLoansEvents, SCLoansEventTypes} from './SCLoansEventEmitter';
 
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
@@ -35,7 +37,7 @@ const setup = async (config) => {
     if(safeConfig.environment === undefined || safeConfig.environment === null) safeConfig.environment = ENV.PROD
 
     return SmallcaseGatewayNative.setupLoans(safeConfig);
-  };
+};
 
 /**
  * Triggers the LOS Journey
@@ -47,9 +49,8 @@ const setup = async (config) => {
  */
 const apply = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.apply(safeLoanInfo);
-  };
+};
 
 /**
  * Triggers the Repayment Journey
@@ -61,9 +62,8 @@ const apply = async (loanInfo) => {
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.pay(safeLoanInfo);
-  };
+};
 
 /**
  * Triggers the Withdraw Journey
@@ -75,9 +75,8 @@ const pay = async (loanInfo) => {
  */
 const withdraw = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.withdraw(safeLoanInfo);
-  };
+};
 
 /**
  * Triggers the Servicing Journey
@@ -89,9 +88,8 @@ const withdraw = async (loanInfo) => {
  */
 const service = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.service(safeLoanInfo);
-  };
+};
 
 /**
  * Triggers the triggerInteraction function
@@ -101,18 +99,23 @@ const service = async (loanInfo) => {
  * @throws {ScLoanError}
  */
 const triggerInteraction = async (loanInfo) => {
-  const safeLoanInfo = safeObject(loanInfo);
-
-  return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
+    const safeLoanInfo = safeObject(loanInfo);
+    return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
 };
 
+// Export the ScLoan object with proper event handling
 const ScLoan = {
-  setup,
-  apply,
-  pay,
-  withdraw,
-  service,
-  triggerInteraction,
+    setup,
+    apply,
+    pay,
+    withdraw,
+    service,
+    triggerInteraction,
+    
+    // Event handling
+    loansEvents: SCLoansEvents,
+    loansEventManager: scLoansEventManager,
+    eventTypes: SCLoansEventTypes,
 };
 
 export default ScLoan;

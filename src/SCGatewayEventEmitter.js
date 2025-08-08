@@ -101,6 +101,7 @@ class SCGatewayEventManager {
 
     const subscription = eventEmitter.addListener(eventType, callback);
     
+    // return subs from here directly
     // Store subscription for cleanup
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, []);
@@ -109,7 +110,7 @@ class SCGatewayEventManager {
 
     console.log(`SCGatewayEventManager: Successfully added listener for ${eventType}`);
 
-    return {
+    return { // return subs from here directly then the host appln will remove it itself
       remove: () => {
         console.log(`SCGatewayEventManager: Removing listener for ${eventType}`);
         subscription.remove();
@@ -147,6 +148,7 @@ class SCGatewayEventManager {
     }
 
     if (eventType) {
+      // there should be only single listener for 1 single event i.e. declared in SCGatewayEmitter.swift
       // Remove listeners for specific event type
       const subscriptions = this.listeners.get(eventType) || [];
       subscriptions.forEach(subscription => subscription.remove());

@@ -4,3 +4,6 @@
 
 @interface SCGatewayBridgeEmitter: NSObject
 @end
+
+@interface SCLoansBridgeEmitter: NSObject
+@end

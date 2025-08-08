@@ -2,10 +2,10 @@ import Foundation
 import React
 
 // Protocol to avoid direct dependency on SCGateway
-@objc protocol SCGatewayProtocol {
-    @objc var scgNotificationName: Notification.Name { get }
-    @objc static var shared: SCGatewayProtocol { get }
-}
+// @objc protocol SCGatewayProtocol {
+//     @objc var scgNotificationName: Notification.Name { get }
+//     @objc static var shared: SCGatewayProtocol { get }
+// }
 
 @objc(SCGatewayEmitter)
 class SCGatewayEmitter: RCTEventEmitter {
@@ -21,6 +21,7 @@ class SCGatewayEmitter: RCTEventEmitter {
         super.init()
         SCGatewayEmitter.shared = self
         print("SCGatewayEmitter: Initialized.")
+        self.startListening()
     }
     
     deinit {
@@ -33,6 +34,7 @@ class SCGatewayEmitter: RCTEventEmitter {
     override func supportedEvents() -> [String]! { // only 1 event scg_notifi as mentioned
     // clean it
         return [
+            // only single 
             "scgateway_analytics_event",
             "scgateway_super_properties_updated",
             "scgateway_user_reset",
