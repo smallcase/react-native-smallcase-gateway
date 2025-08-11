@@ -32,7 +32,22 @@ allprojects {
         maven { url "https://maven.google.com" }
 
         // smallcase gateway PROD SDKs
-        maven { url "${artifactory_contextUrl}/SCGateway" }
+        maven { 
+            url "${artifactory_contextUrl}/SCGateway"
+            credentials {
+                username "${artifactory_user}"
+                password "${artifactory_password}"
+            }
+        }
+        
+        // smallcase gateway INTERNAL SDKs
+        maven { 
+            url "${artifactory_contextUrl}/SCGateway-internal"
+            credentials {
+                username "${artifactory_user}"
+                password "${artifactory_password}"
+            }
+        }
 
         // checkout juspay
         maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
