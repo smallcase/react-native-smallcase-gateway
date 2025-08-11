@@ -1413,14 +1413,14 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.5.7):
     - React-Core
-  - react-native-smallcase-gateway (5.0.1):
+  - react-native-smallcase-gateway (5.0.2-rc.3):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
-    - SCGateway (= 4.1.5)
+    - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751 (= 4.1.5-7-release)
     - SCLoans (= 4.0.0)
   - React-NativeModulesApple (0.79.4):
     - glog
@@ -1843,7 +1843,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SCGateway (4.1.5):
+  - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751 (4.1.5-7-release):
     - Mixpanel-swift (~> 4.2.5)
   - SCLoans (4.0.0):
     - Mixpanel-swift (~> 4.2.5)
@@ -1931,10 +1931,11 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/smallcase/cocoapodspec-internal.git:
+    - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751
   trunk:
     - Mixpanel-swift
     - React-Codegen
-    - SCGateway
     - SCLoans
     - SocketRocket
 
@@ -2136,7 +2137,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: 9d11917a86941a41f3104542914806dac8b20735
+  react-native-smallcase-gateway: 3c8bf5a1834815627201b099ae90b060e63e16d7
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2171,11 +2172,11 @@ SPEC CHECKSUMS:
   RNCClipboard: 37de6995ef72dc869422879e51a46a520d3f08b3
   RNGestureHandler: ebef699ea17e7c0006c1074e1e423ead60ce0121
   RNScreens: fcd4717f7c66e65b168d9f58df276ecfbb0c5e6d
-  SCGateway: 980e79bf34ef15eb7bfc4eacb7c2f9885796fb37
+  SCGateway-dhruv-addNewAnalyticsProps-ios-c912751: 9e7b87a49c913c82c32de6ea727b217be1d80a97
   SCLoans: 5e6dd77a7b31bd3ea5acaaee8e22d57ee1609525
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
-PODFILE CHECKSUM: 6aa66136a1678b9730a8385589d1c7f834f00e66
+PODFILE CHECKSUM: 1d72a8abaa4c54ab6dd64cc488857d497c6311ba
 
 COCOAPODS: 1.16.2

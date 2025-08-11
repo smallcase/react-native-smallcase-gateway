@@ -4,7 +4,7 @@ require Pod::Executable.execute_command('node', ['-p',
     "react-native/scripts/react_native_pods.rb",
     {paths: [process.argv[1]]},
   )', __dir__]).strip
-
+source 'https://github.com/smallcase/cocoapodspec-internal'
 # default source for all other pods
 source 'https://cdn.cocoapods.org'
 

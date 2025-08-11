@@ -33,6 +33,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '4.1.5'
+  s.dependency 'SCGateway-dhruv-addNewAnalyticsProps-ios-c912751', '4.1.5-7-release'
   s.dependency 'SCLoans', '4.0.0'
 end
