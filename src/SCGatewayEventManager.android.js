@@ -3,10 +3,22 @@ import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
 const { SCGatewayBridgeEmitter } = NativeModules;
 
+// Module load diagnostics
+console.log('[SCGatewayEventManager.android] Module loaded');
+console.log('[SCGatewayEventManager.android] Platform:', Platform.OS);
+console.log('[SCGatewayEventManager.android] Has SCGatewayBridgeEmitter:', !!SCGatewayBridgeEmitter);
+
 // Create event emitter instance for Android
 let eventEmitter = null;
 if (Platform.OS === 'android' && SCGatewayBridgeEmitter) {
-  eventEmitter = new NativeEventEmitter(SCGatewayBridgeEmitter);
+  try {
+    eventEmitter = new NativeEventEmitter(SCGatewayBridgeEmitter);
+    console.log('[SCGatewayEventManager.android] NativeEventEmitter created for SCGatewayBridgeEmitter');
+  } catch (e) {
+    console.warn('[SCGatewayEventManager.android] Failed to create NativeEventEmitter:', e);
+  }
+} else {
+  console.warn('[SCGatewayEventManager.android] Event emitter not created. Conditions not met.');
 }
 
 /**
@@ -44,6 +56,10 @@ class SCGatewayEventManager {
       const result = await SCGatewayBridgeEmitter.startListening();
       this.isListening = true;
       console.log('SCGatewayEventManager: Started listening successfully:', result);
+      try {
+        const status = await this.getListeningStatus();
+        console.log('SCGatewayEventManager: Status after startListening ->', status);
+      } catch {}
       return result;
     } catch (error) {
       console.error('SCGatewayEventManager: Failed to start listening:', error);
@@ -117,7 +133,14 @@ class SCGatewayEventManager {
       this.startListening().catch(console.error);
     }
 
-    const subscription = eventEmitter.addListener(eventType, callback);
+    // Wrap the callback to log arrival
+    const wrappedCallback = (payload) => {
+      console.log(`[SCGatewayEventManager.android] <- Received native event '${eventType}':`, payload);
+      try { callback(payload); } catch (e) { console.error('[SCGatewayEventManager.android] Listener callback error:', e); }
+    };
+
+    const subscription = eventEmitter.addListener(eventType, wrappedCallback);
+    console.log(`[SCGatewayEventManager.android] Registered listener for '${eventType}'. Total listeners for type before push:`, (this.listeners.get(eventType) || []).length);
     
     // Store subscription for cleanup
     if (!this.listeners.has(eventType)) {
@@ -125,7 +148,7 @@ class SCGatewayEventManager {
     }
     this.listeners.get(eventType).push(subscription);
 
-    console.log(`SCGatewayEventManager: Successfully added listener for ${eventType}`);
+    console.log(`SCGatewayEventManager: Successfully added listener for ${eventType}. Total now:`, this.listeners.get(eventType).length);
 
     return {
       remove: () => {
@@ -167,6 +190,7 @@ class SCGatewayEventManager {
     if (eventType) {
       // Remove listeners for specific event type
       const subscriptions = this.listeners.get(eventType) || [];
+      console.log(`[SCGatewayEventManager.android] Removing ${subscriptions.length} listener(s) for '${eventType}'`);
       subscriptions.forEach(subscription => subscription.remove());
       this.listeners.delete(eventType);
       
@@ -175,6 +199,7 @@ class SCGatewayEventManager {
     } else {
       // Remove all listeners
       this.listeners.forEach((subscriptions, type) => {
+        console.log(`[SCGatewayEventManager.android] Removing ${subscriptions.length} listener(s) for '${type}'`);
         subscriptions.forEach(subscription => subscription.remove());
         eventEmitter.removeAllListeners(type);
       });
@@ -197,6 +222,7 @@ class SCGatewayEventManager {
     }
 
     try {
+      console.log('[SCGatewayEventManager.android] -> Emitting test event to native:', eventType, testData);
       return await SCGatewayBridgeEmitter.emitTestEvent(eventType, testData);
     } catch (error) {
       console.error('SCGatewayEventManager: Failed to emit test event:', error);
@@ -214,7 +240,9 @@ class SCGatewayEventManager {
     }
 
     try {
-      return await SCGatewayBridgeEmitter.getSupportedEvents();
+      const events = await SCGatewayBridgeEmitter.getSupportedEvents();
+      console.log('[SCGatewayEventManager.android] Native supported events:', events);
+      return events;
     } catch (error) {
       console.error('SCGatewayEventManager: Failed to get supported events:', error);
       return Object.values(SCGatewayEventTypes);

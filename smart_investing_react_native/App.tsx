@@ -45,7 +45,6 @@ class App extends React.Component<AppProps, AppState> {
   componentDidMount() {
     console.log('🚀 App mounted - Initializing SmallcaseGateway SDK');
     this.initializeSDK();
-    this.setupEventListeners();
   }
 
   componentWillUnmount() {
@@ -86,14 +85,14 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   setupEventListeners = () => {
-    console.log('🎯 Setting up event listeners...');
+    console.log('🎯 Setting up event listeners... Platform:', RNPlatform.OS);
     
     // Platform-specific event handling
     if (RNPlatform.OS === 'ios') {
       this.setupIOSEventListeners();
       this.setupIOSLoansEventListeners();
     } else {
-      // this.setupAndroidEventListeners();
+      this.setupAndroidEventListeners();
     }
     
     // Also setup legacy event listeners for backward compatibility
@@ -117,22 +116,22 @@ class App extends React.Component<AppProps, AppState> {
     
     // Add listeners for iOS-specific gatewayEvents
     const analyticsSubscription = gatewayEvents.onAnalyticsEvent((data: any) => {
-      console.log('📊 iOS Analytics Event:', data);
+      console.log('[App] <- iOS analytics event:', data);
       this.handleAnalyticsEvent(data);
     });
     
     const superPropsSubscription = gatewayEvents.onSuperPropertiesUpdated((data: any) => {
-      console.log('🔄 iOS Super Properties Updated:', data);
+      console.log('[App] <- iOS super properties updated:', data);
       this.handleSuperPropsUpdated(data);
     });
     
     const userResetSubscription = gatewayEvents.onUserReset((data: any) => {
-      console.log('🔄 iOS User Reset:', data);
+      console.log('[App] <- iOS user reset:', data);
       this.handleUserReset(data);
     });
     
     const userIdentifySubscription = gatewayEvents.onUserIdentify((data: any) => {
-      console.log('👤 iOS User Identify:', data);
+      console.log('[App] <- iOS user identify:', data);
       this.handleUserIdentify(data);
     });
     
@@ -168,7 +167,7 @@ class App extends React.Component<AppProps, AppState> {
     
     // Add listener for SCLoans notifications
     const loansNotificationSubscription = loansEvents.onAnalyticsEvent((data: any) => {
-      console.log('🏦 SCLoans Notification Event Received:', data);
+      console.log('[App] <- iOS SCLoans analytics event:', data);
       
       // Update state with the latest loans event
       this.setState({ lastLoansEvent: data });
@@ -255,60 +254,52 @@ class App extends React.Component<AppProps, AppState> {
     console.log('✅ SCLoans event listeners setup complete');
   };
 
-  // setupAndroidEventListeners = () => {
-  //   console.log('🤖 Setting up Android event listeners...');
-    
-  //   // Use the main event listener for Android
-  //   this.eventSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
-  //     console.log('\n🎉 === Android SmallcaseGateway Event Received ===');
-  //     console.log('Event Type:', event.type);
-  //     console.log('Event Data:', event.data);
-  //     console.log('Timestamp:', new Date().toISOString());
-      
-  //     this.setState({ lastEvent: event });
-      
-  //     // Handle different event types
-  //     switch (event.type) {
-  //       case (SmallcaseGateway as any).eventTypes.ANALYTICS_EVENT:
-  //         this.handleAnalyticsEvent(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.SUPER_PROPS_UPDATED:
-  //         this.handleSuperPropsUpdated(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.USER_RESET:
-  //         this.handleUserReset(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.USER_IDENTIFY:
-  //         this.handleUserIdentify(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.TRANSACTION_SUCCESS:
-  //         this.handleTransactionSuccess(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.TRANSACTION_FAILED:
-  //         this.handleTransactionFailure(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.LEADGEN_SUCCESS:
-  //         this.handleLeadGenSuccess(event.data);
-  //         break;
-          
-  //       case (SmallcaseGateway as any).eventTypes.LEADGEN_FAILED:
-  //         this.handleLeadGenFailure(event.data);
-  //         break;
-          
-  //       default:
-  //         console.log('🔍 Unknown event type:', event.type, 'Data:', event.data);
-  //         this.handleUnknownEvent(event);
-  //     }
-      
-  //     console.log('=== End Android SmallcaseGateway Event ===\n');
-  //   });
-  // };
+  setupAndroidEventListeners = async () => {
+    console.log('🤖 Setting up Android event listeners...');
+    const { gatewayEventManager, gatewayEvents } = SmallcaseGateway as any;
+
+    try {
+      const result = await gatewayEventManager.startListening();
+      console.log('✅ Android event manager started listening', result);
+      try {
+        const status = await gatewayEventManager.getStatus?.();
+        console.log('ℹ️ Android event manager status:', status);
+      } catch {}
+    } catch (error) {
+      console.error('❌ Failed to start Android event manager:', error);
+    }
+
+    const analyticsSubscription = gatewayEvents.onAnalyticsEvent((data: any) => {
+      console.log('[App] <- Android analytics event:', data);
+      this.setState({ lastEvent: { type: 'scgateway_analytics_event', data } });
+      this.handleAnalyticsEvent(data);
+    });
+
+    const superPropsSubscription = gatewayEvents.onSuperPropertiesUpdated((data: any) => {
+      console.log('[App] <- Android super properties updated:', data);
+      this.setState({ lastEvent: { type: 'scgateway_super_properties_updated', data } });
+      this.handleSuperPropsUpdated(data);
+    });
+
+    const userResetSubscription = gatewayEvents.onUserReset((data: any) => {
+      console.log('[App] <- Android user reset:', data);
+      this.setState({ lastEvent: { type: 'scgateway_user_reset', data } });
+      this.handleUserReset(data);
+    });
+
+    const userIdentifySubscription = gatewayEvents.onUserIdentify((data: any) => {
+      console.log('[App] <- Android user identify:', data);
+      this.setState({ lastEvent: { type: 'scgateway_user_identify', data } });
+      this.handleUserIdentify(data);
+    });
+
+    this.legacyEventSubscriptions.push(
+      analyticsSubscription,
+      superPropsSubscription,
+      userResetSubscription,
+      userIdentifySubscription
+    );
+  };
 
   // setupLegacyEventListeners = () => {
   //   console.log('🔄 Setting up legacy event listeners for cross-platform compatibility...');
@@ -357,11 +348,13 @@ class App extends React.Component<AppProps, AppState> {
     });
     this.loansEventSubscriptions = [];
     
-    // Stop iOS event manager if running
-    if (RNPlatform.OS === 'ios') {
-      const { gatewayEventManager, loansEventManager } = SmallcaseGateway as any;
-      gatewayEventManager.stopListening().catch(console.error);
-      loansEventManager.stopListening().catch(console.error);
+    // Stop platform event managers if running
+    const { gatewayEventManager, loansEventManager } = SmallcaseGateway as any;
+    if (gatewayEventManager && gatewayEventManager.stopListening) {
+      gatewayEventManager.stopListening().catch(() => {});
+    }
+    if (RNPlatform.OS === 'ios' && loansEventManager && loansEventManager.stopListening) {
+      loansEventManager.stopListening().catch(() => {});
     }
     
     console.log('✅ All event listeners cleaned up');

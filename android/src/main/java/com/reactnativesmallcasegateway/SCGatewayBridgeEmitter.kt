@@ -1,9 +1,11 @@
 package com.reactnativesmallcasegateway
 
 import android.util.Log
+import android.os.Looper
 import androidx.lifecycle.Observer
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.bridge.UiThreadUtil
 import com.smallcase.gateway.data.listeners.EventBroadcaster
 import com.smallcase.gateway.data.listeners.SCGatewayConsumer
 
@@ -24,62 +26,84 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     override fun getName(): String = "SCGatewayBridgeEmitter"
 
+    @ReactMethod
+    fun getDebugInfo(promise: Promise) {
+        try {
+            val info = Arguments.createMap().apply {
+                putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
+                putBoolean("isListening", isListening)
+                putBoolean("isAnalyticsActive", SCGatewayConsumer.isAnalyticsActive)
+            }
+            promise.resolve(info)
+        } catch (e: Exception) {
+            promise.reject("DEBUG_INFO_ERROR", e.message, e)
+        }
+    }
+
     /**
      * 🚀 Start listening to EventBroadcaster events
      */
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "📡 Starting to listen for SCGateway events")
-            
+            Log.d(TAG, "📡 Starting to listen for SCGateway events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+
             if (isListening) {
                 Log.d(TAG, "Already listening to events")
                 promise.resolve("Already listening")
                 return
             }
 
-            EventBroadcaster.initialize(reactContext.applicationContext)
-
-            jsonObserver = Observer { jsonString ->
+            UiThreadUtil.runOnUiThread {
                 try {
-                    Log.d(TAG, "📊 Received JSON notification: $jsonString")
-                    
-                    val parsedData = SCGatewayConsumer.parseJSONData(jsonString)
-                    parsedData?.let { data ->
-                        val eventType = data["type"] as? String
-                        val eventData = data["data"] as? Map<String, Any?>
-                        val timestamp = data["timestamp"] as? Double
-                        
-                        eventType?.let { type ->
-                            val eventPayload = Arguments.createMap().apply {
-                                putString("type", type)
-                                timestamp?.let { putDouble("timestamp", it) }
-                                eventData?.let { dataMap ->
-                                    val writableData = convertMapToWritableMap(dataMap)
-                                    putMap("data", writableData)
+                    Log.d(TAG, "📡 Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
+
+                    EventBroadcaster.initialize(reactContext.applicationContext)
+
+                    jsonObserver = Observer { jsonString ->
+                        try {
+                            Log.d(TAG, "📊 Received JSON notification: $jsonString")
+
+                            val parsedData = SCGatewayConsumer.parseJSONData(jsonString)
+                            parsedData?.let { data ->
+                                val eventType = data["type"] as? String
+                                val eventData = data["data"] as? Map<String, Any?>
+                                val timestamp = data["timestamp"] as? Double
+
+                                eventType?.let { type ->
+                                    val eventPayload = Arguments.createMap().apply {
+                                        putString("type", type)
+                                        timestamp?.let { putDouble("timestamp", it) }
+                                        eventData?.let { dataMap ->
+                                            val writableData = convertMapToWritableMap(dataMap)
+                                            putMap("data", writableData)
+                                        }
+                                    }
+
+                                    sendEvent(type, eventPayload)
+                                    Log.d(TAG, "✅ Emitted event: $type")
                                 }
                             }
-
-                            sendEvent(type, eventPayload)
-                            Log.d(TAG, "✅ Emitted event: $type")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "❌ Error processing JSON notification", e)
                         }
                     }
+
+                    jsonObserver?.let { observer ->
+                        SCGatewayConsumer.observeJsonNotifications(observer)
+                        isListening = true
+                        Log.d(TAG, "✅ Successfully started listening for events")
+                        promise.resolve("Started listening successfully")
+                    } ?: run {
+                        promise.reject("OBSERVER_ERROR", "Failed to create observer")
+                    }
                 } catch (e: Exception) {
-                    Log.e(TAG, "❌ Error processing JSON notification", e)
+                    Log.e(TAG, "❌ Error starting listener on UI thread", e)
+                    promise.reject("START_LISTENING_ERROR", e.message, e)
                 }
             }
-
-            jsonObserver?.let { observer ->
-                SCGatewayConsumer.observeJsonNotifications(observer)
-                isListening = true
-                Log.d(TAG, "✅ Successfully started listening for events")
-                promise.resolve("Started listening successfully")
-            } ?: run {
-                promise.reject("OBSERVER_ERROR", "Failed to create observer")
-            }
-
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error starting listener", e)
+            Log.e(TAG, "❌ Error scheduling startListening on UI thread", e)
             promise.reject("START_LISTENING_ERROR", e.message, e)
         }
     }
@@ -90,26 +114,32 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "🛑 Stopping SCGateway event listening")
-            
+            Log.d(TAG, "🛑 Stopping SCGateway event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+
             if (!isListening) {
                 Log.d(TAG, "Not currently listening")
                 promise.resolve("Not listening")
                 return
             }
 
-            jsonObserver?.let { observer ->
-                SCGatewayConsumer.removeJsonObserver(observer)
-                jsonObserver = null
-                isListening = false
-                Log.d(TAG, "✅ Successfully stopped listening for events")
-                promise.resolve("Stopped listening successfully")
-            } ?: run {
-                promise.resolve("No observer to remove")
+            UiThreadUtil.runOnUiThread {
+                try {
+                    jsonObserver?.let { observer ->
+                        SCGatewayConsumer.removeJsonObserver(observer)
+                        jsonObserver = null
+                        isListening = false
+                        Log.d(TAG, "✅ Successfully stopped listening for events")
+                        promise.resolve("Stopped listening successfully")
+                    } ?: run {
+                        promise.resolve("No observer to remove")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "❌ Error stopping listener on UI thread", e)
+                    promise.reject("STOP_LISTENING_ERROR", e.message, e)
+                }
             }
-
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error stopping listener", e)
+            Log.e(TAG, "❌ Error scheduling stopListening on UI thread", e)
             promise.reject("STOP_LISTENING_ERROR", e.message, e)
         }
     }

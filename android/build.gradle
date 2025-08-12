@@ -8,6 +8,7 @@ buildscript {
   }
 
   dependencies {
+    //noinspection GradlePluginVersion
     classpath 'com.android.tools.build:gradle:3.5.3'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -57,6 +58,12 @@ android {
   }
 }
 
+// Ensure React Native Android sources are locatable when opening this library standalone
+if (!rootProject.ext.has('reactNativeAndroidRoot')) {
+  // Absolute or relative path to the app's RN Android directory
+  rootProject.ext.reactNativeAndroidRoot = file('../../smart_investing_react_native/node_modules/react-native/android')
+}
+
 repositories {
   mavenCentral()
   google()
@@ -69,7 +76,7 @@ repositories {
           password "reactNativeUser123"
       }
   }
-  
+
   maven {
       url "https://artifactory.smallcase.com/artifactory/SCGateway-internal"
       credentials {
@@ -149,7 +156,7 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 dependencies {
    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.smallcase.gateway:sdk:4.2.2'
+    implementation 'com.smallcase.gateway:sdk-extract-mixpanel-from-sdk:4.2.2-3179-release'
     implementation 'com.smallcase.loans:sdk:3.1.1'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
