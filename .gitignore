@@ -43,9 +43,11 @@ android.iml
 # Cocoapods
 #
 example/ios/Pods
+smart_investing_react_native/Pods
 
 # Ruby
 example/vendor/
+smart_investing_react_native/vendor/
 
 # node.js
 #
