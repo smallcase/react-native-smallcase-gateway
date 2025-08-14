@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.2-rc.2...v5.2.0) (2025-08-14)
+
+
+### Features
+
+* add smart investing app w/ react-native-0.79.4 ([#102](https://github.com/smallcase/react-native-smallcase-gateway/issues/102)) ([180018e](https://github.com/smallcase/react-native-smallcase-gateway/commit/180018ef04183128fc6e78011ae34755eb5f9323))
+
+
+### Bug Fixes
+
+* update iOS bundle identifier and clean up build config ([363f457](https://github.com/smallcase/react-native-smallcase-gateway/commit/363f4576103bd57a301ad84fe773296288969e8c))
+
+## [6.0.0-rc.7](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.6...v6.0.0-rc.7) (2025-07-09)
+
+## [6.0.0-rc.6](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.5...v6.0.0-rc.6) (2025-07-09)
+
+## [6.0.0-rc.5](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.4...v6.0.0-rc.5) (2025-07-09)
+
+## [6.0.0-rc.4](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.3...v6.0.0-rc.4) (2025-07-09)
+
+## [6.0.0-rc.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.2...v6.0.0-rc.3) (2025-07-09)
+
+## [6.0.0-rc.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0-rc.0...v6.0.0-rc.2) (2025-07-09)
+
+## [6.0.0-rc.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.3...v6.0.0-rc.0) (2025-07-09)
+
+
+### Features
+
+* **release:** add 'release:major:rc' script for prerelease management ([5602fa6](https://github.com/smallcase/react-native-smallcase-gateway/commit/5602fa62bf7f0e24d27353b2b93ebdfaea11466d))
+
+## [5.1.0-rc.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.2...v5.1.0-rc.3) (2025-07-01)
+
+## [5.1.0-rc.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.1.0-rc.1...v5.1.0-rc.2) (2025-07-01)
+
+## [5.1.0-rc.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.1-native-SCGateway-webview-4.1.3-389-release...v5.1.0-rc.1) (2025-06-20)
+
+### [5.0.1-native-SCGateway-webview-4.1.3-389-release](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.1-native-SCGateway-webview-4.1.3-388-release...v5.0.1-native-SCGateway-webview-4.1.3-389-release) (2025-06-18)
+
+### [5.0.1-native-SCGateway-webview-4.1.3-388-release](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.1...v5.0.1-native-SCGateway-webview-4.1.3-388-release) (2025-06-16)
+
 ## [5.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.2-rc.2...v5.1.0) (2025-08-14)
 
 
