@@ -106,7 +106,23 @@ android {
         }
     }
 }
-
+repositories {
+    maven {
+        url "https://artifactory.smallcase.com/artifactory/SCGateway"
+        credentials {
+            username "react_native_user"
+            password "reactNativeUser123"
+        }
+    }
+  
+    maven {
+        url "https://artifactory.smallcase.com/artifactory/SCGateway-internal"
+        credentials {
+            username "react_native_user"
+            password "reactNativeUser123"
+        }
+    }
+}
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
