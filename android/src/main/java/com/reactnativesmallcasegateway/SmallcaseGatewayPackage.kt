@@ -9,7 +9,8 @@ class SmallcaseGatewayPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
         return listOf(
             SmallcaseGatewayModule(reactContext),
-            SCGatewayBridgeEmitter(reactContext)
+            SCGatewayBridgeEmitter(reactContext),
+            SCLoansBridgeEmitter(reactContext)
         )
     }
 

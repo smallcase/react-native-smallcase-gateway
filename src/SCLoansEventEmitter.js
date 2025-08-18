@@ -4,8 +4,11 @@ const { SCLoansBridgeEmitter } = NativeModules;
 
 // Create event emitter instance
 let eventEmitter = null;
-if (Platform.OS === 'ios' && SCLoansBridgeEmitter) {
-  eventEmitter = new NativeEventEmitter(SCLoansBridgeEmitter);
+if (SCLoansBridgeEmitter) {
+  if (Platform.OS === 'ios') {
+    eventEmitter = new NativeEventEmitter(SCLoansBridgeEmitter);
+  }
+  // For Android, we'll use the DeviceEventEmitter which is handled natively
 }
 
 /**
@@ -13,16 +16,22 @@ if (Platform.OS === 'ios' && SCLoansBridgeEmitter) {
  */
 export const SCLoansEventTypes = {
   NOTIFICATION: 'scloans_notification',
+  // Android-specific event types
+  ANALYTICS_EVENT: 'scloans_analytics_event',
+  SUPER_PROPERTIES_UPDATED: 'scloans_super_properties_updated',
+  USER_RESET: 'scloans_user_reset',
+  USER_IDENTIFY: 'scloans_user_identify',
 };
 
 /**
  * SCLoans Event Manager
- * Provides methods to listen to analytics events from the native iOS SDK
+ * Provides methods to listen to analytics events from both iOS and Android native SDKs
  */
 class SCLoansEventManager {
   constructor() {
     this.listeners = new Map();
     this.isListening = false;
+    this.androidListeners = new Map(); // For Android DeviceEventEmitter listeners
   }
 
   /**
@@ -30,7 +39,7 @@ class SCLoansEventManager {
    * @returns {Promise<string>}
    */
   async startListening() {
-    if (Platform.OS !== 'ios' || !SCLoansBridgeEmitter) {
+    if (!SCLoansBridgeEmitter) {
       console.warn('SCLoansEventManager: Not available on this platform');
       return Promise.resolve('Not available');
     }
@@ -52,7 +61,7 @@ class SCLoansEventManager {
    * @returns {Promise<string>}
    */
   async stopListening() {
-    if (Platform.OS !== 'ios' || !SCLoansBridgeEmitter) {
+    if (!SCLoansBridgeEmitter) {
       return Promise.resolve('Not available');
     }
 
@@ -77,7 +86,7 @@ class SCLoansEventManager {
    * @returns {Promise<object>}
    */
   async getDebugInfo() {
-    if (Platform.OS !== 'ios' || !SCLoansBridgeEmitter) {
+    if (!SCLoansBridgeEmitter) {
       console.warn('SCLoansEventManager: Not available on this platform');
       return Promise.resolve({ error: 'Not available' });
     }
@@ -94,6 +103,31 @@ class SCLoansEventManager {
   }
 
   /**
+   * Get listening status
+   * @returns {Promise<object>}
+   */
+  async getListeningStatus() {
+    if (!SCLoansBridgeEmitter || !SCLoansBridgeEmitter.getListeningStatus) {
+      return Promise.resolve({ 
+        isListening: this.isListening,
+        platform: Platform.OS 
+      });
+    }
+
+    try {
+      const status = await SCLoansBridgeEmitter.getListeningStatus();
+      return status;
+    } catch (error) {
+      console.error('SCLoansEventManager: Failed to get listening status:', error);
+      return { 
+        isListening: this.isListening,
+        platform: Platform.OS,
+        error: error.message 
+      };
+    }
+  }
+
+  /**
    * Add listener for a specific event type
    * @param {string} eventType - Event type from SCLoansEventTypes
    * @param {function} callback - Callback function to handle the event
@@ -101,7 +135,8 @@ class SCLoansEventManager {
    */
   addEventListener(eventType, callback) {
     console.log(`SCLoansEventManager: Attempting to add listener for event type: ${eventType}`);
-    if (Platform.OS !== 'ios' || !eventEmitter) {
+    
+    if (!SCLoansBridgeEmitter) {
       console.warn('SCLoansEventManager: Event listening not available on this platform');
       return { remove: () => {} };
     }
@@ -117,28 +152,59 @@ class SCLoansEventManager {
       this.startListening().catch(console.error);
     }
 
-    // Always listen to 'scloans_notification' but handle different event types in the callback
-    const wrappedCallback = (data) => {
-      // The data should contain a 'type' field to identify the actual event type
-      console.log(`SCLoansEventManager: Received notification with data:`, data);
-      callback(data);
-    };
+    let subscription;
 
-    const subscription = eventEmitter.addListener(SCLoansEventTypes.NOTIFICATION, wrappedCallback);
-    
-    // Store subscription for cleanup
-    if (!this.listeners.has(eventType)) {
-      this.listeners.set(eventType, []);
+    if (Platform.OS === 'ios') {
+      // iOS: Use NativeEventEmitter, always listen to 'scloans_notification'
+      if (!eventEmitter) {
+        console.warn('SCLoansEventManager: Event emitter not available on iOS');
+        return { remove: () => {} };
+      }
+
+      const wrappedCallback = (data) => {
+        console.log(`SCLoansEventManager: Received iOS notification with data:`, data);
+        callback(data);
+      };
+
+      subscription = eventEmitter.addListener(SCLoansEventTypes.NOTIFICATION, wrappedCallback);
+      
+      // Store subscription for cleanup
+      if (!this.listeners.has(eventType)) {
+        this.listeners.set(eventType, []);
+      }
+      this.listeners.get(eventType).push(subscription);
+
+    } else if (Platform.OS === 'android') {
+      // Android: Use DeviceEventEmitter directly for specific event types
+      const { DeviceEventEmitter } = require('react-native');
+      
+      const wrappedCallback = (data) => {
+        console.log(`SCLoansEventManager: Received Android event ${eventType} with data:`, data);
+        callback(data);
+      };
+
+      subscription = DeviceEventEmitter.addListener(eventType, wrappedCallback);
+      
+      // Store subscription for cleanup
+      if (!this.androidListeners.has(eventType)) {
+        this.androidListeners.set(eventType, []);
+      }
+      this.androidListeners.get(eventType).push(subscription);
     }
-    this.listeners.get(eventType).push(subscription);
 
-    console.log(`SCLoansEventManager: Successfully added listener for ${eventType} (listening to scloans_notification)`);
+    console.log(`SCLoansEventManager: Successfully added listener for ${eventType} on ${Platform.OS}`);
 
     return {
       remove: () => {
         console.log(`SCLoansEventManager: Removing listener for ${eventType}`);
-        subscription.remove();
-        this.removeListenerFromMap(eventType, subscription);
+        if (subscription) {
+          subscription.remove();
+          if (Platform.OS === 'ios') {
+            this.removeListenerFromMap(eventType, subscription);
+          } else if (Platform.OS === 'android') {
+            this.removeAndroidListenerFromMap(eventType, subscription);
+          }
+        }
         console.log(`SCLoansEventManager: Listener for ${eventType} removed.`);
       }
     };
@@ -151,12 +217,19 @@ class SCLoansEventManager {
    */
   removeEventListener(eventType, callback) {
     console.log(`SCLoansEventManager: Attempting to remove listener for event type: ${eventType}`);
-    if (Platform.OS !== 'ios' || !eventEmitter) {
+    
+    if (!SCLoansBridgeEmitter) {
       console.warn('SCLoansEventManager: Event emitter not available on this platform, cannot remove listener.');
       return;
     }
 
-    eventEmitter.removeListener(eventType, callback);
+    if (Platform.OS === 'ios' && eventEmitter) {
+      eventEmitter.removeListener(eventType, callback);
+    } else if (Platform.OS === 'android') {
+      const { DeviceEventEmitter } = require('react-native');
+      DeviceEventEmitter.removeListener(eventType, callback);
+    }
+    
     console.log(`SCLoansEventManager: Successfully removed listener for ${eventType}`);
   }
 
@@ -166,28 +239,54 @@ class SCLoansEventManager {
    */
   removeAllListeners(eventType = null) {
     console.log(`SCLoansEventManager: Attempting to remove all listeners for event type: ${eventType || 'all'}`);
-    if (Platform.OS !== 'ios' || !eventEmitter) {
+    
+    if (!SCLoansBridgeEmitter) {
       console.warn('SCLoansEventManager: Event emitter not available on this platform, cannot remove all listeners.');
       return;
     }
 
-    if (eventType) {
-      // Remove listeners for specific event type
-      const subscriptions = this.listeners.get(eventType) || [];
-      subscriptions.forEach(subscription => subscription.remove());
-      this.listeners.delete(eventType);
-      
-      eventEmitter.removeAllListeners(eventType);
-      console.log(`SCLoansEventManager: Successfully removed all listeners for ${eventType}`);
-    } else {
-      // Remove all listeners
-      this.listeners.forEach((subscriptions, type) => {
+    if (Platform.OS === 'ios') {
+      if (eventType) {
+        // Remove listeners for specific event type
+        const subscriptions = this.listeners.get(eventType) || [];
         subscriptions.forEach(subscription => subscription.remove());
-        eventEmitter.removeAllListeners(type);
-      });
-      this.listeners.clear();
+        this.listeners.delete(eventType);
+        
+        if (eventEmitter) {
+          eventEmitter.removeAllListeners(eventType);
+        }
+        console.log(`SCLoansEventManager: Successfully removed all iOS listeners for ${eventType}`);
+      } else {
+        // Remove all listeners
+        this.listeners.forEach((subscriptions, type) => {
+          subscriptions.forEach(subscription => subscription.remove());
+          if (eventEmitter) {
+            eventEmitter.removeAllListeners(type);
+          }
+        });
+        this.listeners.clear();
+        console.log('SCLoansEventManager: Successfully removed all iOS listeners');
+      }
+    } else if (Platform.OS === 'android') {
+      const { DeviceEventEmitter } = require('react-native');
       
-      console.log('SCLoansEventManager: Successfully removed all listeners');
+      if (eventType) {
+        // Remove listeners for specific event type
+        const subscriptions = this.androidListeners.get(eventType) || [];
+        subscriptions.forEach(subscription => subscription.remove());
+        this.androidListeners.delete(eventType);
+        
+        DeviceEventEmitter.removeAllListeners(eventType);
+        console.log(`SCLoansEventManager: Successfully removed all Android listeners for ${eventType}`);
+      } else {
+        // Remove all listeners
+        this.androidListeners.forEach((subscriptions, type) => {
+          subscriptions.forEach(subscription => subscription.remove());
+          DeviceEventEmitter.removeAllListeners(type);
+        });
+        this.androidListeners.clear();
+        console.log('SCLoansEventManager: Successfully removed all Android listeners');
+      }
     }
   }
 
@@ -195,20 +294,118 @@ class SCLoansEventManager {
    * Get current listening status
    * @returns {boolean}
    */
-  getListeningStatus() {
+  getListeningStatusSync() {
     return this.isListening;
   }
 
-  // Private helper method
+  /**
+   * Emit test event (Android only)
+   * @param {string} eventType - Event type to test
+   * @param {object} testData - Test data to send
+   * @returns {Promise<string>}
+   */
+  async emitTestEvent(eventType, testData = null) {
+    if (Platform.OS !== 'android' || !SCLoansBridgeEmitter || !SCLoansBridgeEmitter.emitTestEvent) {
+      console.warn('SCLoansEventManager: Test event emission only available on Android');
+      return Promise.resolve('Not available on this platform');
+    }
+
+    try {
+      const result = await SCLoansBridgeEmitter.emitTestEvent(eventType, testData);
+      console.log(`SCLoansEventManager: Test event emitted successfully: ${eventType}`);
+      return result;
+    } catch (error) {
+      console.error('SCLoansEventManager: Failed to emit test event:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Trigger analytics event (Android only)
+   * @param {string} eventName - Event name
+   * @param {object} properties - Event properties
+   * @returns {Promise<string>}
+   */
+  async triggerAnalyticsEvent(eventName, properties = null) {
+    if (Platform.OS !== 'android' || !SCLoansBridgeEmitter || !SCLoansBridgeEmitter.triggerAnalyticsEvent) {
+      console.warn('SCLoansEventManager: Analytics event triggering only available on Android');
+      return Promise.resolve('Not available on this platform');
+    }
+
+    try {
+      const result = await SCLoansBridgeEmitter.triggerAnalyticsEvent(eventName, properties);
+      console.log(`SCLoansEventManager: Analytics event triggered successfully: ${eventName}`);
+      return result;
+    } catch (error) {
+      console.error('SCLoansEventManager: Failed to trigger analytics event:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Trigger super properties update (Android only)
+   * @param {object} properties - Super properties
+   * @returns {Promise<string>}
+   */
+  async triggerSuperPropertiesUpdate(properties = null) {
+    if (Platform.OS !== 'android' || !SCLoansBridgeEmitter || !SCLoansBridgeEmitter.triggerSuperPropertiesUpdate) {
+      console.warn('SCLoansEventManager: Super properties update only available on Android');
+      return Promise.resolve('Not available on this platform');
+    }
+
+    try {
+      const result = await SCLoansBridgeEmitter.triggerSuperPropertiesUpdate(properties);
+      console.log('SCLoansEventManager: Super properties update triggered successfully');
+      return result;
+    } catch (error) {
+      console.error('SCLoansEventManager: Failed to trigger super properties update:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get supported events (Android only)
+   * @returns {Promise<Array>}
+   */
+  async getSupportedEvents() {
+    if (Platform.OS !== 'android' || !SCLoansBridgeEmitter || !SCLoansBridgeEmitter.getSupportedEvents) {
+      // Return default events for iOS or if method not available
+      return Promise.resolve([SCLoansEventTypes.NOTIFICATION]);
+    }
+
+    try {
+      const events = await SCLoansBridgeEmitter.getSupportedEvents();
+      console.log('SCLoansEventManager: Retrieved supported events:', events);
+      return events;
+    } catch (error) {
+      console.error('SCLoansEventManager: Failed to get supported events:', error);
+      throw error;
+    }
+  }
+
+  // Private helper methods
   removeListenerFromMap(eventType, targetSubscription) {
-    console.log(`SCLoansEventManager: Removing listener from map for event type: ${eventType}`);
+    console.log(`SCLoansEventManager: Removing iOS listener from map for event type: ${eventType}`);
     const subscriptions = this.listeners.get(eventType) || [];
     const index = subscriptions.indexOf(targetSubscription);
     if (index > -1) {
       subscriptions.splice(index, 1);
       if (subscriptions.length === 0) {
         this.listeners.delete(eventType);
-        console.log(`SCLoansEventManager: No more listeners for ${eventType}, removing event type from map.`);
+        console.log(`SCLoansEventManager: No more iOS listeners for ${eventType}, removing event type from map.`);
+      }
+    }
+  }
+
+  removeAndroidListenerFromMap(eventType, targetSubscription) {
+    console.log(`SCLoansEventManager: Removing Android listener from map for event type: ${eventType}`);
+    const subscriptions = this.androidListeners.get(eventType) || [];
+    const index = subscriptions.indexOf(targetSubscription);
+    if (index > -1) {
+      subscriptions.splice(index, 1);
+      if (subscriptions.length === 0) {
+        this.androidListeners.delete(eventType);
+        console.log(`SCLoansEventManager: No more Android listeners for ${eventType}, removing event type from map.`);
       }
     }
   }
@@ -224,15 +421,55 @@ export default scLoansEventManager;
  */
 export const SCLoansEvents = {
   /**
-   * Listen to all notification events (will receive events with different types in the data)
-   * @param {function} callback - Function to handle notification events
+   * Listen to notification events (iOS) or analytics events (Android)
+   * @param {function} callback - Function to handle events
    * @returns {object} - Subscription object
    */
   onAnalyticsEvent: (callback) => {
-    return scLoansEventManager.addEventListener(
-      SCLoansEventTypes.NOTIFICATION,
-      callback
-    );
+    const eventType = Platform.OS === 'ios' 
+      ? SCLoansEventTypes.NOTIFICATION 
+      : SCLoansEventTypes.ANALYTICS_EVENT;
+    
+    return scLoansEventManager.addEventListener(eventType, callback);
+  },
+
+  /**
+   * Listen to super properties updated events (Android only)
+   * @param {function} callback - Function to handle events
+   * @returns {object} - Subscription object
+   */
+  onSuperPropertiesUpdated: (callback) => {
+    if (Platform.OS !== 'android') {
+      console.warn('SCLoansEvents: Super properties events only available on Android');
+      return { remove: () => {} };
+    }
+    return scLoansEventManager.addEventListener(SCLoansEventTypes.SUPER_PROPERTIES_UPDATED, callback);
+  },
+
+  /**
+   * Listen to user reset events (Android only)
+   * @param {function} callback - Function to handle events
+   * @returns {object} - Subscription object
+   */
+  onUserReset: (callback) => {
+    if (Platform.OS !== 'android') {
+      console.warn('SCLoansEvents: User reset events only available on Android');
+      return { remove: () => {} };
+    }
+    return scLoansEventManager.addEventListener(SCLoansEventTypes.USER_RESET, callback);
+  },
+
+  /**
+   * Listen to user identify events (Android only)
+   * @param {function} callback - Function to handle events
+   * @returns {object} - Subscription object
+   */
+  onUserIdentify: (callback) => {
+    if (Platform.OS !== 'android') {
+      console.warn('SCLoansEvents: User identify events only available on Android');
+      return { remove: () => {} };
+    }
+    return scLoansEventManager.addEventListener(SCLoansEventTypes.USER_IDENTIFY, callback);
   },
 
   /**
@@ -251,7 +488,38 @@ export const SCLoansEvents = {
   getDebugInfo: () => scLoansEventManager.getDebugInfo(),
 
   /**
+   * Get listening status (async)
+   */
+  getListeningStatus: () => scLoansEventManager.getListeningStatus(),
+
+  /**
+   * Get listening status (sync)
+   */
+  getListeningStatusSync: () => scLoansEventManager.getListeningStatusSync(),
+
+  /**
    * Remove all event listeners
    */
   removeAllListeners: () => scLoansEventManager.removeAllListeners(),
+
+  /**
+   * Get supported events (Android only)
+   */
+  getSupportedEvents: () => scLoansEventManager.getSupportedEvents(),
+
+  // Android-specific testing methods
+  /**
+   * Emit test event (Android only)
+   */
+  emitTestEvent: (eventType, testData) => scLoansEventManager.emitTestEvent(eventType, testData),
+
+  /**
+   * Trigger analytics event (Android only)
+   */
+  triggerAnalyticsEvent: (eventName, properties) => scLoansEventManager.triggerAnalyticsEvent(eventName, properties),
+
+  /**
+   * Trigger super properties update (Android only)
+   */
+  triggerSuperPropertiesUpdate: (properties) => scLoansEventManager.triggerSuperPropertiesUpdate(properties),
 };

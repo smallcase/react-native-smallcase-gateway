@@ -2,7 +2,15 @@ import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
-import scGatewayEventManager, { SCGatewayEvents, SCGatewayEventTypes } from './SCGatewayEventEmitter';
+import scGatewayEventManager, { 
+  SCGatewayEvents, 
+  SCGatewayEventTypes,
+  // 🆕 Loans support
+  scLoansEventManager,
+  SCLoansEvents,
+  SCLoansEventTypes
+} from './SCGatewayEventEmitter';
+
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -36,7 +44,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 let defaultBrokerList = [];
 
-// Event types constants for easy reference
+// Event types constants for easy reference - GATEWAY
 const EVENT_TYPES = {
   ANALYTICS_EVENT: 'scg_analytics_event',
   SUPER_PROPS_UPDATED: 'scg_analytics_super_props', 
@@ -48,6 +56,18 @@ const EVENT_TYPES = {
   LEADGEN_FAILED: 'scg_leadgen_failed'
 };
 
+// 🆕 Event types constants for easy reference - LOANS
+const LOANS_EVENT_TYPES = {
+  ANALYTICS_EVENT: 'scloans_analytics_event',
+  SUPER_PROPS_UPDATED: 'scloans_super_properties_updated',
+  LOANS_EVENT: 'scloans_event',
+  LOANS_NOTIFICATION: 'scloans_notification',
+  LOAN_APPLICATION_STARTED: 'loan_application_started',
+  LOAN_APPLICATION_COMPLETED: 'loan_application_completed',
+  LOAN_APPLICATION_FAILED: 'loan_application_failed',
+  LOAN_DISBURSED: 'loan_disbursed',
+  LOAN_REPAYMENT: 'loan_repayment'
+};
 
 /**
  * configure the sdk with
@@ -291,8 +311,100 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
+// ===== 🆕 LOANS FUNCTIONALITY =====
+
+/**
+ * 🏦 Start listening to loans events
+ * @returns {Promise<string>}
+ */
+const startLoansEventListening = async () => {
+  try {
+    return await SCLoansEvents.startListening();
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to start loans event listening:', error);
+    throw error;
+  }
+};
+
+/**
+ * 🏦 Stop listening to loans events
+ * @returns {Promise<string>}
+ */
+const stopLoansEventListening = async () => {
+  try {
+    return await SCLoansEvents.stopListening();
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to stop loans event listening:', error);
+    throw error;
+  }
+};
+
+/**
+ * 🏦 Post a loans analytics event
+ * @param {string} eventName - Name of the event
+ * @param {Object} properties - Event properties
+ * @returns {Promise<string>}
+ */
+const postLoansAnalyticsEvent = async (eventName, properties = {}) => {
+  try {
+    const safeEventName = typeof eventName === 'string' ? eventName : '';
+    const safeProperties = safeObject(properties);
+    
+    return await SCLoansEvents.postAnalyticsEvent(safeEventName, safeProperties);
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to post loans analytics event:', error);
+    throw error;
+  }
+};
+
+/**
+ * 🏦 Get loans event statistics
+ * @returns {Promise<Object>}
+ */
+const getLoansEventStats = async () => {
+  try {
+    return await SCLoansEvents.getEventStats();
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to get loans event stats:', error);
+    return {};
+  }
+};
+
+/**
+ * 🏦 Get loans event listening status
+ * @returns {Promise<Object>}
+ */
+const getLoansEventStatus = async () => {
+  try {
+    return await SCLoansEvents.getStatus();
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to get loans event status:', error);
+    return { isListening: false, activeProcessors: [] };
+  }
+};
+
+/**
+ * 🏦 Emit test loans event (debugging)
+ * @param {string} eventName - Test event name
+ * @param {Object} testData - Test data
+ * @returns {Promise<string>}
+ */
+const emitTestLoansEvent = async (eventName, testData = {}) => {
+  try {
+    const safeEventName = typeof eventName === 'string' ? eventName : '';
+    const safeTestData = safeObject(testData);
+    
+    return await SCLoansEvents.emitTestEvent(safeEventName, safeTestData);
+  } catch (error) {
+    console.error('SmallcaseGateway: Failed to emit test loans event:', error);
+    throw error;
+  }
+};
+
+// ===== MAIN EXPORT =====
+
 const SmallcaseGateway = {
-  // Core SDK methods
+  // Core SDK methods (unchanged)
   init,
   logoutUser,
   triggerLeadGen,
@@ -307,10 +419,25 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   
+  // Gateway Events (unchanged)
   eventTypes: EVENT_TYPES,
   gatewayEvents: SCGatewayEvents,
   gatewayEventManager: scGatewayEventManager,
   gatewayEventTypes: SCGatewayEventTypes,
+
+  // 🆕 Loans Events (new)
+  loansEventTypes: LOANS_EVENT_TYPES,
+  loansEvents: SCLoansEvents,
+  loansEventManager: scLoansEventManager,
+  loansEventTypesConstants: SCLoansEventTypes,
+  
+  // 🆕 Loans Methods (new)
+  startLoansEventListening,
+  stopLoansEventListening,
+  postLoansAnalyticsEvent,
+  getLoansEventStats,
+  getLoansEventStatus,
+  emitTestLoansEvent,
 };
 
 export default SmallcaseGateway;

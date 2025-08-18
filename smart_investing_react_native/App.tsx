@@ -87,19 +87,83 @@ class App extends React.Component<AppProps, AppState> {
   setupEventListeners = () => {
     console.log('🎯 Setting up event listeners... Platform:', RNPlatform.OS);
     
-    // Platform-specific event handling
     if (RNPlatform.OS === 'ios') {
       this.setupIOSEventListeners();
       this.setupIOSLoansEventListeners();
     } else {
       this.setupAndroidEventListeners();
+      this.setupAndroidLoansEventListeners(); // ✅ add Android loans listeners
     }
-    
-    // Also setup legacy event listeners for backward compatibility
-    // this.setupLegacyEventListeners();
-    
+
     console.log('✅ Event listeners setup complete');
   };
+
+  setupAndroidLoansEventListeners = async () => {
+    console.log('🏦🤖 Setting up Android-specific SCLoans event listeners...');
+
+    const { loansEvents, loansEventManager } = ScLoan as any;
+
+    if (!loansEventManager) {
+      console.error('❌ Android SCLoans event manager not available');
+      return;
+    }
+
+    try {
+      const result = await loansEventManager.startListening();
+      console.log('✅ Android SCLoans event manager started listening', result);
+      try {
+        const status = await loansEventManager.getListeningStatus?.();
+        console.log('ℹ️ Android SCLoans event manager status:', status);
+      } catch {}
+    } catch (error) {
+      console.error('❌ Failed to start Android SCLoans event manager:', error);
+    }
+
+    // Subscribe to Android SCLoans analytics events
+    const loansNotificationSubscription = loansEvents.onAnalyticsEvent((data: any) => {
+      console.log('[App] <- Android SCLoans analytics event:', data);
+      // this.setState({ lastLoansEvent: data });
+
+      if (!data || !data.type) {
+        console.warn('SCLoans Android event missing type:', data);
+        return;
+      }
+
+      switch (data.type) {
+        case 'scloans_analytics_event':
+          this.handleSCLoansAnalyticsEvent(data);
+          break;
+        case 'scloans_super_properties_updated':
+          this.handleSCLoansSuperPropsUpdated(data);
+          break;
+        case 'scloans_user_reset':
+          this.handleSCLoansUserReset(data);
+          break;
+        case 'scloans_user_identify':
+          this.handleSCLoansUserIdentify(data);
+          break;
+        case 'scloans_loan_application_started':
+          this.handleSCLoansLoanApplicationStarted(data);
+          break;
+        case 'scloans_loan_application_completed':
+          this.handleSCLoansLoanApplicationCompleted(data);
+          break;
+        case 'scloans_loan_application_failed':
+          this.handleSCLoansLoanApplicationFailed(data);
+          break;
+        case 'scloans_loan_status_updated':
+          this.handleSCLoansLoanStatusUpdated(data);
+          break;
+        default:
+          console.warn('🔍 Unknown Android SCLoans event type:', data.type, 'Data:', data);
+          this.handleUnknownLoansEvent(data);
+      }
+    });
+
+    this.loansEventSubscriptions.push(loansNotificationSubscription);
+    console.log('✅ Android SCLoans event listeners setup complete');
+  };
+
 
   setupIOSEventListeners = () => {
     console.log('🍎 Setting up iOS-specific event listeners...');

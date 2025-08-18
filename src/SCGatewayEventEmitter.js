@@ -1,7 +1,7 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
 const { SCGatewayBridgeEmitter } = NativeModules;
-
+// would be removed
 // Create event emitter instance
 let eventEmitter = null;
 if (Platform.OS === 'ios' && SCGatewayBridgeEmitter) {

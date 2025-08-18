@@ -6,25 +6,25 @@ import androidx.lifecycle.Observer
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.bridge.UiThreadUtil
-import com.smallcase.gateway.data.listeners.EventBroadcaster
-import com.smallcase.gateway.data.listeners.SCGatewayConsumer
+import com.smallcase.loans.data.listeners.EventBroadcaster
+import com.smallcase.loans.data.listeners.SCGatewayConsumer
 
-class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
-        const val TAG = "SCGatewayBridgeEmitter"
+        const val TAG = "SCLoansBridgeEmitter"
         
-        // Event types matching iOS implementation
-        const val ANALYTICS_EVENT = "scgateway_analytics_event"
-        const val SUPER_PROPERTIES_UPDATED = "scgateway_super_properties_updated"
-        const val USER_RESET = "scgateway_user_reset"
-        const val USER_IDENTIFY = "scgateway_user_identify"
+        // Event types matching the ScLoanNotification constants
+        const val ANALYTICS_EVENT = "scloans_analytics_event"
+        const val SUPER_PROPERTIES_UPDATED = "scloans_super_properties_updated"
+        const val USER_RESET = "scloans_user_reset"
+        const val USER_IDENTIFY = "scloans_user_identify"
     }
 
     private var isListening = false
     private var jsonObserver: Observer<String>? = null
 
-    override fun getName(): String = "SCGatewayBridgeEmitter"
+    override fun getName(): String = "SCLoansBridgeEmitter"
 
     @ReactMethod
     fun getDebugInfo(promise: Promise) {
@@ -46,7 +46,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "📡 Starting to listen for SCGateway events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "📡 Starting to listen for SCLoans events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (isListening) {
                 Log.d(TAG, "Already listening to events")
@@ -57,8 +57,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             UiThreadUtil.runOnUiThread {
                 try {
                     Log.d(TAG, "📡 Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
-
-                    EventBroadcaster.initialize(reactContext.applicationContext)
 
                     jsonObserver = Observer { jsonString ->
                         try {
@@ -95,8 +93,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                         Log.d(TAG, "✅ Successfully started listening for events")
                         promise.resolve("Started listening successfully")
                     } ?: run {
-
-
                         promise.reject("OBSERVER_ERROR", "Failed to create observer")
                     }
                 } catch (e: Exception) {
@@ -116,7 +112,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "🛑 Stopping SCGateway event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "🛑 Stopping SCLoans event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (!isListening) {
                 Log.d(TAG, "Not currently listening")
@@ -175,7 +171,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 putDouble("timestamp", System.currentTimeMillis().toDouble())
                 putBoolean("isTest", true)
 
-                testData?.let { putMap("data", it) } // ✅ Removed .copy()
+                testData?.let { putMap("data", it) }
             }
 
             sendEvent(eventType, payload)
@@ -184,6 +180,42 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error emitting test event", e)
             promise.reject("TEST_EVENT_ERROR", e.message, e)
+        }
+    }
+
+    /**
+     * 📊 Trigger analytics event (for manual testing)
+     */
+    @ReactMethod
+    fun triggerAnalyticsEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
+        try {
+            Log.d(TAG, "📊 Triggering analytics event: $eventName")
+
+            val propertiesMap = properties?.let { convertReadableMapToMap(it) } ?: emptyMap()
+            EventBroadcaster.registerAnalyticsEvent(eventName, propertiesMap)
+            
+            promise.resolve("Analytics event triggered successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error triggering analytics event", e)
+            promise.reject("ANALYTICS_EVENT_ERROR", e.message, e)
+        }
+    }
+
+    /**
+     * 📊 Trigger super properties update (for manual testing)
+     */
+    @ReactMethod
+    fun triggerSuperPropertiesUpdate(properties: ReadableMap?, promise: Promise) {
+        try {
+            Log.d(TAG, "📊 Triggering super properties update")
+
+            val propertiesMap = properties?.let { convertReadableMapToMap(it) } ?: emptyMap()
+            EventBroadcaster.registerSuperPropertiesUpdated(propertiesMap)
+            
+            promise.resolve("Super properties update triggered successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error triggering super properties update", e)
+            promise.reject("SUPER_PROPERTIES_ERROR", e.message, e)
         }
     }
 
@@ -203,6 +235,64 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error sending event to React Native: $eventName", e)
         }
+    }
+
+    /**
+     * 🔄 Convert ReadableMap to Map<String, Any?>
+     */
+    private fun convertReadableMapToMap(readableMap: ReadableMap): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>()
+        val iterator = readableMap.keySetIterator()
+        
+        while (iterator.hasNextKey()) {
+            val key = iterator.nextKey()
+            val type = readableMap.getType(key)
+            
+            when (type) {
+                ReadableType.Null -> map[key] = null
+                ReadableType.Boolean -> map[key] = readableMap.getBoolean(key)
+                ReadableType.Number -> map[key] = readableMap.getDouble(key)
+                ReadableType.String -> map[key] = readableMap.getString(key)
+                ReadableType.Map -> {
+                    val nestedMap = readableMap.getMap(key)
+                    map[key] = if (nestedMap != null) convertReadableMapToMap(nestedMap) else null
+                }
+                ReadableType.Array -> {
+                    val nestedArray = readableMap.getArray(key)
+                    map[key] = if (nestedArray != null) convertReadableArrayToList(nestedArray) else null
+                }
+            }
+        }
+        
+        return map
+    }
+
+    /**
+     * 🔄 Convert ReadableArray to List<Any?>
+     */
+    private fun convertReadableArrayToList(readableArray: ReadableArray): List<Any?> {
+        val list = mutableListOf<Any?>()
+        
+        for (i in 0 until readableArray.size()) {
+            val type = readableArray.getType(i)
+            
+            when (type) {
+                ReadableType.Null -> list.add(null)
+                ReadableType.Boolean -> list.add(readableArray.getBoolean(i))
+                ReadableType.Number -> list.add(readableArray.getDouble(i))
+                ReadableType.String -> list.add(readableArray.getString(i))
+                ReadableType.Map -> {
+                    val nestedMap = readableArray.getMap(i)
+                    list.add(if (nestedMap != null) convertReadableMapToMap(nestedMap) else null)
+                }
+                ReadableType.Array -> {
+                    val nestedArray = readableArray.getArray(i)
+                    list.add(if (nestedArray != null) convertReadableArrayToList(nestedArray) else null)
+                }
+            }
+        }
+        
+        return list
     }
 
     /**
@@ -266,7 +356,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 }
                 jsonObserver = null
                 isListening = false
-                Log.d(TAG, "🧹 Cleaned up SCGateway event listeners on destroy")
+                Log.d(TAG, "🧹 Cleaned up SCLoans event listeners on destroy")
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error during cleanup", e)

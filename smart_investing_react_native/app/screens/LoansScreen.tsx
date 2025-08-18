@@ -227,11 +227,23 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
+      console.log('🐛 DEBUG: About to call ScLoan.apply with token:', interactionToken);
+      console.log('🐛 DEBUG: ScLoan object:', ScLoan);
+      console.log('🐛 DEBUG: Platform and bridge info:', {
+        platform: ScLoan.platform,
+        isAndroidBridgeAvailable: ScLoan.isAndroidBridgeAvailable,
+        isIosBridgeAvailable: ScLoan.isIosBridgeAvailable
+      });
+      
       const applyRes = await ScLoan.apply({
         interactionToken: interactionToken,
       });
       alert('Success', `${JSON.stringify(applyRes)}`);
     } catch (error: any) {
+      console.log('🐛 DEBUG: Full error object:', error);
+      console.log('🐛 DEBUG: Error name:', error.name);
+      console.log('🐛 DEBUG: Error message:', error.message);
+      console.log('🐛 DEBUG: Error stack:', error.stack);
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
     }
   };
