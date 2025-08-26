@@ -156,8 +156,8 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 dependencies {
    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.smallcase.gateway:sdk-sdk-extract-mixpanel-from-sdk:4.2.2-3181-release'
-    implementation 'com.smallcase.loans:sdk-sdk-extract-mixpanel-from-sdk:3.1.1-70-release'
+    implementation 'com.smallcase.gateway:sdk-sdk-extract-mixpanel-from-sdk:4.2.2-3183-release'
+    implementation 'com.smallcase.loans:sdk-sdk-extract-mixpanel-from-sdk:3.1.1-72-release'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

@@ -6,8 +6,12 @@ import androidx.lifecycle.Observer
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.bridge.UiThreadUtil
-import com.smallcase.loans.data.listeners.EventBroadcaster
-import com.smallcase.loans.data.listeners.SCGatewayConsumer
+import com.smallcase.loans.data.listeners.NotificationCenter
+import com.smallcase.loans.data.listeners.Notification
+import com.smallcase.loans.core.external.ScLoanNotification
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+
 
 class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -22,7 +26,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     }
 
     private var isListening = false
-    private var jsonObserver: Observer<String>? = null
+    private var notificationObserver: ((Notification) -> Unit)? = null
 
     override fun getName(): String = "SCLoansBridgeEmitter"
 
@@ -32,7 +36,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             val info = Arguments.createMap().apply {
                 putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
                 putBoolean("isListening", isListening)
-                putBoolean("isAnalyticsActive", SCGatewayConsumer.isAnalyticsActive)
+                putBoolean("hasNotificationObserver", notificationObserver != null)
             }
             promise.resolve(info)
         } catch (e: Exception) {
@@ -41,7 +45,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     }
 
     /**
-     * 🚀 Start listening to EventBroadcaster events
+     * 🚀 Start listening to NotificationCenter events
      */
     @ReactMethod
     fun startListening(promise: Promise) {
@@ -58,37 +62,22 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 try {
                     Log.d(TAG, "📡 Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
 
-                    jsonObserver = Observer { jsonString ->
+                    // Create notification observer
+                    notificationObserver = { notification ->
                         try {
-                            Log.d(TAG, "📊 Received JSON notification: $jsonString")
+                            Log.d(TAG, "📊 Received notification: ${notification.name}")
 
-                            val parsedData = SCGatewayConsumer.parseJSONData(jsonString)
-                            parsedData?.let { data ->
-                                val eventType = data["type"] as? String
-                                val eventData = data["data"] as? Map<String, Any?>
-                                val timestamp = data["timestamp"] as? Double
-
-                                eventType?.let { type ->
-                                    val eventPayload = Arguments.createMap().apply {
-                                        putString("type", type)
-                                        timestamp?.let { putDouble("timestamp", it) }
-                                        eventData?.let { dataMap ->
-                                            val writableData = convertMapToWritableMap(dataMap)
-                                            putMap("data", writableData)
-                                        }
-                                    }
-
-                                    sendEvent(type, eventPayload)
-                                    Log.d(TAG, "✅ Emitted event: $type")
-                                }
+                            // Check if it's an SCLoans notification
+                            if (notification.name == "scloans_notification") {
+                                processScLoansNotification(notification)
                             }
                         } catch (e: Exception) {
-                            Log.e(TAG, "❌ Error processing JSON notification", e)
+                            Log.e(TAG, "❌ Error processing notification", e)
                         }
                     }
 
-                    jsonObserver?.let { observer ->
-                        SCGatewayConsumer.addAnalyticsObserver(observer)
+                    notificationObserver?.let { observer ->
+                        NotificationCenter.addObserver(observer)
                         isListening = true
                         Log.d(TAG, "✅ Successfully started listening for events")
                         promise.resolve("Started listening successfully")
@@ -107,7 +96,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     }
 
     /**
-     * 🛑 Stop listening to EventBroadcaster events
+     * 🛑 Stop listening to NotificationCenter events
      */
     @ReactMethod
     fun stopListening(promise: Promise) {
@@ -122,9 +111,9 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
 
             UiThreadUtil.runOnUiThread {
                 try {
-                    jsonObserver?.let { observer ->
-                        SCGatewayConsumer.removeAnalyticsObserver(observer)
-                        jsonObserver = null
+                    notificationObserver?.let { observer ->
+                        NotificationCenter.removeObserver(observer)
+                        notificationObserver = null
                         isListening = false
                         Log.d(TAG, "✅ Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
@@ -150,7 +139,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         try {
             val status = Arguments.createMap().apply {
                 putBoolean("isListening", isListening)
-                putBoolean("isAnalyticsActive", SCGatewayConsumer.isAnalyticsActive)
+                putBoolean("hasNotificationObserver", notificationObserver != null)
             }
             promise.resolve(status)
         } catch (e: Exception) {
@@ -170,7 +159,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 putString("type", eventType)
                 putDouble("timestamp", System.currentTimeMillis().toDouble())
                 putBoolean("isTest", true)
-
                 testData?.let { putMap("data", it) }
             }
 
@@ -183,39 +171,76 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         }
     }
 
-    /**
-     * 📊 Trigger analytics event (for manual testing)
-     */
-    @ReactMethod
-    fun triggerAnalyticsEvent(eventName: String, properties: ReadableMap?, promise: Promise) {
-        try {
-            Log.d(TAG, "📊 Triggering analytics event: $eventName")
 
-            val propertiesMap = properties?.let { convertReadableMapToMap(it) } ?: emptyMap()
-            EventBroadcaster.registerAnalyticsEvent(eventName, propertiesMap)
+
+    /**
+     * Process SCLoans notification from NotificationCenter
+     */
+    private fun processScLoansNotification(notification: Notification) {
+        try {
+            Log.d(TAG, "SCLoansBridgeEmitter: Handling SCLoans notification")
             
-            promise.resolve("Analytics event triggered successfully")
+            // Try to get the JSON string using "payload_str" key
+            val jsonString = notification.userInfo?.get("payload_str") as? String
+            
+            if (jsonString == null) {
+                Log.e(TAG, "SCLoansBridgeEmitter: Invalid notification object - expected JSON string")
+                return
+            }
+            
+            Log.d(TAG, "SCLoansBridgeEmitter: Received JSON string: $jsonString")
+            
+            // Parse the JSON string to extract notification details
+            val notificationData = parseNotificationJSON(jsonString)
+            if (notificationData == null) {
+                Log.e(TAG, "SCLoansBridgeEmitter: Failed to parse notification JSON: $jsonString")
+                return
+            }
+            
+            Log.d(TAG, "SCLoansBridgeEmitter: Successfully parsed notification data")
+            
+            // Map notification type to React Native event name
+            val notificationType = notificationData["type"] as? String
+            val eventName = mapNotificationTypeToEventName(notificationType)
+            Log.d(TAG, "SCLoansBridgeEmitter: Mapped notification type to event name: $eventName")
+            
+            // Emit the event to React Native
+            val eventPayload = convertMapToWritableMap(notificationData)
+            sendEvent(eventName, eventPayload)
+            
+            Log.d(TAG, "SCLoansBridgeEmitter: Emitted event '$eventName' with data")
+            
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error triggering analytics event", e)
-            promise.reject("ANALYTICS_EVENT_ERROR", e.message, e)
+            Log.e(TAG, "Error processing SCLoans notification", e)
         }
     }
 
     /**
-     * 📊 Trigger super properties update (for manual testing)
+     * Parse JSON string to extract notification data
      */
-    @ReactMethod
-    fun triggerSuperPropertiesUpdate(properties: ReadableMap?, promise: Promise) {
-        try {
-            Log.d(TAG, "📊 Triggering super properties update")
-
-            val propertiesMap = properties?.let { convertReadableMapToMap(it) } ?: emptyMap()
-            EventBroadcaster.registerSuperPropertiesUpdated(propertiesMap)
-            
-            promise.resolve("Super properties update triggered successfully")
+    private fun parseNotificationJSON(jsonString: String): Map<String, Any?>? {
+        return try {
+            val gson = Gson()
+            gson.fromJson(jsonString, Map::class.java) as? Map<String, Any?>
+        } catch (e: JsonSyntaxException) {
+            Log.e(TAG, "Error parsing JSON notification: $jsonString", e)
+            null
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error triggering super properties update", e)
-            promise.reject("SUPER_PROPERTIES_ERROR", e.message, e)
+            Log.e(TAG, "Error processing JSON notification", e)
+            null
+        }
+    }
+
+    /**
+     * Map notification type to React Native event name
+     */
+    private fun mapNotificationTypeToEventName(notificationType: String?): String {
+        return when (notificationType) {
+            "scloans_analytics_event" -> ANALYTICS_EVENT
+            "scloans_super_properties_updated" -> SUPER_PROPERTIES_UPDATED
+            "scloans_user_reset" -> USER_RESET
+            "scloans_user_identify" -> USER_IDENTIFY
+            else -> notificationType ?: "unknown_event"
         }
     }
 
@@ -351,10 +376,10 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         super.onCatalystInstanceDestroy()
         try {
             if (isListening) {
-                jsonObserver?.let { observer ->
-                    SCGatewayConsumer.removeAnalyticsObserver(observer)
+                notificationObserver?.let { observer ->
+                    NotificationCenter.removeObserver(observer)
                 }
-                jsonObserver = null
+                notificationObserver = null
                 isListening = false
                 Log.d(TAG, "🧹 Cleaned up SCLoans event listeners on destroy")
             }

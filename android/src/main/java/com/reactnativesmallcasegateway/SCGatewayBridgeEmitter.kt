@@ -2,18 +2,19 @@ package com.reactnativesmallcasegateway
 
 import android.util.Log
 import android.os.Looper
-import androidx.lifecycle.Observer
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.bridge.UiThreadUtil
-import com.smallcase.gateway.data.listeners.EventBroadcaster
-import com.smallcase.gateway.data.listeners.SCGatewayConsumer
+import com.smallcase.gateway.data.listeners.NotificationCenter
+import com.smallcase.gateway.data.listeners.Notification
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 
 class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
-        
+
         // Event types matching iOS implementation
         const val ANALYTICS_EVENT = "scgateway_analytics_event"
         const val SUPER_PROPERTIES_UPDATED = "scgateway_super_properties_updated"
@@ -22,7 +23,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     private var isListening = false
-    private var jsonObserver: Observer<String>? = null
+    private var notificationObserver: ((Notification) -> Unit)? = null
 
     override fun getName(): String = "SCGatewayBridgeEmitter"
 
@@ -32,7 +33,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             val info = Arguments.createMap().apply {
                 putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
                 putBoolean("isListening", isListening)
-                putBoolean("isAnalyticsActive", SCGatewayConsumer.isAnalyticsActive)
+                putBoolean("hasNotificationObserver", notificationObserver != null)
             }
             promise.resolve(info)
         } catch (e: Exception) {
@@ -41,12 +42,12 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     /**
-     * 🚀 Start listening to EventBroadcaster events
+     * Start listening to NotificationCenter events
      */
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "📡 Starting to listen for SCGateway events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "Starting to listen for SCGateway events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (isListening) {
                 Log.d(TAG, "Already listening to events")
@@ -56,67 +57,48 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
             UiThreadUtil.runOnUiThread {
                 try {
-                    Log.d(TAG, "📡 Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
+                    Log.d(TAG, "Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
 
-                    EventBroadcaster.initialize(reactContext.applicationContext)
-
-                    jsonObserver = Observer { jsonString ->
+                    // Create notification observer
+                    notificationObserver = { notification ->
                         try {
-                            Log.d(TAG, "📊 Received JSON notification: $jsonString")
+                            Log.d(TAG, "Received notification: ${notification.name}")
 
-                            val parsedData = SCGatewayConsumer.parseJSONData(jsonString)
-                            parsedData?.let { data ->
-                                val eventType = data["type"] as? String
-                                val eventData = data["data"] as? Map<String, Any?>
-                                val timestamp = data["timestamp"] as? Double
-
-                                eventType?.let { type ->
-                                    val eventPayload = Arguments.createMap().apply {
-                                        putString("type", type)
-                                        timestamp?.let { putDouble("timestamp", it) }
-                                        eventData?.let { dataMap ->
-                                            val writableData = convertMapToWritableMap(dataMap)
-                                            putMap("data", writableData)
-                                        }
-                                    }
-
-                                    sendEvent(type, eventPayload)
-                                    Log.d(TAG, "✅ Emitted event: $type")
-                                }
+                            // Check if it's an SCG notification
+                            if (notification.name == "scg_notification") {
+                                processScgNotification(notification)
                             }
                         } catch (e: Exception) {
-                            Log.e(TAG, "❌ Error processing JSON notification", e)
+                            Log.e(TAG, "Error processing notification", e)
                         }
                     }
 
-                    jsonObserver?.let { observer ->
-                        SCGatewayConsumer.addAnalyticsObserver(observer)
+                    notificationObserver?.let { observer ->
+                        NotificationCenter.addObserver(observer)
                         isListening = true
-                        Log.d(TAG, "✅ Successfully started listening for events")
+                        Log.d(TAG, "Successfully started listening for events")
                         promise.resolve("Started listening successfully")
                     } ?: run {
-
-
                         promise.reject("OBSERVER_ERROR", "Failed to create observer")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "❌ Error starting listener on UI thread", e)
+                    Log.e(TAG, "Error starting listener on UI thread", e)
                     promise.reject("START_LISTENING_ERROR", e.message, e)
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error scheduling startListening on UI thread", e)
+            Log.e(TAG, "Error scheduling startListening on UI thread", e)
             promise.reject("START_LISTENING_ERROR", e.message, e)
         }
     }
 
     /**
-     * 🛑 Stop listening to EventBroadcaster events
+     * Stop listening to NotificationCenter events
      */
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "🛑 Stopping SCGateway event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "Stopping SCGateway event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (!isListening) {
                 Log.d(TAG, "Not currently listening")
@@ -126,35 +108,35 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
             UiThreadUtil.runOnUiThread {
                 try {
-                    jsonObserver?.let { observer ->
-                        SCGatewayConsumer.removeAnalyticsObserver(observer)
-                        jsonObserver = null
+                    notificationObserver?.let { observer ->
+                        NotificationCenter.removeObserver(observer)
+                        notificationObserver = null
                         isListening = false
-                        Log.d(TAG, "✅ Successfully stopped listening for events")
+                        Log.d(TAG, "Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
                     } ?: run {
                         promise.resolve("No observer to remove")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "❌ Error stopping listener on UI thread", e)
+                    Log.e(TAG, "Error stopping listener on UI thread", e)
                     promise.reject("STOP_LISTENING_ERROR", e.message, e)
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error scheduling stopListening on UI thread", e)
+            Log.e(TAG, "Error scheduling stopListening on UI thread", e)
             promise.reject("STOP_LISTENING_ERROR", e.message, e)
         }
     }
 
     /**
-     * 📊 Get current listening status
+     * Get current listening status
      */
     @ReactMethod
     fun getListeningStatus(promise: Promise) {
         try {
             val status = Arguments.createMap().apply {
                 putBoolean("isListening", isListening)
-                putBoolean("isAnalyticsActive", SCGatewayConsumer.isAnalyticsActive)
+                putBoolean("hasNotificationObserver", notificationObserver != null)
             }
             promise.resolve(status)
         } catch (e: Exception) {
@@ -163,32 +145,102 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     /**
-     * 🧪 Test event emission (for debugging)
+     * Test event emission (for debugging)
      */
     @ReactMethod
     fun emitTestEvent(eventType: String, testData: ReadableMap?, promise: Promise) {
         try {
-            Log.d(TAG, "🧪 Emitting test event: $eventType")
+            Log.d(TAG, "Emitting test event: $eventType")
 
             val payload = Arguments.createMap().apply {
                 putString("type", eventType)
                 putDouble("timestamp", System.currentTimeMillis().toDouble())
                 putBoolean("isTest", true)
-
-                testData?.let { putMap("data", it) } // ✅ Removed .copy()
+                testData?.let { putMap("data", it) }
             }
 
             sendEvent(eventType, payload)
             promise.resolve("Test event emitted successfully")
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error emitting test event", e)
+            Log.e(TAG, "Error emitting test event", e)
             promise.reject("TEST_EVENT_ERROR", e.message, e)
         }
     }
 
     /**
-     * 📤 Send event to React Native
+     * Process SCG notification from NotificationCenter
+     */
+    private fun processScgNotification(notification: Notification) {
+        try {
+            Log.d(TAG, "SCGatewayBridgeEmitter: Handling SCGateway notification")
+            
+            // Try to get the JSON string using "payload_str" key
+            val jsonString = notification.userInfo?.get("payload_str") as? String
+            
+            if (jsonString == null) {
+                Log.e(TAG, "SCGatewayBridgeEmitter: Invalid notification object - expected JSON string")
+                return
+            }
+            
+            Log.d(TAG, "SCGatewayBridgeEmitter: Received JSON string: $jsonString")
+            
+            // Parse the JSON string to extract notification details
+            val notificationData = parseNotificationJSON(jsonString)
+            if (notificationData == null) {
+                Log.e(TAG, "SCGatewayBridgeEmitter: Failed to parse notification JSON: $jsonString")
+                return
+            }
+            
+            Log.d(TAG, "SCGatewayBridgeEmitter: Successfully parsed notification data")
+            
+            // Map notification type to React Native event name
+            val notificationType = notificationData["type"] as? String
+            val eventName = mapNotificationTypeToEventName(notificationType)
+            Log.d(TAG, "SCGatewayBridgeEmitter: Mapped notification type to event name: $eventName")
+            
+            // Emit the event to React Native
+            val eventPayload = convertMapToWritableMap(notificationData)
+            sendEvent(eventName, eventPayload)
+            
+            Log.d(TAG, "SCGatewayBridgeEmitter: Emitted event '$eventName' with data")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing SCGateway notification", e)
+        }
+    }
+
+    /**
+     * Parse JSON string to extract notification data
+     */
+    private fun parseNotificationJSON(jsonString: String): Map<String, Any?>? {
+        return try {
+            val gson = Gson()
+            gson.fromJson(jsonString, Map::class.java) as? Map<String, Any?>
+        } catch (e: JsonSyntaxException) {
+            Log.e(TAG, "Error parsing JSON notification: $jsonString", e)
+            null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing JSON notification", e)
+            null
+        }
+    }
+
+    /**
+     * Map notification type to React Native event name
+     */
+    private fun mapNotificationTypeToEventName(notificationType: String?): String {
+        return when (notificationType) {
+            "scgateway_analytics_event" -> ANALYTICS_EVENT
+            "scgateway_super_properties_updated" -> SUPER_PROPERTIES_UPDATED
+            "scgateway_user_reset" -> USER_RESET
+            "scgateway_user_identify" -> USER_IDENTIFY
+            else -> notificationType ?: "unknown_event"
+        }
+    }
+
+    /**
+     * Send event to React Native
      */
     private fun sendEvent(eventName: String, params: WritableMap?) {
         try {
@@ -196,17 +248,17 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 reactContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                     .emit(eventName, params)
-                Log.d(TAG, "📤 Event sent to React Native: $eventName")
+                Log.d(TAG, "Event sent to React Native: $eventName")
             } else {
-                Log.w(TAG, "⚠️ React context not active, cannot send event: $eventName")
+                Log.w(TAG, "React context not active, cannot send event: $eventName")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error sending event to React Native: $eventName", e)
+            Log.e(TAG, "Error sending event to React Native: $eventName", e)
         }
     }
 
     /**
-     * 🔄 Convert Map to WritableMap recursively
+     * Convert Map to WritableMap recursively
      */
     private fun convertMapToWritableMap(map: Map<String, Any?>): WritableMap {
         val writableMap = Arguments.createMap()
@@ -261,20 +313,20 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
         super.onCatalystInstanceDestroy()
         try {
             if (isListening) {
-                jsonObserver?.let { observer ->
-                    SCGatewayConsumer.removeAnalyticsObserver(observer)
+                notificationObserver?.let { observer ->
+                    NotificationCenter.removeObserver(observer)
                 }
-                jsonObserver = null
+                notificationObserver = null
                 isListening = false
-                Log.d(TAG, "🧹 Cleaned up SCGateway event listeners on destroy")
+                Log.d(TAG, "Cleaned up SCGateway event listeners on destroy")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error during cleanup", e)
+            Log.e(TAG, "Error during cleanup", e)
         }
     }
 
     /**
-     * 📋 Get supported events (for documentation)
+     * Get supported events (for documentation)
      */
     @ReactMethod
     fun getSupportedEvents(promise: Promise) {
