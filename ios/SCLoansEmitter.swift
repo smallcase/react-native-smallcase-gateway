@@ -123,23 +123,24 @@ class SCLoansEmitter: RCTEventEmitter {
   
   private func handleLoanNotification(_ notification: Notification) {
     let name = notification.name.rawValue
-       let userInfo = notification.userInfo ?? [:]
-       
-       let userInfoString: String
-       if let data = try? JSONSerialization.data(withJSONObject: userInfo, options: .prettyPrinted),
-          let jsonString = String(data: data, encoding: .utf8) {
-           userInfoString = jsonString
-       } else {
-           userInfoString = userInfo.description
-       }
+       //let userInfo = notification.userInfo ?? [:]
+       // we can have a simple logic like first check if userInfo is empty or not, if not empty then try to look out for key like we can see which value of traversed key is a string. that is supposed to be our json string. use that key to access value from userInfo Dict of incoming notification event
+//       let userInfoString: String
+//       if let data = try? JSONSerialization.data(withJSONObject: userInfo, options: .prettyPrinted),
+//          let jsonString = String(data: data, encoding: .utf8) {
+//           userInfoString = jsonString
+//       } else {
+//           userInfoString = userInfo.description
+//       }
        
        print("📡 handleLoanNotification triggered:")
        print("🔹 name: \(name)")
-       print("🔹 userInfo:\n\(userInfoString)")
-    guard let jsonString = notification.object as? String else {
-      print("SCLoansEmitter: Expected JSON string in notification.")
-      return
-    }
+      // print("🔹 userInfo:\n\(userInfoString)")
+  
+    guard let jsonString = notification.userInfo?["payload_str"] as? String else {
+          print("SCLoansEmitter: Invalid notification object - expected JSON string, got: \(type(of: notification.userInfo)).")
+          return
+      }
     
     guard let data = parseJSON(jsonString) else {
       print("SCLoansEmitter: Failed to parse JSON string.")

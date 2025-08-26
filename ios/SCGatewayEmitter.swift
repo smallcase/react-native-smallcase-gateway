@@ -19,14 +19,14 @@ class SCGatewayEmitter: RCTEventEmitter {
     
     override init() {
         super.init()
-        SCGatewayEmitter.shared = self
+        SCGatewayEmitter.shared = self // for making this a singleton
         print("SCGatewayEmitter: Initialized.")
         self.startListening()
     }
     
     deinit {
         print("SCGatewayEmitter: Deinitializing.")
-        stopListening()
+        self.stopListening()
     }
     
     // MARK: - RCTEventEmitter Override Methods
@@ -102,15 +102,15 @@ class SCGatewayEmitter: RCTEventEmitter {
         // Remove any existing observer first
         stopListening()
         
-        // Try to get SCGateway using runtime lookup
-        guard let notificationName = getSCGatewayNotificationName() else {
-            print("SCGatewayEmitter: Could not get SCGateway notification name, cannot start listening.")
-            return false
-        }
+//        // Try to get SCGateway using runtime lookup
+//        guard let notificationName = getSCGatewayNotificationName() else {
+//            print("SCGatewayEmitter: Could not get SCGateway notification name, cannot start listening.")
+//            return false
+//        }
         
         // Add observer for SCGateway notifications
         notificationObserver = NotificationCenter.default.addObserver(
-            forName: notificationName,
+            forName: getSCGatewayNotificationName(),
             object: nil,
             queue: .main
         ) { [weak self] notification in
@@ -119,7 +119,7 @@ class SCGatewayEmitter: RCTEventEmitter {
         
         isListening = true
         
-        print("SCGatewayEmitter: Started listening to notifications with name: \(notificationName).")
+        print("SCGatewayEmitter: Started listening to notifications with name: \(getSCGatewayNotificationName()).")
         
         return true
     }
@@ -138,50 +138,13 @@ class SCGatewayEmitter: RCTEventEmitter {
         print("SCGatewayEmitter: Stopped listening to notifications.")
     }
     
-    private func getSCGatewayNotificationName() -> Notification.Name? {
-        print("SCGatewayEmitter: Attempting to get SCGateway notification name.")
-        // Method 1: Try to get SCGateway class using runtime
-        if let scGatewayClass = NSClassFromString("SCGateway.SCGateway") as? NSObject.Type {
-            print("SCGatewayEmitter: Found SCGateway.SCGateway class.")
-            let sharedSelector = NSSelectorFromString("shared")
-            if scGatewayClass.responds(to: sharedSelector) {
-                if let shared = scGatewayClass.perform(sharedSelector)?.takeUnretainedValue() {
-                    let notificationSelector = NSSelectorFromString("scgNotificationName")
-                    if shared.responds(to: notificationSelector) {
-                        if let result = shared.perform(notificationSelector)?.takeUnretainedValue() as? Notification.Name {
-                            print("SCGatewayEmitter: Successfully retrieved notification name from SCGateway.SCGateway.")
-                            return result
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Method 2: Try alternative class name
-        if let scGatewayClass = NSClassFromString("SCGateway") as? NSObject.Type {
-            print("SCGatewayEmitter: Found SCGateway class (alternative name).")
-            let sharedSelector = NSSelectorFromString("shared")
-            if scGatewayClass.responds(to: sharedSelector) {
-                if let shared = scGatewayClass.perform(sharedSelector)?.takeUnretainedValue() {
-                    let notificationSelector = NSSelectorFromString("scgNotificationName")
-                    if shared.responds(to: notificationSelector) {
-                        if let result = shared.perform(notificationSelector)?.takeUnretainedValue() as? Notification.Name {
-                            print("SCGatewayEmitter: Successfully retrieved notification name from SCGateway (alternative name).")
-                            return result
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Method 3: Fallback to hardcoded notification name
-        print("SCGatewayEmitter: Falling back to hardcoded notification name: SCGatewayAnalyticsNotification.")
-        return Notification.Name("SCGatewayAnalyticsNotification")
+    private func getSCGatewayNotificationName() -> Notification.Name {
+    return Notification.Name("scg_notification")
     }
     
     private func handleSCGatewayNotification(_ notification: Notification) {
         print("SCGatewayEmitter: Handling SCGateway notification.")
-        guard let jsonString = notification.object as? String else {
+      guard let jsonString = notification.userInfo?["payload_str"] as? String else {
             print("SCGatewayEmitter: Invalid notification object - expected JSON string, got: \(type(of: notification.object)).")
             return
         }
@@ -266,23 +229,5 @@ class SCGatewayEmitter: RCTEventEmitter {
         let status = shared?.isListening ?? false
         print("SCGatewayEmitter: isCurrentlyListening called. Status: \(status).")
         return status
-    }
-    
-    // MARK: - Debug Methods
-    
-    @objc func getDebugInfo(
-        _ resolve: @escaping RCTPromiseResolveBlock,
-        rejecter reject: @escaping RCTPromiseRejectBlock
-    ) {
-        print("SCGatewayEmitter: getDebugInfo called.")
-        let debugInfo: [String: Any] = [
-            "isListening": isListening,
-            "hasObserver": notificationObserver != nil,
-            "supportedEvents": supportedEvents() ?? [],
-            "scgatewayClassExists": NSClassFromString("SCGateway.SCGateway") != nil || NSClassFromString("SCGateway") != nil,
-            "notificationName": getSCGatewayNotificationName()?.rawValue ?? "unknown"
-        ]
-        print("SCGatewayEmitter: Debug info: \(debugInfo).")
-        resolve(debugInfo)
     }
 }
