@@ -34,11 +34,12 @@ class SCGatewayEmitter: RCTEventEmitter {
     override func supportedEvents() -> [String]! { // only 1 event scg_notifi as mentioned
     // clean it
         return [
-            // only single 
-            "scgateway_analytics_event",
-            "scgateway_super_properties_updated",
-            "scgateway_user_reset",
-            "scgateway_user_identify"
+            "scg_notification"
+            // // only single 
+            // "scgateway_analytics_event",
+            // "scgateway_super_properties_updated",
+            // "scgateway_user_reset",
+            // "scgateway_user_identify"
         ]
     }
     
@@ -162,7 +163,7 @@ class SCGatewayEmitter: RCTEventEmitter {
         print("SCGatewayEmitter: Mapped notification type to event name: \(eventName).")
         
         // Emit the event to React Native
-        sendEvent(withName: eventName, body: notificationData)
+        sendEvent(withName:  "scg_notification", body: notificationData)
         
         print("SCGatewayEmitter: Emitted event '\(eventName)' with data: \(notificationData).")
     }
@@ -220,7 +221,7 @@ class SCGatewayEmitter: RCTEventEmitter {
     static func emitEvent(name: String, data: [String: Any]) {
         print("SCGatewayEmitter: Static emitEvent called for event: \(name).")
         DispatchQueue.main.async {
-            shared?.sendEvent(withName: name, body: data)
+            shared?.sendEvent(withName: "scg_notification", body: data)
             print("SCGatewayEmitter: Event '\(name)' sent to React Native.")
         }
     }

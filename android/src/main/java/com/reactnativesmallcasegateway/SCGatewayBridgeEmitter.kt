@@ -9,13 +9,13 @@ import com.smallcase.gateway.data.listeners.NotificationCenter
 import com.smallcase.gateway.data.listeners.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import java.math.BigDecimal
+import java.math.BigInteger
 
 class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
-
-        // Event types matching iOS implementation
         const val ANALYTICS_EVENT = "scgateway_analytics_event"
         const val SUPER_PROPERTIES_UPDATED = "scgateway_super_properties_updated"
         const val USER_RESET = "scgateway_user_reset"
@@ -27,6 +27,14 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     override fun getName(): String = "SCGatewayBridgeEmitter"
 
+    // 🔧 Auto-start listening when module is created
+    init {
+        Log.d(TAG, "SCGatewayBridgeEmitter initialized - auto-starting listener")
+        UiThreadUtil.runOnUiThread {
+            startListeningInternal()
+        }
+    }
+
     @ReactMethod
     fun getDebugInfo(promise: Promise) {
         try {
@@ -34,21 +42,21 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
                 putBoolean("isListening", isListening)
                 putBoolean("hasNotificationObserver", notificationObserver != null)
+                putString("currentThread", Thread.currentThread().name)
+                putBoolean("isMainThread", Looper.myLooper() == Looper.getMainLooper())
             }
             promise.resolve(info)
         } catch (e: Exception) {
-            promise.reject("DEBUG_INFO_ERROR", e.message, e)
+            Log.e(TAG, "Error getting debug info", e)
+            promise.reject("DEBUG_INFO_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
-    /**
-     * Start listening to NotificationCenter events
-     */
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "Starting to listen for SCGateway events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
-
+            Log.d(TAG, "startListening called from React Native")
+            
             if (isListening) {
                 Log.d(TAG, "Already listening to events")
                 promise.resolve("Already listening")
@@ -56,52 +64,177 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             }
 
             UiThreadUtil.runOnUiThread {
-                try {
-                    Log.d(TAG, "Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
-
-                    // Create notification observer
-                    notificationObserver = { notification ->
-                        try {
-                            Log.d(TAG, "Received notification: ${notification.name}")
-
-                            // Check if it's an SCG notification
-                            if (notification.name == "scg_notification") {
-                                processScgNotification(notification)
-                            }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error processing notification", e)
-                        }
-                    }
-
-                    notificationObserver?.let { observer ->
-                        NotificationCenter.addObserver(observer)
-                        isListening = true
-                        Log.d(TAG, "Successfully started listening for events")
-                        promise.resolve("Started listening successfully")
-                    } ?: run {
-                        promise.reject("OBSERVER_ERROR", "Failed to create observer")
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error starting listener on UI thread", e)
-                    promise.reject("START_LISTENING_ERROR", e.message, e)
+                val success = startListeningInternal()
+                if (success) {
+                    promise.resolve("Started listening successfully")
+                } else {
+                    promise.reject("START_LISTENING_ERROR", "Failed to start listening")
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error scheduling startListening on UI thread", e)
-            promise.reject("START_LISTENING_ERROR", e.message, e)
+            Log.e(TAG, "Error in startListening", e)
+            promise.reject("START_LISTENING_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
-    /**
-     * Stop listening to NotificationCenter events
-     */
+    // Internal start listening method with debug logging
+    private fun startListeningInternal(): Boolean {
+        return try {
+            Log.d(TAG, "Starting internal listener on thread: ${Thread.currentThread().name}")
+
+            if (isListening) {
+                Log.d(TAG, "Already listening")
+                return true
+            }
+
+            // Add debug observer for all notifications
+            NotificationCenter.addObserver { notification ->
+                Log.d("DEBUG_ALL_EVENTS", "🔔 All notifications: ${notification.name}")
+            }
+
+            // Create notification observer for scg_notification only
+            notificationObserver = { notification ->
+                Log.d(TAG, "🔔 Received notification: ${notification.name}")
+                
+                try {
+                    // Only process scg_notification - single way to subscribe
+                    if (notification.name == "scg_notification") {
+                        Log.d(TAG, "Processing scg_notification")
+                        processScgNotification(notification)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing notification: ${notification.name}", e)
+                }
+            }
+
+            notificationObserver?.let { observer ->
+                NotificationCenter.addObserver(observer)
+                isListening = true
+                Log.d(TAG, "✅ Successfully started listening for scg_notification events")
+                true
+            } ?: false
+
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error starting listener", e)
+            false
+        }
+    }
+
+    // Enhanced event sending with better error handling
+    private fun sendEvent(eventName: String, params: WritableMap?) {
+        try {
+            Log.d(TAG, "Attempting to send event: $eventName")
+            
+            if (!reactContext.hasActiveCatalystInstance()) {
+                Log.w(TAG, "❌ React context not active, cannot send event: $eventName")
+                return
+            }
+            
+            // Validate params before sending
+            if (params != null) {
+                validateWritableMap(params)
+                Log.d(TAG, "📤 Sending validated event data: $eventName")
+            }
+            
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit(eventName, params)
+                
+            Log.d(TAG, "✅ Event sent successfully: $eventName")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error sending event: $eventName", e)
+        }
+    }
+
+    // NEW: Validate WritableMap for invalid values
+    private fun validateWritableMap(map: WritableMap) {
+        try {
+            // This method helps catch invalid values before they reach the bridge
+            val mapCopy = map.copy()
+            Log.d(TAG, "WritableMap validation passed")
+        } catch (e: Exception) {
+            Log.e(TAG, "WritableMap validation failed", e)
+            throw e
+        }
+    }
+
+    // Improved SCG notification processing with better error handling
+    private fun processScgNotification(notification: Notification) {
+        try {
+            Log.d(TAG, "Processing SCG notification with userInfo: ${notification.userInfo}")
+            
+            val eventData = if (notification.userInfo != null) {
+                // Try different payload keys
+                val payloadJson = notification.userInfo!!["payload_str"] as? String
+                    ?: notification.userInfo!!["payload"] as? String
+                    ?: notification.userInfo!!["data"] as? String
+                
+                if (payloadJson != null) {
+                    Log.d(TAG, "Found JSON payload: $payloadJson")
+                    val parsedData = parseNotificationJSON(payloadJson)
+                    parsedData?.let { convertMapToWritableMapSafely(it) }
+                } else {
+                    Log.d(TAG, "No JSON payload found, using userInfo directly")
+                    convertMapToWritableMapSafely(notification.userInfo!! as Map<String, Any?>)
+                }
+            } else {
+                Log.d(TAG, "No userInfo, creating basic event")
+                Arguments.createMap()
+            }
+            
+            // Ensure eventData has required fields
+            if (eventData != null) {
+                if (!eventData.hasKey("eventType")) {
+                    eventData.putString("eventType", "scg_notification")
+                }
+                if (!eventData.hasKey("type")) {
+                    eventData.putString("type", eventData.getString("eventType") ?: "scg_notification")
+                }
+                if (!eventData.hasKey("timestamp")) {
+                    eventData.putDouble("timestamp", System.currentTimeMillis().toDouble())
+                }
+                eventData.putString("source", "android")
+                
+                Log.d(TAG, "Sending processed SCG notification")
+                sendEvent("scg_notification", eventData)
+            } else {
+                Log.e(TAG, "Failed to create event data for SCG notification")
+                // Send a minimal fallback event
+                val fallbackEvent = Arguments.createMap().apply {
+                    putString("eventType", "scg_notification")
+                    putString("type", "scg_notification")
+                    putDouble("timestamp", System.currentTimeMillis().toDouble())
+                    putString("source", "android")
+                    putString("error", "Failed to process notification data")
+                }
+                sendEvent("scg_notification", fallbackEvent)
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing SCG notification", e)
+            // Send error event instead of failing silently
+            try {
+                val errorEvent = Arguments.createMap().apply {
+                    putString("eventType", "scg_notification_error")
+                    putString("type", "scg_notification_error")
+                    putDouble("timestamp", System.currentTimeMillis().toDouble())
+                    putString("source", "android")
+                    putString("error", e.message ?: "Unknown error processing notification")
+                }
+                sendEvent("scg_notification", errorEvent)
+            } catch (fallbackError: Exception) {
+                Log.e(TAG, "Failed to send error event", fallbackError)
+            }
+        }
+    }
+
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "Stopping SCGateway event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "Stopping SCGateway event listening")
 
             if (!isListening) {
-                Log.d(TAG, "Not currently listening")
                 promise.resolve("Not listening")
                 return
             }
@@ -112,113 +245,45 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                         NotificationCenter.removeObserver(observer)
                         notificationObserver = null
                         isListening = false
-                        Log.d(TAG, "Successfully stopped listening for events")
+                        Log.d(TAG, "✅ Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
                     } ?: run {
                         promise.resolve("No observer to remove")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error stopping listener on UI thread", e)
-                    promise.reject("STOP_LISTENING_ERROR", e.message, e)
+                    Log.e(TAG, "Error stopping listener", e)
+                    promise.reject("STOP_LISTENING_ERROR", e.message ?: "Unknown error", e)
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error scheduling stopListening on UI thread", e)
-            promise.reject("STOP_LISTENING_ERROR", e.message, e)
+            Log.e(TAG, "Error in stopListening", e)
+            promise.reject("STOP_LISTENING_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
-    /**
-     * Get current listening status
-     */
     @ReactMethod
     fun getListeningStatus(promise: Promise) {
         try {
             val status = Arguments.createMap().apply {
                 putBoolean("isListening", isListening)
                 putBoolean("hasNotificationObserver", notificationObserver != null)
+                putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
             }
             promise.resolve(status)
         } catch (e: Exception) {
-            promise.reject("STATUS_ERROR", e.message, e)
+            Log.e(TAG, "Error getting listening status", e)
+            promise.reject("STATUS_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
-    /**
-     * Test event emission (for debugging)
-     */
-    @ReactMethod
-    fun emitTestEvent(eventType: String, testData: ReadableMap?, promise: Promise) {
-        try {
-            Log.d(TAG, "Emitting test event: $eventType")
-
-            val payload = Arguments.createMap().apply {
-                putString("type", eventType)
-                putDouble("timestamp", System.currentTimeMillis().toDouble())
-                putBoolean("isTest", true)
-                testData?.let { putMap("data", it) }
-            }
-
-            sendEvent(eventType, payload)
-            promise.resolve("Test event emitted successfully")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error emitting test event", e)
-            promise.reject("TEST_EVENT_ERROR", e.message, e)
-        }
-    }
-
-    /**
-     * Process SCG notification from NotificationCenter
-     */
-    private fun processScgNotification(notification: Notification) {
-        try {
-            Log.d(TAG, "SCGatewayBridgeEmitter: Handling SCGateway notification")
-            
-            // Try to get the JSON string using "payload_str" key
-            val jsonString = notification.userInfo?.get("payload_str") as? String
-            
-            if (jsonString == null) {
-                Log.e(TAG, "SCGatewayBridgeEmitter: Invalid notification object - expected JSON string")
-                return
-            }
-            
-            Log.d(TAG, "SCGatewayBridgeEmitter: Received JSON string: $jsonString")
-            
-            // Parse the JSON string to extract notification details
-            val notificationData = parseNotificationJSON(jsonString)
-            if (notificationData == null) {
-                Log.e(TAG, "SCGatewayBridgeEmitter: Failed to parse notification JSON: $jsonString")
-                return
-            }
-            
-            Log.d(TAG, "SCGatewayBridgeEmitter: Successfully parsed notification data")
-            
-            // Map notification type to React Native event name
-            val notificationType = notificationData["type"] as? String
-            val eventName = mapNotificationTypeToEventName(notificationType)
-            Log.d(TAG, "SCGatewayBridgeEmitter: Mapped notification type to event name: $eventName")
-            
-            // Emit the event to React Native
-            val eventPayload = convertMapToWritableMap(notificationData)
-            sendEvent(eventName, eventPayload)
-            
-            Log.d(TAG, "SCGatewayBridgeEmitter: Emitted event '$eventName' with data")
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing SCGateway notification", e)
-        }
-    }
-
-    /**
-     * Parse JSON string to extract notification data
-     */
     private fun parseNotificationJSON(jsonString: String): Map<String, Any?>? {
         return try {
             val gson = Gson()
-            gson.fromJson(jsonString, Map::class.java) as? Map<String, Any?>
+            val result = gson.fromJson(jsonString, Map::class.java) as? Map<String, Any?>
+            Log.d(TAG, "Successfully parsed JSON: ${result?.keys}")
+            result
         } catch (e: JsonSyntaxException) {
-            Log.e(TAG, "Error parsing JSON notification: $jsonString", e)
+            Log.e(TAG, "JSON parse error for: $jsonString", e)
             null
         } catch (e: Exception) {
             Log.e(TAG, "Error processing JSON notification", e)
@@ -226,87 +291,148 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
         }
     }
 
-    /**
-     * Map notification type to React Native event name
-     */
-    private fun mapNotificationTypeToEventName(notificationType: String?): String {
-        return when (notificationType) {
-            "scgateway_analytics_event" -> ANALYTICS_EVENT
-            "scgateway_super_properties_updated" -> SUPER_PROPERTIES_UPDATED
-            "scgateway_user_reset" -> USER_RESET
-            "scgateway_user_identify" -> USER_IDENTIFY
-            else -> notificationType ?: "unknown_event"
-        }
-    }
-
-    /**
-     * Send event to React Native
-     */
-    private fun sendEvent(eventName: String, params: WritableMap?) {
-        try {
-            if (reactContext.hasActiveCatalystInstance()) {
-                reactContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit(eventName, params)
-                Log.d(TAG, "Event sent to React Native: $eventName")
-            } else {
-                Log.w(TAG, "React context not active, cannot send event: $eventName")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sending event to React Native: $eventName", e)
-        }
-    }
-
-    /**
-     * Convert Map to WritableMap recursively
-     */
-    private fun convertMapToWritableMap(map: Map<String, Any?>): WritableMap {
+    // IMPROVED: Safe conversion with NaN/Infinity checking
+    private fun convertMapToWritableMapSafely(map: Map<String, Any?>): WritableMap {
         val writableMap = Arguments.createMap()
 
-        for ((key, value) in map) {
-            when (value) {
-                null -> writableMap.putNull(key)
-                is String -> writableMap.putString(key, value)
-                is Int -> writableMap.putInt(key, value)
-                is Double -> writableMap.putDouble(key, value)
-                is Float -> writableMap.putDouble(key, value.toDouble())
-                is Long -> writableMap.putDouble(key, value.toDouble())
-                is Boolean -> writableMap.putBoolean(key, value)
-                is Map<*, *> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val nestedMap = value as? Map<String, Any?>
-                    nestedMap?.let {
-                        writableMap.putMap(key, convertMapToWritableMap(it))
-                    } ?: writableMap.putNull(key)
-                }
-                is List<*> -> {
-                    val writableArray = Arguments.createArray()
-                    value.forEach { item ->
-                        when (item) {
-                            null -> writableArray.pushNull()
-                            is String -> writableArray.pushString(item)
-                            is Int -> writableArray.pushInt(item)
-                            is Double -> writableArray.pushDouble(item)
-                            is Float -> writableArray.pushDouble(item.toDouble())
-                            is Long -> writableArray.pushDouble(item.toDouble())
-                            is Boolean -> writableArray.pushBoolean(item)
-                            is Map<*, *> -> {
-                                @Suppress("UNCHECKED_CAST")
-                                val itemMap = item as? Map<String, Any?>
-                                itemMap?.let {
-                                    writableArray.pushMap(convertMapToWritableMap(it))
-                                } ?: writableArray.pushNull()
-                            }
-                            else -> writableArray.pushString(item.toString())
+        try {
+            for ((key, value) in map) {
+                when (value) {
+                    null -> writableMap.putNull(key)
+                    is String -> writableMap.putString(key, value)
+                    is Int -> writableMap.putInt(key, value)
+                    is Double -> {
+                        if (value.isNaN() || value.isInfinite()) {
+                            Log.w(TAG, "Skipping invalid Double value for key '$key': $value")
+                            writableMap.putNull(key)
+                        } else {
+                            writableMap.putDouble(key, value)
                         }
                     }
-                    writableMap.putArray(key, writableArray)
+                    is Float -> {
+                        val doubleValue = value.toDouble()
+                        if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                            Log.w(TAG, "Skipping invalid Float value for key '$key': $value")
+                            writableMap.putNull(key)
+                        } else {
+                            writableMap.putDouble(key, doubleValue)
+                        }
+                    }
+                    is Long -> {
+                        val doubleValue = value.toDouble()
+                        if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                            Log.w(TAG, "Skipping invalid Long value for key '$key': $value")
+                            writableMap.putNull(key)
+                        } else {
+                            writableMap.putDouble(key, doubleValue)
+                        }
+                    }
+                    is BigDecimal -> {
+                        try {
+                            val doubleValue = value.toDouble()
+                            if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                                Log.w(TAG, "Skipping invalid BigDecimal value for key '$key': $value")
+                                writableMap.putNull(key)
+                            } else {
+                                writableMap.putDouble(key, doubleValue)
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to convert BigDecimal for key '$key': $value", e)
+                            writableMap.putString(key, value.toString())
+                        }
+                    }
+                    is BigInteger -> {
+                        try {
+                            val doubleValue = value.toDouble()
+                            if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                                Log.w(TAG, "Skipping invalid BigInteger value for key '$key': $value")
+                                writableMap.putNull(key)
+                            } else {
+                                writableMap.putDouble(key, doubleValue)
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to convert BigInteger for key '$key': $value", e)
+                            writableMap.putString(key, value.toString())
+                        }
+                    }
+                    is Boolean -> writableMap.putBoolean(key, value)
+                    is Map<*, *> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val nestedMap = value as? Map<String, Any?>
+                        nestedMap?.let {
+                            writableMap.putMap(key, convertMapToWritableMapSafely(it))
+                        } ?: writableMap.putNull(key)
+                    }
+                    is List<*> -> {
+                        val writableArray = convertListToWritableArraySafely(value)
+                        writableMap.putArray(key, writableArray)
+                    }
+                    else -> {
+                        // Handle other types by converting to string
+                        val stringValue = value.toString()
+                        writableMap.putString(key, stringValue)
+                        Log.d(TAG, "Converted unknown type ${value::class.java.simpleName} to string for key '$key'")
+                    }
                 }
-                else -> writableMap.putString(key, value.toString())
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error converting map to WritableMap", e)
         }
 
         return writableMap
+    }
+
+    // NEW: Safe array conversion
+    private fun convertListToWritableArraySafely(list: List<*>): WritableArray {
+        val writableArray = Arguments.createArray()
+        
+        list.forEach { item ->
+            when (item) {
+                null -> writableArray.pushNull()
+                is String -> writableArray.pushString(item)
+                is Int -> writableArray.pushInt(item)
+                is Double -> {
+                    if (item.isNaN() || item.isInfinite()) {
+                        Log.w(TAG, "Skipping invalid Double in array: $item")
+                        writableArray.pushNull()
+                    } else {
+                        writableArray.pushDouble(item)
+                    }
+                }
+                is Float -> {
+                    val doubleValue = item.toDouble()
+                    if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                        Log.w(TAG, "Skipping invalid Float in array: $item")
+                        writableArray.pushNull()
+                    } else {
+                        writableArray.pushDouble(doubleValue)
+                    }
+                }
+                is Long -> {
+                    val doubleValue = item.toDouble()
+                    if (doubleValue.isNaN() || doubleValue.isInfinite()) {
+                        Log.w(TAG, "Skipping invalid Long in array: $item")
+                        writableArray.pushNull()
+                    } else {
+                        writableArray.pushDouble(doubleValue)
+                    }
+                }
+                is Boolean -> writableArray.pushBoolean(item)
+                is Map<*, *> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val itemMap = item as? Map<String, Any?>
+                    itemMap?.let {
+                        writableArray.pushMap(convertMapToWritableMapSafely(it))
+                    } ?: writableArray.pushNull()
+                }
+                is List<*> -> {
+                    writableArray.pushArray(convertListToWritableArraySafely(item))
+                }
+                else -> writableArray.pushString(item.toString())
+            }
+        }
+        
+        return writableArray
     }
 
     override fun onCatalystInstanceDestroy() {
@@ -322,24 +448,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error during cleanup", e)
-        }
-    }
-
-    /**
-     * Get supported events (for documentation)
-     */
-    @ReactMethod
-    fun getSupportedEvents(promise: Promise) {
-        try {
-            val events = Arguments.createArray().apply {
-                pushString(ANALYTICS_EVENT)
-                pushString(SUPER_PROPERTIES_UPDATED)
-                pushString(USER_RESET)
-                pushString(USER_IDENTIFY)
-            }
-            promise.resolve(events)
-        } catch (e: Exception) {
-            promise.reject("GET_EVENTS_ERROR", e.message, e)
         }
     }
 }

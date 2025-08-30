@@ -1,8 +1,8 @@
-// SCLoans.js - Updated implementation with Android support
+// ScLoan.js - Updated implementation with unified cross-platform event system
 import { NativeModules, Platform } from 'react-native';
 import { safeObject } from './util';
 import { ENV } from './constants';
-import scLoansEventManager, { SCLoansEvents, SCLoansEventTypes } from './SCLoansEventEmitter';
+import scLoansEventManager, { SCLoansEventTypes } from './SCLoansEventEmitter';
 
 const { SmallcaseGateway: SmallcaseGatewayNative, SCLoansBridgeEmitter } = NativeModules;
 
@@ -25,16 +25,19 @@ const { SmallcaseGateway: SmallcaseGatewayNative, SCLoansBridgeEmitter } = Nativ
  * @property {string} data
  */
 
+// ===== CORE LOAN METHODS =====
+
 /**
  * Setup ScLoans
- *
  * @param {ScLoanConfig} config
  * @returns {Promise}
  * @throws {ScLoanError}
  */
 const setup = async (config) => {
     const safeConfig = safeObject(config);
-    if(safeConfig.environment === undefined || safeConfig.environment === null) safeConfig.environment = ENV.PROD
+    if(safeConfig.environment === undefined || safeConfig.environment === null) {
+        safeConfig.environment = ENV.PROD;
+    }
 
     // Use the appropriate native module based on platform
     const nativeModule = Platform.OS === 'android' && SCLoansBridgeEmitter 
@@ -47,11 +50,10 @@ const setup = async (config) => {
 
     try {
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.setupLoans === 'function') {
-            // Use Android-specific setup if available
+            console.log('SCLoans: Using Android-specific setup');
             return await SCLoansBridgeEmitter.setupLoans(safeConfig);
         } else {
-            // Fallback to SmallcaseGateway (iOS or Android fallback)
-            console.log('SCLoans: Falling back to SmallcaseGateway for setupLoans method');
+            console.log('SCLoans: Using SmallcaseGateway setup fallback');
             return await SmallcaseGatewayNative.setupLoans(safeConfig);
         }
     } catch (error) {
@@ -62,7 +64,6 @@ const setup = async (config) => {
 
 /**
  * Triggers the LOS Journey
- *
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise}
  * @throws {ScLoanError}
@@ -72,19 +73,11 @@ const apply = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
     
     try {
-        console.log('🐛 SCLoan.apply DEBUG:', {
-            'Platform.OS': Platform.OS,
-            'SCLoansBridgeEmitter exists': !!SCLoansBridgeEmitter,
-            'SCLoansBridgeEmitter.apply exists': !!SCLoansBridgeEmitter?.apply,
-            'typeof SCLoansBridgeEmitter.apply': typeof SCLoansBridgeEmitter?.apply,
-            'SCLoansBridgeEmitter methods': SCLoansBridgeEmitter ? Object.keys(SCLoansBridgeEmitter) : 'null'
-        });
-
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.apply === 'function') {
-            console.log('🐛 Using SCLoansBridgeEmitter.apply');
+            console.log('SCLoans: Using Android-specific apply');
             return await SCLoansBridgeEmitter.apply(safeLoanInfo);
         } else {
-            console.log('🐛 Falling back to SmallcaseGateway for apply method');
+            console.log('SCLoans: Using SmallcaseGateway apply fallback');
             return await SmallcaseGatewayNative.apply(safeLoanInfo);
         }
     } catch (error) {
@@ -95,7 +88,6 @@ const apply = async (loanInfo) => {
 
 /**
  * Triggers the Repayment Journey
- *
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise}
  * @throws {ScLoanError}
@@ -108,7 +100,7 @@ const pay = async (loanInfo) => {
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.pay === 'function') {
             return await SCLoansBridgeEmitter.pay(safeLoanInfo);
         } else {
-            console.log('SCLoans: Falling back to SmallcaseGateway for pay method');
+            console.log('SCLoans: Using SmallcaseGateway pay fallback');
             return await SmallcaseGatewayNative.pay(safeLoanInfo);
         }
     } catch (error) {
@@ -119,7 +111,6 @@ const pay = async (loanInfo) => {
 
 /**
  * Triggers the Withdraw Journey
- *
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise}
  * @throws {ScLoanError}
@@ -132,7 +123,7 @@ const withdraw = async (loanInfo) => {
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.withdraw === 'function') {
             return await SCLoansBridgeEmitter.withdraw(safeLoanInfo);
         } else {
-            console.log('SCLoans: Falling back to SmallcaseGateway for withdraw method');
+            console.log('SCLoans: Using SmallcaseGateway withdraw fallback');
             return await SmallcaseGatewayNative.withdraw(safeLoanInfo);
         }
     } catch (error) {
@@ -143,7 +134,6 @@ const withdraw = async (loanInfo) => {
 
 /**
  * Triggers the Servicing Journey
- *
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise}
  * @throws {ScLoanError}
@@ -156,7 +146,7 @@ const service = async (loanInfo) => {
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.service === 'function') {
             return await SCLoansBridgeEmitter.service(safeLoanInfo);
         } else {
-            console.log('SCLoans: Falling back to SmallcaseGateway for service method');
+            console.log('SCLoans: Using SmallcaseGateway service fallback');
             return await SmallcaseGatewayNative.service(safeLoanInfo);
         }
     } catch (error) {
@@ -167,7 +157,6 @@ const service = async (loanInfo) => {
 
 /**
  * Triggers the triggerInteraction function
- *
  * @param {ScLoanInfo} loanInfo
  * @returns {Promise}
  * @throws {ScLoanError}
@@ -179,7 +168,7 @@ const triggerInteraction = async (loanInfo) => {
         if (Platform.OS === 'android' && SCLoansBridgeEmitter && typeof SCLoansBridgeEmitter.triggerInteraction === 'function') {
             return await SCLoansBridgeEmitter.triggerInteraction(safeLoanInfo);
         } else {
-            console.log('SCLoans: Falling back to SmallcaseGateway for triggerInteraction method');
+            console.log('SCLoans: Using SmallcaseGateway triggerInteraction fallback');
             return await SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
         }
     } catch (error) {
@@ -188,148 +177,120 @@ const triggerInteraction = async (loanInfo) => {
     }
 };
 
+// ===== 💰 LOANS EVENT METHODS =====
+
 /**
- * Android-specific methods for testing and analytics
+ * 🎧 Subscribe to Loans Events - Convenience wrapper
+ * @param {string} eventType - Event type to listen to
+ * @param {function} callback - Callback function
+ * @returns {object} subscription - Subscription object with remove() method
  */
-const androidMethods = {
-    /**
-     * Get debug information (Android only)
-     * @returns {Promise<object>}
-     */
-    getDebugInfo: async () => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            console.warn('SCLoans: getDebugInfo only available on Android');
-            return Promise.resolve({ error: 'Not available on this platform' });
-        }
-        
-        try {
-            return await scLoansEventManager.getDebugInfo();
-        } catch (error) {
-            console.error('SCLoans: getDebugInfo failed:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Get listening status (Android only)
-     * @returns {Promise<object>}
-     */
-    getListeningStatus: async () => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            return Promise.resolve({ 
-                isListening: false,
-                platform: Platform.OS,
-                error: 'Not available on this platform'
-            });
-        }
-        
-        try {
-            return await scLoansEventManager.getListeningStatus();
-        } catch (error) {
-            console.error('SCLoans: getListeningStatus failed:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Emit test event (Android only)
-     * @param {string} eventType - Event type to test
-     * @param {object} testData - Test data to send
-     * @returns {Promise<string>}
-     */
-    emitTestEvent: async (eventType, testData = null) => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            console.warn('SCLoans: emitTestEvent only available on Android');
-            return Promise.resolve('Not available on this platform');
-        }
-        
-        try {
-            return await scLoansEventManager.emitTestEvent(eventType, testData);
-        } catch (error) {
-            console.error('SCLoans: emitTestEvent failed:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Trigger analytics event (Android only)
-     * @param {string} eventName - Event name
-     * @param {object} properties - Event properties
-     * @returns {Promise<string>}
-     */
-    triggerAnalyticsEvent: async (eventName, properties = null) => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            console.warn('SCLoans: triggerAnalyticsEvent only available on Android');
-            return Promise.resolve('Not available on this platform');
-        }
-        
-        try {
-            return await scLoansEventManager.triggerAnalyticsEvent(eventName, properties);
-        } catch (error) {
-            console.error('SCLoans: triggerAnalyticsEvent failed:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Trigger super properties update (Android only)
-     * @param {object} properties - Super properties
-     * @returns {Promise<string>}
-     */
-    triggerSuperPropertiesUpdate: async (properties = null) => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            console.warn('SCLoans: triggerSuperPropertiesUpdate only available on Android');
-            return Promise.resolve('Not available on this platform');
-        }
-        
-        try {
-            return await scLoansEventManager.triggerSuperPropertiesUpdate(properties);
-        } catch (error) {
-            console.error('SCLoans: triggerSuperPropertiesUpdate failed:', error);
-            throw error;
-        }
-    },
-
-    /**
-     * Get supported events (Android only)
-     * @returns {Promise<Array>}
-     */
-    getSupportedEvents: async () => {
-        if (Platform.OS !== 'android' || !SCLoansBridgeEmitter) {
-            return Promise.resolve(['scloans_notification']);
-        }
-        
-        try {
-            return await scLoansEventManager.getSupportedEvents();
-        } catch (error) {
-            console.error('SCLoans: getSupportedEvents failed:', error);
-            throw error;
-        }
-    },
+const subscribeToLoansEvent = (eventType, callback) => {
+  return scLoansEventManager.subscribe(eventType, callback);
 };
 
-// Export the ScLoan object with proper event handling and Android support
+/**
+ * 🔕 Unsubscribe from Loans Event
+ * @param {object} subscription - Subscription returned from subscribeToLoansEvent
+ */
+const unsubscribeFromLoansEvent = (subscription) => {
+  scLoansEventManager.unsubscribe(subscription);
+};
+
+/**
+ * 🧹 Clean up all Loans Event listeners
+ */
+const cleanupLoansEvents = () => {
+  scLoansEventManager.cleanup();
+};
+
+/**
+ * 🎯 Convenience method: Subscribe to loan application events
+ */
+const subscribeToLoanApplicationEvents = (callbacks) => {
+  const subscriptions = [];
+  
+  if (callbacks.onStarted) {
+    subscriptions.push(scLoansEventManager.onLoanApplicationStarted(callbacks.onStarted));
+  }
+  if (callbacks.onCompleted) {
+    subscriptions.push(scLoansEventManager.onLoanApplicationCompleted(callbacks.onCompleted));
+  }
+  if (callbacks.onFailed) {
+    subscriptions.push(scLoansEventManager.onLoanApplicationFailed(callbacks.onFailed));
+  }
+  
+  return subscriptions;
+};
+
+/**
+ * 🎯 Convenience method: Subscribe to loan status events
+ */
+const subscribeToLoanStatusEvents = (callbacks) => {
+  const subscriptions = [];
+  
+  if (callbacks.onApproved) {
+    subscriptions.push(scLoansEventManager.onLoanApproved(callbacks.onApproved));
+  }
+  if (callbacks.onRejected) {
+    subscriptions.push(scLoansEventManager.onLoanRejected(callbacks.onRejected));
+  }
+  if (callbacks.onDisbursed) {
+    subscriptions.push(scLoansEventManager.onLoanDisbursed(callbacks.onDisbursed));
+  }
+  if (callbacks.onStatusUpdated) {
+    subscriptions.push(scLoansEventManager.onLoanStatusUpdated(callbacks.onStatusUpdated));
+  }
+  
+  return subscriptions;
+};
+
+/**
+ * 🎯 Convenience method: Subscribe to payment events
+ */
+const subscribeToPaymentEvents = (callbacks) => {
+  const subscriptions = [];
+  
+  if (callbacks.onPaymentDue) {
+    subscriptions.push(scLoansEventManager.onPaymentDue(callbacks.onPaymentDue));
+  }
+  if (callbacks.onPaymentCompleted) {
+    subscriptions.push(scLoansEventManager.onPaymentCompleted(callbacks.onPaymentCompleted));
+  }
+  if (callbacks.onPaymentFailed) {
+    subscriptions.push(scLoansEventManager.onPaymentFailed(callbacks.onPaymentFailed));
+  }
+  
+  return subscriptions;
+};
+
+// ===== MAIN EXPORT =====
+
 const ScLoan = {
-    // Core loan methods (iOS and Android compatible)
-    setup,
-    apply,
-    pay,
-    withdraw,
-    service,
-    triggerInteraction,
-    
-    // Event handling (compatible with both iOS and Android)
-    loansEvents: SCLoansEvents,
-    loansEventManager: scLoansEventManager,
-    eventTypes: SCLoansEventTypes,
-    
-    // Android-specific methods
-    android: androidMethods,
-    
-    // Platform information
-    platform: Platform.OS,
-    isAndroidBridgeAvailable: Platform.OS === 'android' && !!SCLoansBridgeEmitter,
-    isIosBridgeAvailable: Platform.OS === 'ios' && !!SmallcaseGatewayNative,
+  // 🎯 Core loan methods
+  setup,
+  apply,
+  pay,
+  withdraw,
+  service,
+  triggerInteraction,
+  
+  // 🎯 Loans Event System (NEW - Unified)
+  loansEventManager: scLoansEventManager,
+  loansEventTypes: SCLoansEventTypes,
+  subscribeToLoansEvent,
+  unsubscribeFromLoansEvent,
+  cleanupLoansEvents,
+  
+  // 🎯 Convenience event subscription methods
+  subscribeToLoanApplicationEvents,
+  subscribeToLoanStatusEvents,
+  subscribeToPaymentEvents,
+  
+  // 🎯 Platform information
+  platform: Platform.OS,
+  isAndroidBridgeAvailable: Platform.OS === 'android' && !!SCLoansBridgeEmitter,
+  isIosBridgeAvailable: Platform.OS === 'ios' && !!SmallcaseGatewayNative,
 };
 
 export default ScLoan;

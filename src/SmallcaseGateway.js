@@ -1,20 +1,12 @@
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
-import scGatewayEventManager, { 
-  SCGatewayEvents, 
-  SCGatewayEventTypes,
-  // 🆕 Loans support
-  scLoansEventManager,
-  SCLoansEvents,
-  SCLoansEventTypes
-} from './SCGatewayEventEmitter';
+import scGatewayEventManager, { SCGatewayEventTypes } from './SCGatewayEventEmitter';
 
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
- *
  * @typedef {Object} envConfig
  * @property {string}        gatewayName     - unique name on consumer
  * @property {boolean}       isLeprechaun    - leprechaun mode toggle
@@ -33,18 +25,11 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
- *
- * @typedef {Object} SmallplugUiConfig
- * @property {String} headerColor - color of the header background
- * @property {Number} headerOpacity - opacity of the header background
- * @property {String} backIconColor - color of the back icon
- * @property {Number} backIconOpacity - opacity of the back icon
- *
  */
 
 let defaultBrokerList = [];
 
-// Event types constants for easy reference - GATEWAY
+// 🎯 Gateway Event Types Constants (for backward compatibility)
 const EVENT_TYPES = {
   ANALYTICS_EVENT: 'scg_analytics_event',
   SUPER_PROPS_UPDATED: 'scg_analytics_super_props', 
@@ -56,18 +41,7 @@ const EVENT_TYPES = {
   LEADGEN_FAILED: 'scg_leadgen_failed'
 };
 
-// 🆕 Event types constants for easy reference - LOANS
-const LOANS_EVENT_TYPES = {
-  ANALYTICS_EVENT: 'scloans_analytics_event',
-  SUPER_PROPS_UPDATED: 'scloans_super_properties_updated',
-  LOANS_EVENT: 'scloans_event',
-  LOANS_NOTIFICATION: 'scloans_notification',
-  LOAN_APPLICATION_STARTED: 'loan_application_started',
-  LOAN_APPLICATION_COMPLETED: 'loan_application_completed',
-  LOAN_APPLICATION_FAILED: 'loan_application_failed',
-  LOAN_DISBURSED: 'loan_disbursed',
-  LOAN_REPAYMENT: 'loan_repayment'
-};
+// ===== CORE SDK METHODS =====
 
 /**
  * configure the sdk with
@@ -95,7 +69,7 @@ const setConfigEnvironment = async (envConfig) => {
 
   defaultBrokerList = safeBrokerList;
 
-  await SmallcaseGatewayNative.setConfigEnvironment(
+  return SmallcaseGatewayNative.setConfigEnvironment(
     safeEnvName,
     safeGatewayName,
     safeIsLeprechaun,
@@ -106,8 +80,6 @@ const setConfigEnvironment = async (envConfig) => {
 
 /**
  * initialize sdk with a session
- *
- * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
@@ -117,7 +89,6 @@ const init = async (sdkToken) => {
 
 /**
  * triggers a transaction with a transaction id
- *
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
@@ -140,10 +111,7 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 };
 
 /**
- * triggers a transaction with a transaction id
  * @deprecated triggerMfTransaction will be removed soon. Please use triggerTransaction.
- * @param {string} transactionId
- * @returns {Promise<transactionRes>}
  */
 const triggerMfTransaction = async (transactionId) => {
   console.warn(
@@ -157,9 +125,6 @@ const triggerMfTransaction = async (transactionId) => {
 
 /**
  * launches smallcases module
- *
- * @param {string} targetEndpoint
- * @param {string} params
  */
 const launchSmallplug = async (targetEndpoint, params) => {
   const safeEndpoint = typeof targetEndpoint === 'string' ? targetEndpoint : '';
@@ -169,14 +134,7 @@ const launchSmallplug = async (targetEndpoint, params) => {
 };
 
 /**
- * launches smallcases module
- *
- * @param {string} targetEndpoint
- * @param {string} params
- * @param {string} headerColor
- * @param {number} headerOpacity
- * @param {string} backIconColor
- * @param {number} backIconOpacity
+ * launches smallcases module with branding
  */
 const launchSmallplugWithBranding = async (
   targetEndpoint,
@@ -224,10 +182,6 @@ const launchSmallplugWithBranding = async (
 
 /**
  * Logs the user out and removes the web session.
- *
- * This promise will be rejected if logout was unsuccessful
- *
- * @returns {Promise}
  */
 const logoutUser = async () => {
   return SmallcaseGatewayNative.logoutUser();
@@ -235,8 +189,6 @@ const logoutUser = async () => {
 
 /**
  * This will display a list of all the orders that a user recently placed.
- * This includes pending, successful, and failed orders.
- * @returns
  */
 const showOrders = async () => {
   return SmallcaseGatewayNative.showOrders();
@@ -244,9 +196,6 @@ const showOrders = async () => {
 
 /**
  * triggers the lead gen flow
- *
- * @param {userDetails} [userDetails]
- * @param {Object} [utmParams]
  */
 const triggerLeadGen = (userDetails, utmParams) => {
   const safeParams = safeObject(userDetails);
@@ -256,24 +205,15 @@ const triggerLeadGen = (userDetails, utmParams) => {
 };
 
 /**
- * triggers the lead gen flow
- *
- * @param {userDetails} [userDetails]
- * * @returns {Promise}
+ * triggers the lead gen flow with status
  */
 const triggerLeadGenWithStatus = async (userDetails) => {
   const safeParams = safeObject(userDetails);
-
   return SmallcaseGatewayNative.triggerLeadGenWithStatus(safeParams);
 };
 
 /**
- * triggers the lead gen flow with an option of "login here" cta
- *
- * @param {userDetails} [userDetails]
- * @param {Object} [utmParams]
- * @param {boolean} [showLoginCta]
- * @returns {Promise}
+ * triggers the lead gen flow with login CTA
  */
 const triggerLeadGenWithLoginCta = async (
   userDetails,
@@ -293,118 +233,56 @@ const triggerLeadGenWithLoginCta = async (
 
 /**
  * Marks a smallcase as archived
- *
- * @param {String} iscid
  */
 const archiveSmallcase = async (iscid) => {
   const safeIscid = typeof iscid === 'string' ? iscid : '';
-
   return SmallcaseGatewayNative.archiveSmallcase(safeIscid);
 };
 
 /**
  * Returns the native android/ios and react-native sdk version
- * (internal-tracking)
- * @returns {Promise}
  */
 const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
-// ===== 🆕 LOANS FUNCTIONALITY =====
+// ===== 🎯 GATEWAY EVENT METHODS =====
 
 /**
- * 🏦 Start listening to loans events
- * @returns {Promise<string>}
+ * 🎧 Start listening to Gateway Events via single notification channel
+ * @param {function} callback - Callback function to handle all gateway events
+ * @returns {object} subscription - Subscription object with remove() method
  */
-const startLoansEventListening = async () => {
-  try {
-    return await SCLoansEvents.startListening();
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to start loans event listening:', error);
-    throw error;
-  }
+const startGatewayEventListening = (callback) => {
+  return scGatewayEventManager.subscribe(callback);
 };
 
 /**
- * 🏦 Stop listening to loans events
- * @returns {Promise<string>}
+ * 🔕 Unsubscribe from Gateway Event
+ * @param {object} subscription - Subscription returned from startGatewayEventListening
  */
-const stopLoansEventListening = async () => {
-  try {
-    return await SCLoansEvents.stopListening();
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to stop loans event listening:', error);
-    throw error;
-  }
+const unsubscribeFromGatewayEvent = (subscription) => {
+  scGatewayEventManager.unsubscribe(subscription);
 };
 
 /**
- * 🏦 Post a loans analytics event
- * @param {string} eventName - Name of the event
- * @param {Object} properties - Event properties
- * @returns {Promise<string>}
+ * 🧹 Clean up all Gateway Event listeners
  */
-const postLoansAnalyticsEvent = async (eventName, properties = {}) => {
-  try {
-    const safeEventName = typeof eventName === 'string' ? eventName : '';
-    const safeProperties = safeObject(properties);
-    
-    return await SCLoansEvents.postAnalyticsEvent(safeEventName, safeProperties);
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to post loans analytics event:', error);
-    throw error;
-  }
+const cleanupGatewayEvents = () => {
+  scGatewayEventManager.cleanup();
 };
 
 /**
- * 🏦 Get loans event statistics
- * @returns {Promise<Object>}
+ * 🎯 Stop all Gateway Event listening
  */
-const getLoansEventStats = async () => {
-  try {
-    return await SCLoansEvents.getEventStats();
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to get loans event stats:', error);
-    return {};
-  }
-};
-
-/**
- * 🏦 Get loans event listening status
- * @returns {Promise<Object>}
- */
-const getLoansEventStatus = async () => {
-  try {
-    return await SCLoansEvents.getStatus();
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to get loans event status:', error);
-    return { isListening: false, activeProcessors: [] };
-  }
-};
-
-/**
- * 🏦 Emit test loans event (debugging)
- * @param {string} eventName - Test event name
- * @param {Object} testData - Test data
- * @returns {Promise<string>}
- */
-const emitTestLoansEvent = async (eventName, testData = {}) => {
-  try {
-    const safeEventName = typeof eventName === 'string' ? eventName : '';
-    const safeTestData = safeObject(testData);
-    
-    return await SCLoansEvents.emitTestEvent(safeEventName, safeTestData);
-  } catch (error) {
-    console.error('SmallcaseGateway: Failed to emit test loans event:', error);
-    throw error;
-  }
+const stopGatewayEventListening = () => {
+  scGatewayEventManager.stopListening();
 };
 
 // ===== MAIN EXPORT =====
 
 const SmallcaseGateway = {
-  // Core SDK methods (unchanged)
+  // 🎯 Core SDK methods
   init,
   logoutUser,
   triggerLeadGen,
@@ -419,25 +297,16 @@ const SmallcaseGateway = {
   getSdkVersion,
   showOrders,
   
-  // Gateway Events (unchanged)
-  eventTypes: EVENT_TYPES,
-  gatewayEvents: SCGatewayEvents,
+  // 🎯 Gateway Event System (NEW - Unified)
   gatewayEventManager: scGatewayEventManager,
   gatewayEventTypes: SCGatewayEventTypes,
-
-  // 🆕 Loans Events (new)
-  loansEventTypes: LOANS_EVENT_TYPES,
-  loansEvents: SCLoansEvents,
-  loansEventManager: scLoansEventManager,
-  loansEventTypesConstants: SCLoansEventTypes,
+  startGatewayEventListening,
+  unsubscribeFromGatewayEvent,
+  cleanupGatewayEvents,
+  stopGatewayEventListening,
   
-  // 🆕 Loans Methods (new)
-  startLoansEventListening,
-  stopLoansEventListening,
-  postLoansAnalyticsEvent,
-  getLoansEventStats,
-  getLoansEventStatus,
-  emitTestLoansEvent,
+  // 🎯 Legacy Event Support (for backward compatibility)
+  eventTypes: EVENT_TYPES,
 };
 
 export default SmallcaseGateway;

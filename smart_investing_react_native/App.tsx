@@ -84,345 +84,170 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  setupEventListeners = () => {
-    console.log('🎯 Setting up event listeners... Platform:', RNPlatform.OS);
+setupEventListeners = () => {
+  console.log('🎯 Setting up simplified event listeners... Platform:', RNPlatform.OS);
+  this.setupGatewayEventListeners();
+  // this.setupLoansEventListeners();
+  console.log('✅ Event listeners setup complete');
+};
+
+// Fixed Event Listener Setup with proper error handling and event structure
+
+setupGatewayEventListeners = () => {
+  console.log('🎯 Setting up unified Gateway event listeners...');
+  
+  try {
+    const gatewaySubscription = SmallcaseGateway.startGatewayEventListening((eventData) => {
+      console.log('[App] <- Gateway event received:', eventData);
+      
+      // Safely extract event type with fallbacks
+      const eventType = eventData?.eventType || eventData?.type || 'unknown_event';
+      
+    });
     
-    if (RNPlatform.OS === 'ios') {
-      this.setupIOSEventListeners();
-      this.setupIOSLoansEventListeners();
+    if (gatewaySubscription) {
+      // Store subscription for cleanup
+      this.legacyEventSubscriptions = this.legacyEventSubscriptions || [];
+      this.legacyEventSubscriptions.push(gatewaySubscription);
+      console.log('✅ Gateway event listeners setup complete');
     } else {
-      this.setupAndroidEventListeners();
-      this.setupAndroidLoansEventListeners(); // ✅ add Android loans listeners
-    }
-
-    console.log('✅ Event listeners setup complete');
-  };
-
-  setupAndroidLoansEventListeners = async () => {
-    console.log('🏦🤖 Setting up Android-specific SCLoans event listeners...');
-
-    const { loansEvents, loansEventManager } = ScLoan as any;
-
-    if (!loansEventManager) {
-      console.error('❌ Android SCLoans event manager not available');
-      return;
-    }
-
-    try {
-      const result = await loansEventManager.startListening();
-      console.log('✅ Android SCLoans event manager started listening', result);
-      try {
-        const status = await loansEventManager.getListeningStatus?.();
-        console.log('ℹ️ Android SCLoans event manager status:', status);
-      } catch {}
-    } catch (error) {
-      console.error('❌ Failed to start Android SCLoans event manager:', error);
-    }
-
-    // Subscribe to Android SCLoans analytics events
-    const loansNotificationSubscription = loansEvents.onAnalyticsEvent((data: any) => {
-      console.log('[App] <- Android SCLoans analytics event:', data);
-      // this.setState({ lastLoansEvent: data });
-
-      if (!data || !data.type) {
-        console.warn('SCLoans Android event missing type:', data);
-        return;
-      }
-
-      switch (data.type) {
-        case 'scloans_analytics_event':
-          this.handleSCLoansAnalyticsEvent(data);
-          break;
-        case 'scloans_super_properties_updated':
-          this.handleSCLoansSuperPropsUpdated(data);
-          break;
-        case 'scloans_user_reset':
-          this.handleSCLoansUserReset(data);
-          break;
-        case 'scloans_user_identify':
-          this.handleSCLoansUserIdentify(data);
-          break;
-        case 'scloans_loan_application_started':
-          this.handleSCLoansLoanApplicationStarted(data);
-          break;
-        case 'scloans_loan_application_completed':
-          this.handleSCLoansLoanApplicationCompleted(data);
-          break;
-        case 'scloans_loan_application_failed':
-          this.handleSCLoansLoanApplicationFailed(data);
-          break;
-        case 'scloans_loan_status_updated':
-          this.handleSCLoansLoanStatusUpdated(data);
-          break;
-        default:
-          console.warn('🔍 Unknown Android SCLoans event type:', data.type, 'Data:', data);
-          this.handleUnknownLoansEvent(data);
-      }
-    });
-
-    this.loansEventSubscriptions.push(loansNotificationSubscription);
-    console.log('✅ Android SCLoans event listeners setup complete');
-  };
-
-
-  setupIOSEventListeners = () => {
-    console.log('🍎 Setting up iOS-specific event listeners...');
-    
-    // Use the legacy event manager for iOS-specific gatewayEvents
-    const { gatewayEventManager, gatewayEvents } = SmallcaseGateway as any;
-    
-    // // Start listening to iOS gatewayEvents
-    // gatewayEventManager.startListening().then(() => {
-    //   console.log('✅ iOS event manager started listening');
-    // }).catch((error: any) => {
-    //   console.error('❌ Failed to start iOS event manager:', error);
-    // });
-    
-    // Add listeners for iOS-specific gatewayEvents
-    const analyticsSubscription = gatewayEvents.onAnalyticsEvent((data: any) => {
-      console.log('[App] <- iOS analytics event:', data);
-      this.handleAnalyticsEvent(data);
-    });
-    
-    const superPropsSubscription = gatewayEvents.onSuperPropertiesUpdated((data: any) => {
-      console.log('[App] <- iOS super properties updated:', data);
-      this.handleSuperPropsUpdated(data);
-    });
-    
-    const userResetSubscription = gatewayEvents.onUserReset((data: any) => {
-      console.log('[App] <- iOS user reset:', data);
-      this.handleUserReset(data);
-    });
-    
-    const userIdentifySubscription = gatewayEvents.onUserIdentify((data: any) => {
-      console.log('[App] <- iOS user identify:', data);
-      this.handleUserIdentify(data);
-    });
-    
-    // Store subscriptions for cleanup
-    this.legacyEventSubscriptions.push(
-      analyticsSubscription,
-      superPropsSubscription,
-      userResetSubscription,
-      userIdentifySubscription
-    );
-  };
-
-  setupIOSLoansEventListeners = () => {
-    console.log('🏦 Setting up iOS-specific SCLoans event listeners...');
-    
-    // Import ScLoan to get the correct event manager and events
-   const { loansEvents, loansEventManager } = ScLoan as any;
-    
-    // Check if the event manager is available
-    if (!loansEventManager) {
-      console.error('❌ SCLoans event manager is not available');
-      return;
+      console.warn('⚠️ Failed to create gateway subscription');
     }
     
-    console.log('✅ SCLoans event manager found:', loansEventManager);
+  } catch (error) {
+    console.error('❌ Failed to setup gateway event listeners:', error);
     
-    // Start listening to SCLoans events
-    loansEventManager.startListening().then(() => {
-      console.log('✅ SCLoans event manager started listening');
-    }).catch((error: any) => {
-      console.error('❌ Failed to start SCLoans event manager:', error);
-    });
-    
-    // Add listener for SCLoans notifications
-    const loansNotificationSubscription = loansEvents.onAnalyticsEvent((data: any) => {
-      console.log('[App] <- iOS SCLoans analytics event:', data);
-      
-      // Update state with the latest loans event
-      this.setState({ lastLoansEvent: data });
-      
-      if (!data || !data.type) {
-        console.warn('SCLoans event missing type:', data);
-        return;
-      }
-      
-      // Handle different types of SCLoans events
-      switch (data.type) {
-        case 'scloans_analytics_event':
-          console.log("🏦 SCLoans Analytics Event:", data);
-          this.handleSCLoansAnalyticsEvent(data);
-          break;
-          
-        case 'scloans_super_properties_updated':
-          console.log("🏦 SCLoans Super Properties Updated:", data);
-          this.handleSCLoansSuperPropsUpdated(data);
-          break;
-          
-        case 'scloans_user_reset':
-          console.log("🏦 SCLoans User Reset:", data);
-          this.handleSCLoansUserReset(data);
-          break;
-          
-        case 'scloans_user_identify':
-          console.log("🏦 SCLoans User Identify:", data);
-          this.handleSCLoansUserIdentify(data);
-          break;
-          
-        case 'scloans_loan_application_started':
-          console.log("🏦 SCLoans Loan Application Started:", data);
-          this.handleSCLoansLoanApplicationStarted(data);
-          break;
-          
-        case 'scloans_loan_application_completed':
-          console.log("🏦 SCLoans Loan Application Completed:", data);
-          this.handleSCLoansLoanApplicationCompleted(data);
-          break;
-          
-        case 'scloans_loan_application_failed':
-          console.log("🏦 SCLoans Loan Application Failed:", data);
-          this.handleSCLoansLoanApplicationFailed(data);
-          break;
-          
-        case 'scloans_loan_status_updated':
-          console.log("🏦 SCLoans Loan Status Updated:", data);
-          this.handleSCLoansLoanStatusUpdated(data);
-          break;
-          
-        default:
-          console.warn('🔍 Unknown SCLoans event type:', data.type, 'Data:', data);
-          this.handleUnknownLoansEvent(data);
+    // Optionally show user-friendly error
+    this.setState({
+      lastError: {
+        message: 'Failed to initialize event listeners',
+        error: error.message,
+        timestamp: new Date().toISOString()
       }
     });
-    
-    // Also try to listen directly for the specific event types that are being emitted
-    // This is a fallback in case the notification channel doesn't work
-    // try {
-    //   const { NativeEventEmitter, NativeModules } = require('react-native');
-    //   const { SCLoansBridgeEmitter } = NativeModules;
+  }
+};
+
+
+
+
+// Cleanup method for component unmount
+cleanupEventListeners = () => {
+  try {
+    if (this.legacyEventSubscriptions) {
+      this.legacyEventSubscriptions.forEach(subscription => {
+        if (subscription && typeof subscription.remove === 'function') {
+          subscription.remove();
+        } else if (SmallcaseGateway.unsubscribeFromGatewayEvent) {
+          SmallcaseGateway.unsubscribeFromGatewayEvent(subscription);
+        }
+      });
       
-    //   if (SCLoansBridgeEmitter) {
-    //     console.log('🔧 Setting up direct SCLoans event listener...');
-    //     const directEventEmitter = new NativeEventEmitter(SCLoansBridgeEmitter);
+      this.legacyEventSubscriptions = [];
+    }
+    
+    // Clean up the gateway event manager
+    if (SmallcaseGateway.cleanupGatewayEvents) {
+      SmallcaseGateway.cleanupGatewayEvents();
+    }
+    
+    console.log('✅ Event listeners cleaned up successfully');
+    
+  } catch (error) {
+    console.error('❌ Error cleaning up event listeners:', error);
+  }
+};
+
+// // 🏦 Unified Loans Event Listener (works for both iOS and Android)
+// setupLoansEventListeners = () => {
+//   console.log('🏦 Setting up unified Loans event listeners...');
+  
+//   const loansSubscription = ScLoan.subscribeToLoansEvent('scloans_notification', (eventData) => {
+//     console.log('[App] <- Loans event received:', eventData);
+    
+//     // Update state with the latest loans event
+//     this.setState({ 
+//       lastLoansEvent: eventData 
+//     });
+    
+//     // Handle different event types based on eventData.type or eventData.eventType
+//     const eventType = eventData.type || eventData.eventType;
+    
+//     switch(eventType) {
+//       case ScLoan.loansEventTypes.LOAN_APPLICATION_STARTED:
+//       case 'scloans_loan_application_started':
+//         console.log('[App] <- Loan application started:', eventData);
+//         this.handleSCLoansLoanApplicationStarted(eventData);
+//         break;
         
-    //     const directSubscription = directEventEmitter.addListener('scloans_notification', (data: any) => {
-    //       console.log('🏦 Direct SCLoans Analytics Event Received:', data);
-    //       this.setState({ lastLoansEvent: { type: 'scloans_notification', data } });
-    //       this.handleSCLoansAnalyticsEvent(data);
-    //     });
+//       case ScLoan.loansEventTypes.LOAN_APPLICATION_COMPLETED:
+//       case 'scloans_loan_application_completed':
+//         console.log('[App] <- Loan application completed:', eventData);
+//         this.handleSCLoansLoanApplicationCompleted(eventData);
+//         break;
         
-    //     this.loansEventSubscriptions.push(directSubscription);
-    //     console.log('✅ Direct SCLoans event listener added');
-    //   }
-    // } catch (error) {
-    //   console.error('❌ Failed to setup direct SCLoans event listener:', error);
-    // }
-    
-    // Store subscriptions for cleanup
-    this.loansEventSubscriptions.push(loansNotificationSubscription);
-    
-    console.log('✅ SCLoans event listeners setup complete');
-  };
+//       case ScLoan.loansEventTypes.LOAN_APPLICATION_FAILED:
+//       case 'scloans_loan_application_failed':
+//         console.log('[App] <- Loan application failed:', eventData);
+//         this.handleSCLoansLoanApplicationFailed(eventData);
+//         break;
+        
+//       case ScLoan.loansEventTypes.LOAN_STATUS_UPDATED:
+//       case 'scloans_loan_status_updated':
+//         console.log('[App] <- Loan status updated:', eventData);
+//         this.handleSCLoansLoanStatusUpdated(eventData);
+//         break;
+        
+//       case ScLoan.loansEventTypes.ANALYTICS_EVENT:
+//       case 'scloans_analytics_event':
+//         console.log('[App] <- Loans analytics event:', eventData);
+//         this.handleSCLoansAnalyticsEvent(eventData);
+//         break;
+        
+//       case ScLoan.loansEventTypes.SUPER_PROPS_UPDATED:
+//       case 'scloans_super_properties_updated':
+//         console.log('[App] <- Loans super properties updated:', eventData);
+//         this.handleSCLoansSuperPropsUpdated(eventData);
+//         break;
+        
+//       default:
+//         console.log('[App] <- Unknown loans event type:', eventType, eventData);
+//         this.handleUnknownLoansEvent(eventData);
+//     }
+//   });
+  
+//   // Store subscription for cleanup
+//   this.loansEventSubscriptions.push(loansSubscription);
+  
+//   console.log('✅ Loans event listeners setup complete');
+// };
 
-  setupAndroidEventListeners = async () => {
-    console.log('🤖 Setting up Android event listeners...');
-    const { gatewayEventManager, gatewayEvents } = SmallcaseGateway as any;
-
-    try {
-      const result = await gatewayEventManager.startListening();
-      console.log('✅ Android event manager started listening', result);
-      try {
-        const status = await gatewayEventManager.getStatus?.();
-        console.log('ℹ️ Android event manager status:', status);
-      } catch {}
-    } catch (error) {
-      console.error('❌ Failed to start Android event manager:', error);
+// 🧹 Updated cleanup method
+cleanupAllEventListeners = () => {
+  console.log('🧹 Cleaning up all event listeners...');
+  
+  // Clean up legacy event subscriptions
+  this.legacyEventSubscriptions.forEach(subscription => {
+    if (subscription && subscription.remove) {
+      subscription.remove();
     }
+  });
+  this.legacyEventSubscriptions = [];
 
-    const analyticsSubscription = gatewayEvents.onAnalyticsEvent((data: any) => {
-      console.log('[App] <- Android analytics event:', data);
-      this.setState({ lastEvent: { type: 'scgateway_analytics_event', data } });
-      this.handleAnalyticsEvent(data);
-    });
-
-    const superPropsSubscription = gatewayEvents.onSuperPropertiesUpdated((data: any) => {
-      console.log('[App] <- Android super properties updated:', data);
-      this.setState({ lastEvent: { type: 'scgateway_super_properties_updated', data } });
-      this.handleSuperPropsUpdated(data);
-    });
-
-    const userResetSubscription = gatewayEvents.onUserReset((data: any) => {
-      console.log('[App] <- Android user reset:', data);
-      this.setState({ lastEvent: { type: 'scgateway_user_reset', data } });
-      this.handleUserReset(data);
-    });
-
-    const userIdentifySubscription = gatewayEvents.onUserIdentify((data: any) => {
-      console.log('[App] <- Android user identify:', data);
-      this.setState({ lastEvent: { type: 'scgateway_user_identify', data } });
-      this.handleUserIdentify(data);
-    });
-
-    this.legacyEventSubscriptions.push(
-      analyticsSubscription,
-      superPropsSubscription,
-      userResetSubscription,
-      userIdentifySubscription
-    );
-  };
-
-  // setupLegacyEventListeners = () => {
-  //   console.log('🔄 Setting up legacy event listeners for cross-platform compatibility...');
-    
-  //   // Add a general event listener that works on both platforms
-  //   const generalSubscription = (SmallcaseGateway as any).addEventsListener((event: any) => {
-  //     console.log('\n🎉 === General SmallcaseGateway Event Received ===');
-  //     console.log('Platform:', RNPlatform.OS);
-  //     console.log('Event Type:', event.type);
-  //     console.log('Event Data:', event.data);
-  //     console.log('Timestamp:', new Date().toISOString());
-      
-  //     this.setState({ lastEvent: event });
-      
-  //     // Handle gatewayEvents regardless of platform
-  //     this.handleGeneralEvent(event);
-      
-  //     console.log('=== End General SmallcaseGateway Event ===\n');
-  //   });
-    
-  //   this.legacyEventSubscriptions.push(generalSubscription);
-  // };
-
-  cleanupAllEventListeners = () => {
-    console.log('🧹 Cleaning up all event listeners...');
-    
-    // Clean up main event subscription
-    if (this.eventSubscription) {
-      this.eventSubscription.remove();
-      this.eventSubscription = null;
+  // Clean up loans event subscriptions
+  this.loansEventSubscriptions.forEach(subscription => {
+    if (subscription && subscription.remove) {
+      subscription.remove();
     }
+  });
+  this.loansEventSubscriptions = [];
+  
+  // Stop event managers
+  SmallcaseGateway.stopGatewayEventListening();
+  // ScLoan.cleanupLoansEvents();
     
-    // Clean up legacy event subscriptions
-    this.legacyEventSubscriptions.forEach(subscription => {
-      if (subscription && subscription.remove) {
-        subscription.remove();
-      }
-    });
-    this.legacyEventSubscriptions = [];
-
-    // Clean up loans event subscriptions
-    this.loansEventSubscriptions.forEach(subscription => {
-      if (subscription && subscription.remove) {
-        subscription.remove();
-      }
-    });
-    this.loansEventSubscriptions = [];
-    
-    // Stop platform event managers if running
-    const { gatewayEventManager, loansEventManager } = SmallcaseGateway as any;
-    if (gatewayEventManager && gatewayEventManager.stopListening) {
-      gatewayEventManager.stopListening().catch(() => {});
-    }
-    if (RNPlatform.OS === 'ios' && loansEventManager && loansEventManager.stopListening) {
-      loansEventManager.stopListening().catch(() => {});
-    }
-    
-    console.log('✅ All event listeners cleaned up');
-  };
+  console.log('✅ All event listeners cleaned up');
+};
 
   // General event handler for cross-platform compatibility
   handleGeneralEvent = (event: any) => {
@@ -808,211 +633,6 @@ class App extends React.Component<AppProps, AppState> {
     
     // Log unknown loans events for debugging
     // analytics().logEvent('unknown_loans_event', {
-    //   event_type: event.type,
-    //   event_data: JSON.stringify(event.data),
-    //   timestamp: Date.now()
-    // });
-  };
-
-  // Gateway Event Handlers (existing)
-  handleAnalyticsEvent = (data: any) => {
-    console.log('📊 Processing Analytics Event:', data);
-    
-    try {
-      // Extract event properties
-      const eventName = data.eventName || data.event || 'unknown_event';
-      const properties = data.properties || data.params || {};
-      
-      // Send to your analytics service
-      // Example integrations:
-      // Firebase Analytics
-      // analytics().logEvent(eventName, properties);
-      
-      // Mixpanel
-      // mixpanel.track(eventName, properties);
-      
-      // Custom Analytics
-      // yourAnalyticsService.track(eventName, properties);
-      
-      // console.log('✅ Analytics event processed:', { eventName, properties });
-      
-    } catch (error) {
-      console.error('❌ Failed to process analytics event:', error);
-    }
-  };
-
-  handleSuperPropsUpdated = (data: any) => {
-    console.log('🔄 Processing Super Properties Update:', data);
-    
-    try {
-      // Update user properties in your analytics service
-      // analytics().setUserProperties(data);
-      // mixpanel.people.set(data);
-      
-      console.log('✅ Super properties updated');
-      
-    } catch (error) {
-      console.error('❌ Failed to update super properties:', error);
-    }
-  };
-
-  handleUserReset = (data: any) => {
-    console.log('🔄 Processing User Reset');
-    
-    try {
-      // Reset user session in your analytics
-      // analytics().reset();
-      // mixpanel.reset();
-      
-      // Clear any user-specific data in your app
-      // this.clearUserData();
-      
-      console.log('✅ User reset processed');
-      
-    } catch (error) {
-      console.error('❌ Failed to process user reset:', error);
-    }
-  };
-
-  handleUserIdentify = (data: any) => {
-    console.log('👤 Processing User Identify:', data);
-    
-    try {
-      const userId = data.userId || data.id;
-      const userProperties = data.properties || data.traits || {};
-      
-      // Identify user in your analytics
-      // analytics().identify(userId, userProperties);
-      // mixpanel.identify(userId);
-      // mixpanel.people.set(userProperties);
-      
-      console.log('✅ User identified:', { userId, userProperties });
-      
-    } catch (error) {
-      console.error('❌ Failed to identify user:', error);
-    }
-  };
-
-  handleTransactionSuccess = (data: any) => {
-    console.log('✅ Processing Transaction Success:', data);
-    
-    try {
-      // Handle successful transaction
-      const transactionId = data.transactionId || data.id;
-      const amount = data.amount;
-      const broker = data.broker;
-      
-      // Track successful transaction
-      // analytics().logEvent('transaction_success', {
-      //   transaction_id: transactionId,
-      //   amount: amount,
-      //   broker: broker,
-      //   timestamp: Date.now()
-      // });
-      
-      // Show success message to user
-      // this.showSuccessMessage(`Transaction ${transactionId} completed successfully!`);
-      
-      // Update UI state
-      // this.setState({ lastTransactionStatus: 'success' });
-      
-      console.log('✅ Transaction success processed');
-      
-    } catch (error) {
-      console.error('❌ Failed to process transaction success:', error);
-    }
-  };
-
-  handleTransactionFailure = (data: any) => {
-    console.log('❌ Processing Transaction Failure:', data);
-    
-    try {
-      // Handle failed transaction
-      const transactionId = data.transactionId || data.id;
-      const error = data.error || data.errorMessage;
-      const errorCode = data.errorCode;
-      
-      // Track failed transaction
-      // analytics().logEvent('transaction_failed', {
-      //   transaction_id: transactionId,
-      //   error: error,
-      //   error_code: errorCode,
-      //   timestamp: Date.now()
-      // });
-      
-      // Show error message to user
-      // this.showErrorMessage(`Transaction failed: ${error}`);
-      
-      // Update UI state
-      // this.setState({ lastTransactionStatus: 'failed', lastError: error });
-      
-      console.log('✅ Transaction failure processed');
-      
-    } catch (error) {
-      console.error('❌ Failed to process transaction failure:', error);
-    }
-  };
-
-  handleLeadGenSuccess = (data: any) => {
-    console.log('✅ Processing Lead Gen Success:', data);
-    
-    try {
-      // Handle successful lead generation
-      const leadId = data.leadId || data.id;
-      const broker = data.broker;
-      const userDetails = data.userDetails || {};
-      
-      // Track successful lead generation
-      // analytics().logEvent('leadgen_success', {
-      //   lead_id: leadId,
-      //   broker: broker,
-      //   user_email: userDetails.email,
-      //   timestamp: Date.now()
-      // });
-      
-      // Show success message
-      // this.showSuccessMessage('Account creation successful!');
-      
-      // Navigate to next screen or update state
-      // this.setState({ isLeadGenComplete: true });
-      
-      console.log('✅ Lead gen success processed');
-      
-    } catch (error) {
-      console.error('❌ Failed to process lead gen success:', error);
-    }
-  };
-
-  handleLeadGenFailure = (data: any) => {
-    console.log('❌ Processing Lead Gen Failure:', data);
-    
-    try {
-      // Handle failed lead generation
-      const error = data.error || data.errorMessage;
-      const errorCode = data.errorCode;
-      
-      // Track failed lead generation
-      // analytics().logEvent('leadgen_failed', {
-      //   error: error,
-      //   error_code: errorCode,
-      //   timestamp: Date.now()
-      // });
-      
-      // Show error message with retry option
-      // this.showErrorMessage(`Account creation failed: ${error}`, true);
-      
-      console.log('✅ Lead gen failure processed');
-      
-    } catch (error) {
-      console.error('❌ Failed to process lead gen failure:', error);
-    }
-  };
-
-  handleUnknownEvent = (event: any) => {
-    console.log('🔍 Processing Unknown Event:', event);
-    
-    // Log unknown gatewayEvents for debugging
-    // analytics().logEvent('unknown_scgateway_event', {
     //   event_type: event.type,
     //   event_data: JSON.stringify(event.data),
     //   timestamp: Date.now()
