@@ -177,20 +177,19 @@ const triggerInteraction = async (loanInfo) => {
     }
 };
 
-// ===== 💰 LOANS EVENT METHODS =====
+// ===== LOANS EVENT METHODS =====
 
 /**
- * 🎧 Subscribe to Loans Events - Convenience wrapper
- * @param {string} eventType - Event type to listen to
+ * Subscribe to Loans Events - Convenience wrapper
  * @param {function} callback - Callback function
  * @returns {object} subscription - Subscription object with remove() method
  */
-const subscribeToLoansEvent = (eventType, callback) => {
-  return scLoansEventManager.subscribe(eventType, callback);
+const subscribeToLoansEvent = (callback) => {
+  return scLoansEventManager.subscribe(callback);
 };
 
 /**
- * 🔕 Unsubscribe from Loans Event
+ * Unsubscribe from Loans Event
  * @param {object} subscription - Subscription returned from subscribeToLoansEvent
  */
 const unsubscribeFromLoansEvent = (subscription) => {
@@ -198,76 +197,18 @@ const unsubscribeFromLoansEvent = (subscription) => {
 };
 
 /**
- * 🧹 Clean up all Loans Event listeners
+ * Clean up all Loans Event listeners
  */
 const cleanupLoansEvents = () => {
   scLoansEventManager.cleanup();
 };
 
-/**
- * 🎯 Convenience method: Subscribe to loan application events
- */
-const subscribeToLoanApplicationEvents = (callbacks) => {
-  const subscriptions = [];
-  
-  if (callbacks.onStarted) {
-    subscriptions.push(scLoansEventManager.onLoanApplicationStarted(callbacks.onStarted));
-  }
-  if (callbacks.onCompleted) {
-    subscriptions.push(scLoansEventManager.onLoanApplicationCompleted(callbacks.onCompleted));
-  }
-  if (callbacks.onFailed) {
-    subscriptions.push(scLoansEventManager.onLoanApplicationFailed(callbacks.onFailed));
-  }
-  
-  return subscriptions;
-};
 
-/**
- * 🎯 Convenience method: Subscribe to loan status events
- */
-const subscribeToLoanStatusEvents = (callbacks) => {
-  const subscriptions = [];
-  
-  if (callbacks.onApproved) {
-    subscriptions.push(scLoansEventManager.onLoanApproved(callbacks.onApproved));
-  }
-  if (callbacks.onRejected) {
-    subscriptions.push(scLoansEventManager.onLoanRejected(callbacks.onRejected));
-  }
-  if (callbacks.onDisbursed) {
-    subscriptions.push(scLoansEventManager.onLoanDisbursed(callbacks.onDisbursed));
-  }
-  if (callbacks.onStatusUpdated) {
-    subscriptions.push(scLoansEventManager.onLoanStatusUpdated(callbacks.onStatusUpdated));
-  }
-  
-  return subscriptions;
-};
 
-/**
- * 🎯 Convenience method: Subscribe to payment events
- */
-const subscribeToPaymentEvents = (callbacks) => {
-  const subscriptions = [];
-  
-  if (callbacks.onPaymentDue) {
-    subscriptions.push(scLoansEventManager.onPaymentDue(callbacks.onPaymentDue));
-  }
-  if (callbacks.onPaymentCompleted) {
-    subscriptions.push(scLoansEventManager.onPaymentCompleted(callbacks.onPaymentCompleted));
-  }
-  if (callbacks.onPaymentFailed) {
-    subscriptions.push(scLoansEventManager.onPaymentFailed(callbacks.onPaymentFailed));
-  }
-  
-  return subscriptions;
-};
 
 // ===== MAIN EXPORT =====
 
 const ScLoan = {
-  // 🎯 Core loan methods
   setup,
   apply,
   pay,
@@ -275,19 +216,12 @@ const ScLoan = {
   service,
   triggerInteraction,
   
-  // 🎯 Loans Event System (NEW - Unified)
   loansEventManager: scLoansEventManager,
   loansEventTypes: SCLoansEventTypes,
   subscribeToLoansEvent,
   unsubscribeFromLoansEvent,
   cleanupLoansEvents,
   
-  // 🎯 Convenience event subscription methods
-  subscribeToLoanApplicationEvents,
-  subscribeToLoanStatusEvents,
-  subscribeToPaymentEvents,
-  
-  // 🎯 Platform information
   platform: Platform.OS,
   isAndroidBridgeAvailable: Platform.OS === 'android' && !!SCLoansBridgeEmitter,
   isIosBridgeAvailable: Platform.OS === 'ios' && !!SmallcaseGatewayNative,

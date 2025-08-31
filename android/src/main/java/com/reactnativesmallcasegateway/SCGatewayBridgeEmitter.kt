@@ -27,7 +27,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     override fun getName(): String = "SCGatewayBridgeEmitter"
 
-    // 🔧 Auto-start listening when module is created
     init {
         Log.d(TAG, "SCGatewayBridgeEmitter initialized - auto-starting listener")
         UiThreadUtil.runOnUiThread {
@@ -89,12 +88,12 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
             // Add debug observer for all notifications
             NotificationCenter.addObserver { notification ->
-                Log.d("DEBUG_ALL_EVENTS", "🔔 All notifications: ${notification.name}")
+                Log.d("DEBUG_ALL_EVENTS", "All notifications: ${notification.name}")
             }
 
             // Create notification observer for scg_notification only
             notificationObserver = { notification ->
-                Log.d(TAG, "🔔 Received notification: ${notification.name}")
+                Log.d(TAG, "Received notification: ${notification.name}")
                 
                 try {
                     // Only process scg_notification - single way to subscribe
@@ -110,12 +109,12 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             notificationObserver?.let { observer ->
                 NotificationCenter.addObserver(observer)
                 isListening = true
-                Log.d(TAG, "✅ Successfully started listening for scg_notification events")
+                Log.d(TAG, "Successfully started listening for scg_notification events")
                 true
             } ?: false
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error starting listener", e)
+            Log.e(TAG, "Error starting listener", e)
             false
         }
     }
@@ -126,24 +125,24 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             Log.d(TAG, "Attempting to send event: $eventName")
             
             if (!reactContext.hasActiveCatalystInstance()) {
-                Log.w(TAG, "❌ React context not active, cannot send event: $eventName")
+                Log.w(TAG, "React context not active, cannot send event: $eventName")
                 return
             }
             
             // Validate params before sending
             if (params != null) {
                 validateWritableMap(params)
-                Log.d(TAG, "📤 Sending validated event data: $eventName")
+                Log.d(TAG, "Sending validated event data: $eventName")
             }
             
             reactContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit(eventName, params)
                 
-            Log.d(TAG, "✅ Event sent successfully: $eventName")
+            Log.d(TAG, "Event sent successfully: $eventName")
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error sending event: $eventName", e)
+            Log.e(TAG, "Error sending event: $eventName", e)
         }
     }
 
@@ -245,7 +244,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                         NotificationCenter.removeObserver(observer)
                         notificationObserver = null
                         isListening = false
-                        Log.d(TAG, "✅ Successfully stopped listening for events")
+                        Log.d(TAG, "Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
                     } ?: run {
                         promise.resolve("No observer to remove")

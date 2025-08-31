@@ -30,28 +30,18 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
 
     override fun getName(): String = "SCLoansBridgeEmitter"
 
-    @ReactMethod
-    fun getDebugInfo(promise: Promise) {
-        try {
-            val info = Arguments.createMap().apply {
-                putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
-                putBoolean("isListening", isListening)
-                putBoolean("hasNotificationObserver", notificationObserver != null)
-            }
-            promise.resolve(info)
-        } catch (e: Exception) {
-            promise.reject("DEBUG_INFO_ERROR", e.message, e)
+    init {
+        Log.d(TAG, "SCLoansBridgeEmitter initialized - auto-starting listener")
+        UiThreadUtil.runOnUiThread {
+            startListeningInternal()
         }
     }
 
-    /**
-     * 🚀 Start listening to NotificationCenter events
-     */
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "📡 Starting to listen for SCLoans events (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
-
+            Log.d(TAG, "startListening called from React Native")
+            
             if (isListening) {
                 Log.d(TAG, "Already listening to events")
                 promise.resolve("Already listening")
@@ -59,49 +49,66 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             }
 
             UiThreadUtil.runOnUiThread {
-                try {
-                    Log.d(TAG, "📡 Executing startListening on main thread: ${Looper.myLooper() == Looper.getMainLooper()}")
-
-                    // Create notification observer
-                    notificationObserver = { notification ->
-                        try {
-                            Log.d(TAG, "📊 Received notification: ${notification.name}")
-
-                            // Check if it's an SCLoans notification
-                            if (notification.name == "scloans_notification") {
-                                processScLoansNotification(notification)
-                            }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "❌ Error processing notification", e)
-                        }
-                    }
-
-                    notificationObserver?.let { observer ->
-                        NotificationCenter.addObserver(observer)
-                        isListening = true
-                        Log.d(TAG, "✅ Successfully started listening for events")
-                        promise.resolve("Started listening successfully")
-                    } ?: run {
-                        promise.reject("OBSERVER_ERROR", "Failed to create observer")
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "❌ Error starting listener on UI thread", e)
-                    promise.reject("START_LISTENING_ERROR", e.message, e)
+                val success = startListeningInternal()
+                if (success) {
+                    promise.resolve("Started listening successfully")
+                } else {
+                    promise.reject("START_LISTENING_ERROR", "Failed to start listening")
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error scheduling startListening on UI thread", e)
-            promise.reject("START_LISTENING_ERROR", e.message, e)
+            Log.e(TAG, "Error in startListening", e)
+            promise.reject("START_LISTENING_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
-    /**
-     * 🛑 Stop listening to NotificationCenter events
-     */
+    // Internal start listening method with debug logging
+    private fun startListeningInternal(): Boolean {
+        return try {
+            Log.d(TAG, "Starting internal listener on thread: ${Thread.currentThread().name}")
+
+            if (isListening) {
+                Log.d(TAG, "Already listening")
+                return true
+            }
+
+            // Add debug observer for all notifications
+            NotificationCenter.addObserver { notification ->
+                Log.d("DEBUG_ALL_EVENTS", "All notifications: ${notification.name}")
+            }
+
+            // Create notification observer for scloans_notification only
+            notificationObserver = { notification ->
+                Log.d(TAG, "Received notification: ${notification.name}")
+                
+                try {
+                    // Only process scloans_notification - single way to subscribe
+                    if (notification.name == "scloans_notification") {
+                        Log.d(TAG, "Processing scloans_notification")
+                        processScLoansNotification(notification)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing notification: ${notification.name}", e)
+                }
+            }
+
+            notificationObserver?.let { observer ->
+                NotificationCenter.addObserver(observer)
+                isListening = true
+                Log.d(TAG, "Successfully started listening for scloans_notification events")
+                true
+            } ?: false
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting listener", e)
+            false
+        }
+    }
+
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "🛑 Stopping SCLoans event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
+            Log.d(TAG, "Stopping SCLoans event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (!isListening) {
                 Log.d(TAG, "Not currently listening")
@@ -115,25 +122,23 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                         NotificationCenter.removeObserver(observer)
                         notificationObserver = null
                         isListening = false
-                        Log.d(TAG, "✅ Successfully stopped listening for events")
+                        Log.d(TAG, "Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
                     } ?: run {
                         promise.resolve("No observer to remove")
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "❌ Error stopping listener on UI thread", e)
+                    Log.e(TAG, "Error stopping listener on UI thread", e)
                     promise.reject("STOP_LISTENING_ERROR", e.message, e)
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error scheduling stopListening on UI thread", e)
+            Log.e(TAG, "Error scheduling stopListening on UI thread", e)
             promise.reject("STOP_LISTENING_ERROR", e.message, e)
         }
     }
 
-    /**
-     * 📊 Get current listening status
-     */
+
     @ReactMethod
     fun getListeningStatus(promise: Promise) {
         try {
@@ -147,13 +152,10 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         }
     }
 
-    /**
-     * 🧪 Test event emission (for debugging)
-     */
     @ReactMethod
     fun emitTestEvent(eventType: String, testData: ReadableMap?, promise: Promise) {
         try {
-            Log.d(TAG, "🧪 Emitting test event: $eventType")
+            Log.d(TAG, "Emitting test event: $eventType")
 
             val payload = Arguments.createMap().apply {
                 putString("type", eventType)
@@ -162,11 +164,11 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 testData?.let { putMap("data", it) }
             }
 
-            sendEvent(eventType, payload)
+            sendEvent("scloans_notification", payload)
             promise.resolve("Test event emitted successfully")
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error emitting test event", e)
+            Log.e(TAG, "Error emitting test event", e)
             promise.reject("TEST_EVENT_ERROR", e.message, e)
         }
     }
@@ -206,7 +208,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             
             // Emit the event to React Native
             val eventPayload = convertMapToWritableMap(notificationData)
-            sendEvent(eventName, eventPayload)
+            sendEvent("scloans_notification", eventPayload)
             
             Log.d(TAG, "SCLoansBridgeEmitter: Emitted event '$eventName' with data")
             
@@ -244,26 +246,23 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         }
     }
 
-    /**
-     * 📤 Send event to React Native
-     */
     private fun sendEvent(eventName: String, params: WritableMap?) {
         try {
             if (reactContext.hasActiveCatalystInstance()) {
                 reactContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit(eventName, params)
-                Log.d(TAG, "📤 Event sent to React Native: $eventName")
+                    .emit("scloans_notification", params)
+                Log.d(TAG, "Event sent to React Native: $eventName")
             } else {
-                Log.w(TAG, "⚠️ React context not active, cannot send event: $eventName")
+                Log.w(TAG, "React context not active, cannot send event: $eventName")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error sending event to React Native: $eventName", e)
+            Log.e(TAG, "Error sending event to React Native: $eventName", e)
         }
     }
 
     /**
-     * 🔄 Convert ReadableMap to Map<String, Any?>
+     * Convert ReadableMap to Map<String, Any?>
      */
     private fun convertReadableMapToMap(readableMap: ReadableMap): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
@@ -293,7 +292,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     }
 
     /**
-     * 🔄 Convert ReadableArray to List<Any?>
+     * Convert ReadableArray to List<Any?>
      */
     private fun convertReadableArrayToList(readableArray: ReadableArray): List<Any?> {
         val list = mutableListOf<Any?>()
@@ -321,7 +320,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     }
 
     /**
-     * 🔄 Convert Map to WritableMap recursively
+     * Convert Map to WritableMap recursively
      */
     private fun convertMapToWritableMap(map: Map<String, Any?>): WritableMap {
         val writableMap = Arguments.createMap()
@@ -381,28 +380,10 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 }
                 notificationObserver = null
                 isListening = false
-                Log.d(TAG, "🧹 Cleaned up SCLoans event listeners on destroy")
+                Log.d(TAG, "Cleaned up SCLoans event listeners on destroy")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error during cleanup", e)
-        }
-    }
-
-    /**
-     * 📋 Get supported events (for documentation)
-     */
-    @ReactMethod
-    fun getSupportedEvents(promise: Promise) {
-        try {
-            val events = Arguments.createArray().apply {
-                pushString(ANALYTICS_EVENT)
-                pushString(SUPER_PROPERTIES_UPDATED)
-                pushString(USER_RESET)
-                pushString(USER_IDENTIFY)
-            }
-            promise.resolve(events)
-        } catch (e: Exception) {
-            promise.reject("GET_EVENTS_ERROR", e.message, e)
+            Log.e(TAG, "Error during cleanup", e)
         }
     }
 }

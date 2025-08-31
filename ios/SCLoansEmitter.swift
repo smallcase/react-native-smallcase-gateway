@@ -14,6 +14,7 @@ class SCLoansEmitter: RCTEventEmitter {
     super.init()
     SCLoansEmitter.shared = self
     print("SCLoansEmitter: Initialized.")
+    self.startListening()
   }
   
   deinit {
@@ -22,7 +23,6 @@ class SCLoansEmitter: RCTEventEmitter {
   }
   
   // MARK: - RCTEventEmitter Overrides
-  
   override func supportedEvents() -> [String]! {
     return [
       "scloans_notification",
@@ -152,8 +152,8 @@ class SCLoansEmitter: RCTEventEmitter {
     // Only send events that are in our supportedEvents list
     let supportedEventsList = supportedEvents() ?? []
     if supportedEventsList.contains(type) {
-      self.sendEvent(withName: type, body: data)
-      print("SCLoansEmitter: Emitted event '\(type)' with data: \(data).")
+      self.sendEvent(withName: "scloans_notification", body: data)
+      print("SCLoansEmitter: Emitted event scloans_notification :-'\(type)' with data: \(data).")
     } else {
       print("SCLoansEmitter: Skipping unsupported event type: \(type)")
     }
@@ -176,7 +176,7 @@ class SCLoansEmitter: RCTEventEmitter {
     DispatchQueue.main.async {
       let supportedEventsList = shared?.supportedEvents() ?? []
       if supportedEventsList.contains(name) {
-        shared?.sendEvent(withName: name, body: data)
+        shared?.sendEvent(withName: "scloans_notification", body: data)
         print("SCLoansEmitter: Event '\(name)' sent to React Native.")
       } else {
         print("SCLoansEmitter: Skipping unsupported static event: \(name)")
