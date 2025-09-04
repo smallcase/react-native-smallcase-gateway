@@ -26,7 +26,6 @@ export class SCGatewayEvents {
       if (nativeModule) {
         this.eventEmitter = new NativeEventEmitter(nativeModule);
         this.isInitialized = true;
-        console.log('[SCGatewayEvents] Initialized for', Platform.OS);
       } else {
         console.warn('[SCGatewayEvents] Native module not found for', Platform.OS);
       }
@@ -43,8 +42,6 @@ export class SCGatewayEvents {
 
     try {
       const subscription = this.eventEmitter.addListener("scg_notification", (eventData) => {
-        console.log('[SCGatewayEvents] Raw event received:', eventData);
-        
         if (!eventData) {
           console.warn('[SCGatewayEvents] Received null/undefined event data');
           return;
@@ -57,14 +54,11 @@ export class SCGatewayEvents {
           timestamp: eventData.timestamp || Date.now(),
           ...eventData 
         };
-
-        console.log('[SCGatewayEvents] Normalized event:', normalizedEvent);
         callback(normalizedEvent);
       });
 
       this.subscriptions.push(subscription);
-      
-      console.log('[SCGatewayEvents] Subscribed to gateway events');
+
       return subscription;
     } catch (error) {
       console.error('[SCGatewayEvents] Subscription failed:', error);
@@ -81,8 +75,6 @@ export class SCGatewayEvents {
         if (index > -1) {
           this.subscriptions.splice(index, 1);
         }
-        
-        console.log('[SCGatewayEvents] Unsubscribed from event');
       } catch (error) {
         console.error('[SCGatewayEvents] Unsubscribe error:', error);
       }
@@ -99,16 +91,19 @@ export class SCGatewayEvents {
 
       this.subscriptions = [];
       this.listeners.clear();
-      console.log('[SCGatewayEvents] All listeners cleaned up');
     } catch (error) {
       console.error('[SCGatewayEvents] Cleanup error:', error);
     }
   }
 
+  hasNoActiveSubscriptions() {
+    return this.subscriptions.length === 0;
+  }
+
   stopListening() {
     this.cleanup();
   }
-}
+  }
 
 const scGatewayEventManager = new SCGatewayEvents();
 

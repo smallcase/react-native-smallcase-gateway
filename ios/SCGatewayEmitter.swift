@@ -1,65 +1,57 @@
 import Foundation
 import React
-
-// Protocol to avoid direct dependency on SCGateway
-// @objc protocol SCGatewayProtocol {
-//     @objc var scgNotificationName: Notification.Name { get }
-//     @objc static var shared: SCGatewayProtocol { get }
-// }
+import SCGateway
 
 @objc(SCGatewayEmitter)
 class SCGatewayEmitter: RCTEventEmitter {
     
-    // MARK: - Static Properties
     private static var shared: SCGatewayEmitter?
     private var isListening = false
     private var notificationObserver: NSObjectProtocol?
     
-    // MARK: - Lifecycle
+    // MARK: - Local Constants (copied from native SDK)
+    private struct SCGatewayNotificationConstants {
+        static let payloadKey = "payload"
+        static let strigifiedPayloadKey = "payload_str"
+        static let scgNotificationName = "scg_notification"
+        
+        // Notification types
+        static let analyticsEvent = "scgateway_analytics_event"
+        static let superPropertiesUpdated = "scgateway_super_properties_updated"
+        static let userReset = "scgateway_user_reset"
+        static let userIdentify = "scgateway_user_identify"
+    }
     
     override init() {
         super.init()
-        SCGatewayEmitter.shared = self // for making this a singleton
+        SCGatewayEmitter.shared = self
         print("SCGatewayEmitter: Initialized.")
-        self.startListening()
     }
     
     deinit {
         print("SCGatewayEmitter: Deinitializing.")
-        self.stopListening()
+        stopListeningToNotifications()
     }
     
-    // MARK: - RCTEventEmitter Override Methods
-    
-    override func supportedEvents() -> [String]! { // only 1 event scg_notifi as mentioned
-    // clean it
-        return [
-            "scg_notification"
-            // // only single 
-            // "scgateway_analytics_event",
-            // "scgateway_super_properties_updated",
-            // "scgateway_user_reset",
-            // "scgateway_user_identify"
-        ]
+    override func supportedEvents() -> [String]! {
+        return [SCGatewayNotificationConstants.scgNotificationName]
     }
     
     override func startObserving() {
         super.startObserving()
-        print("SCGatewayEmitter: startObserving called.")
-        startListening()
+        print("SCGatewayEmitter: React Native bridge startObserving called.")
+        startListeningToNotifications()
     }
     
     override func stopObserving() {
         super.stopObserving()
-        print("SCGatewayEmitter: stopObserving called.")
-        stopListening()
+        print("SCGatewayEmitter: React Native bridge stopObserving called.")
+        stopListeningToNotifications()
     }
     
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-    
-    // MARK: - Public Methods Exposed to React Native
     
     @objc func startListening(
         _ resolve: @escaping RCTPromiseResolveBlock,
@@ -67,7 +59,7 @@ class SCGatewayEmitter: RCTEventEmitter {
     ) {
         print("SCGatewayEmitter: React Native requested startListening.")
         DispatchQueue.main.async { [weak self] in
-            let success = self?.startListening() ?? false
+            let success = self?.startListeningToNotifications() ?? false
             if success {
                 print("SCGatewayEmitter: Successfully started listening from React Native request.")
                 resolve("Started listening to SCGateway events")
@@ -84,34 +76,42 @@ class SCGatewayEmitter: RCTEventEmitter {
     ) {
         print("SCGatewayEmitter: React Native requested stopListening.")
         DispatchQueue.main.async { [weak self] in
-            self?.stopListening()
+            self?.stopListeningToNotifications()
             print("SCGatewayEmitter: Successfully stopped listening from React Native request.")
             resolve("Stopped listening to SCGateway events")
         }
     }
     
-    // MARK: - Private Methods
+    @objc func getDebugInfo(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let debugInfo: [String: Any] = [
+            "isListening": isListening,
+            "hasObserver": notificationObserver != nil,
+            "supportedEvents": supportedEvents() ?? [],
+            "notificationName": SCGatewayNotificationConstants.scgNotificationName,
+            "payloadKey": SCGatewayNotificationConstants.payloadKey,
+            "stringifiedPayloadKey": SCGatewayNotificationConstants.strigifiedPayloadKey,
+            "scgNotificationName": SCGatewayNotificationConstants.scgNotificationName
+        ]
+        print("SCGatewayEmitter: Debug info: \(debugInfo).")
+        resolve(debugInfo)
+    }
     
     @discardableResult
-    private func startListening() -> Bool {
-        print("SCGatewayEmitter: Private startListening called.")
+    private func startListeningToNotifications() -> Bool {
+        print("SCGatewayEmitter: Starting to listen for notifications.")
+        
         guard !isListening else {
             print("SCGatewayEmitter: Already listening, no action needed.")
             return true
-        }
+        }   
         
-        // Remove any existing observer first
-        stopListening()
+        self.stopListeningToNotifications()
         
-//        // Try to get SCGateway using runtime lookup
-//        guard let notificationName = getSCGatewayNotificationName() else {
-//            print("SCGatewayEmitter: Could not get SCGateway notification name, cannot start listening.")
-//            return false
-//        }
-        
-        // Add observer for SCGateway notifications
         notificationObserver = NotificationCenter.default.addObserver(
-            forName: getSCGatewayNotificationName(),
+            forName: Notification.Name(SCGatewayNotificationConstants.scgNotificationName),
             object: nil,
             queue: .main
         ) { [weak self] notification in
@@ -119,14 +119,14 @@ class SCGatewayEmitter: RCTEventEmitter {
         }
         
         isListening = true
-        
-        print("SCGatewayEmitter: Started listening to notifications with name: \(getSCGatewayNotificationName()).")
+        print("SCGatewayEmitter: Started listening to notifications with name: \(SCGatewayNotificationConstants.scgNotificationName).")
         
         return true
     }
     
-    private func stopListening() {
-        print("SCGatewayEmitter: Private stopListening called.")
+    private func stopListeningToNotifications() {
+        print("SCGatewayEmitter: Stopping listening for notifications.")
+        
         guard isListening, let observer = notificationObserver else { 
             print("SCGatewayEmitter: Not listening or no observer, no action needed.")
             return 
@@ -139,37 +139,82 @@ class SCGatewayEmitter: RCTEventEmitter {
         print("SCGatewayEmitter: Stopped listening to notifications.")
     }
     
-    private func getSCGatewayNotificationName() -> Notification.Name {
-    return Notification.Name("scg_notification")
-    }
-    
     private func handleSCGatewayNotification(_ notification: Notification) {
-        print("SCGatewayEmitter: Handling SCGateway notification.")
-      guard let jsonString = notification.userInfo?["payload_str"] as? String else {
-            print("SCGatewayEmitter: Invalid notification object - expected JSON string, got: \(type(of: notification.object)).")
+        let name = notification.name
+        let userInfo = notification.userInfo ?? [:]
+        
+        print("📡 handleSCGatewayNotification triggered:")
+        print("🔹 name: \(name)")
+        print("🔹 userInfo keys: \(userInfo.keys)")
+        
+        // Try to get the stringified payload using our local constant
+        guard let jsonString = userInfo[SCGatewayNotificationConstants.strigifiedPayloadKey] as? String else {
+            print("SCGatewayEmitter: No stringified payload found with key '\(SCGatewayNotificationConstants.strigifiedPayloadKey)'")
+            
+            // Fallback: try to find any string value in userInfo that could be JSON
+            if let foundJsonString = findJsonStringInUserInfo(userInfo) {
+                print("SCGatewayEmitter: Found potential JSON string in userInfo")
+                processJsonString(foundJsonString)
+                return
+            }
+            
+            // Final fallback: try the regular payload key
+            if let payloadData = userInfo[SCGatewayNotificationConstants.payloadKey] {
+                print("SCGatewayEmitter: Found payload data with key '\(SCGatewayNotificationConstants.payloadKey)': \(type(of: payloadData))")
+                processPayloadData(payloadData)
+                return
+            }
+            
+            print("SCGatewayEmitter: No valid payload found in notification")
             return
         }
-        print("SCGatewayEmitter: Received JSON string: \(jsonString).")
         
-        // Parse the JSON string to extract notification details
+        print("SCGatewayEmitter: Received JSON string: \(jsonString).")
+        processJsonString(jsonString)
+    }
+    
+    private func findJsonStringInUserInfo(_ userInfo: [AnyHashable: Any]) -> String? {
+        for (key, value) in userInfo {
+            if let stringValue = value as? String,
+               stringValue.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("{") {
+                print("SCGatewayEmitter: Found JSON-like string with key '\(key)'")
+                return stringValue
+            }
+        }
+        return nil
+    }
+    
+    private func processJsonString(_ jsonString: String) {
         guard let notificationData = parseNotificationJSON(jsonString) else {
             print("SCGatewayEmitter: Failed to parse notification JSON: \(jsonString).")
             return
         }
+        
         print("SCGatewayEmitter: Successfully parsed notification data: \(notificationData).")
         
-        // Map notification type to React Native event name
-        let eventName: String = mapNotificationTypeToEventName(notificationData["type"] as? String)
-        print("SCGatewayEmitter: Mapped notification type to event name: \(eventName).")
+        sendEvent(withName: SCGatewayNotificationConstants.scgNotificationName, body: notificationData)
         
-        // Emit the event to React Native
-        sendEvent(withName:  "scg_notification", body: notificationData)
+        print("SCGatewayEmitter: Emitted event '\(SCGatewayNotificationConstants.scgNotificationName)' with data: \(notificationData).")
+    }
+    
+    private func processPayloadData(_ payloadData: Any) {
+        var data: [String: Any] = [:]
         
-        print("SCGatewayEmitter: Emitted event '\(eventName)' with data: \(notificationData).")
+        if let dictData = payloadData as? [String: Any] {
+            data = dictData
+        } else if let stringData = payloadData as? String {
+            data = parseNotificationJSON(stringData) ?? ["raw_payload": stringData]
+        } else {
+            data = ["raw_payload": String(describing: payloadData)]
+        }
+        
+        sendEvent(withName: SCGatewayNotificationConstants.scgNotificationName, body: data)
+        print("SCGatewayEmitter: Emitted event with processed data: \(data).")
     }
     
     private func parseNotificationJSON(_ jsonString: String) -> [String: Any]? {
         print("SCGatewayEmitter: Parsing notification JSON string.")
+        
         guard let jsonData = jsonString.data(using: .utf8) else {
             print("SCGatewayEmitter: Could not convert JSON string to data.")
             return nil
@@ -185,50 +230,20 @@ class SCGatewayEmitter: RCTEventEmitter {
         }
     }
     
-   private func mapNotificationTypeToEventName(_ type: String?) -> String {
-    print("SCGatewayEmitter: Mapping notification type to event name. Type: \(type ?? "nil").")
-    
-    guard let rawType = type else {
-        print("SCGatewayEmitter: No event type found, using unknown_event.")
-        return "scgateway_unknown_event"
-    }
-
-    let trimmedType = rawType.trimmingCharacters(in: .whitespacesAndNewlines)
-    print("SCGatewayEmitter: Trimmed event type: '\(trimmedType)'")
-
-    switch trimmedType {
-    case "scgateway_analytics_event":
-        print("SCGatewayEmitter: Mapped to analytics_event.")
-        return "scgateway_analytics_event"
-    case "scgateway_analytics_super_properties_updated":
-        print("SCGatewayEmitter: Mapped to super_properties_updated.")
-        return "scgateway_super_properties_updated"
-    case "scgateway_user_reset":
-        print("SCGatewayEmitter: Mapped to user_reset.")
-        return "scgateway_user_reset"
-    case "scgateway_user_identify":
-        print("SCGatewayEmitter: Mapped to user_identify.")
-        return "scgateway_user_identify"
-    default:
-        print("SCGatewayEmitter: Unknown event type: \(trimmedType), using unknown_event.")
-        return "scgateway_unknown_event"
-    }
-}
-
-    
-    // MARK: - Static Helper Methods for External Access
+    // MARK: - Static API (Optional External Access)
     
     static func emitEvent(name: String, data: [String: Any]) {
-        print("SCGatewayEmitter: Static emitEvent called for event: \(name).")
         DispatchQueue.main.async {
-            shared?.sendEvent(withName: "scg_notification", body: data)
-            print("SCGatewayEmitter: Event '\(name)' sent to React Native.")
+            if let shared = shared {
+                shared.sendEvent(withName: SCGatewayNotificationConstants.scgNotificationName, body: data)
+                print("SCGatewayEmitter: Static event '\(name)' sent to React Native.")
+            } else {
+                print("SCGatewayEmitter: Cannot send static event - emitter not initialized.")
+            }
         }
     }
     
     static func isCurrentlyListening() -> Bool {
-        let status = shared?.isListening ?? false
-        print("SCGatewayEmitter: isCurrentlyListening called. Status: \(status).")
-        return status
+        return shared?.isListening ?? false
     }
 }

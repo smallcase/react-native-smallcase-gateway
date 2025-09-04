@@ -2,11 +2,11 @@ import { NativeModules, Platform } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
-import scGatewayEventManager, { SCGatewayEventTypes } from './SCGatewayEventEmitter';
-
+import scGatewayEventManager from './SCGatewayEventEmitter';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
+ *
  * @typedef {Object} envConfig
  * @property {string}        gatewayName     - unique name on consumer
  * @property {boolean}       isLeprechaun    - leprechaun mode toggle
@@ -25,23 +25,16 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} email - email of user
  * @property {String} contact - contact of user
  * @property {String} pinCode - pin-code of user
+ *
+ * @typedef {Object} SmallplugUiConfig
+ * @property {String} headerColor - color of the header background
+ * @property {Number} headerOpacity - opacity of the header background
+ * @property {String} backIconColor - color of the back icon
+ * @property {Number} backIconOpacity - opacity of the back icon
+ *
  */
 
 let defaultBrokerList = [];
-
-// 🎯 Gateway Event Types Constants (for backward compatibility)
-const EVENT_TYPES = {
-  ANALYTICS_EVENT: 'scg_analytics_event',
-  SUPER_PROPS_UPDATED: 'scg_analytics_super_props', 
-  USER_RESET: 'scg_user_reset',
-  USER_IDENTIFY: 'scg_user_identify',
-  TRANSACTION_SUCCESS: 'scg_transaction_success',
-  TRANSACTION_FAILED: 'scg_transaction_failed',
-  LEADGEN_SUCCESS: 'scg_leadgen_success',
-  LEADGEN_FAILED: 'scg_leadgen_failed'
-};
-
-// ===== CORE SDK METHODS =====
 
 /**
  * configure the sdk with
@@ -69,7 +62,7 @@ const setConfigEnvironment = async (envConfig) => {
 
   defaultBrokerList = safeBrokerList;
 
-  return SmallcaseGatewayNative.setConfigEnvironment(
+  await SmallcaseGatewayNative.setConfigEnvironment(
     safeEnvName,
     safeGatewayName,
     safeIsLeprechaun,
@@ -80,6 +73,8 @@ const setConfigEnvironment = async (envConfig) => {
 
 /**
  * initialize sdk with a session
+ *
+ * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
  */
 const init = async (sdkToken) => {
@@ -89,6 +84,7 @@ const init = async (sdkToken) => {
 
 /**
  * triggers a transaction with a transaction id
+ *
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
@@ -111,7 +107,10 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
 };
 
 /**
+ * triggers a transaction with a transaction id
  * @deprecated triggerMfTransaction will be removed soon. Please use triggerTransaction.
+ * @param {string} transactionId
+ * @returns {Promise<transactionRes>}
  */
 const triggerMfTransaction = async (transactionId) => {
   console.warn(
@@ -125,6 +124,9 @@ const triggerMfTransaction = async (transactionId) => {
 
 /**
  * launches smallcases module
+ *
+ * @param {string} targetEndpoint
+ * @param {string} params
  */
 const launchSmallplug = async (targetEndpoint, params) => {
   const safeEndpoint = typeof targetEndpoint === 'string' ? targetEndpoint : '';
@@ -134,7 +136,14 @@ const launchSmallplug = async (targetEndpoint, params) => {
 };
 
 /**
- * launches smallcases module with branding
+ * launches smallcases module
+ *
+ * @param {string} targetEndpoint
+ * @param {string} params
+ * @param {string} headerColor
+ * @param {number} headerOpacity
+ * @param {string} backIconColor
+ * @param {number} backIconOpacity
  */
 const launchSmallplugWithBranding = async (
   targetEndpoint,
@@ -182,6 +191,10 @@ const launchSmallplugWithBranding = async (
 
 /**
  * Logs the user out and removes the web session.
+ *
+ * This promise will be rejected if logout was unsuccessful
+ *
+ * @returns {Promise}
  */
 const logoutUser = async () => {
   return SmallcaseGatewayNative.logoutUser();
@@ -189,6 +202,8 @@ const logoutUser = async () => {
 
 /**
  * This will display a list of all the orders that a user recently placed.
+ * This includes pending, successful, and failed orders.
+ * @returns
  */
 const showOrders = async () => {
   return SmallcaseGatewayNative.showOrders();
@@ -196,6 +211,9 @@ const showOrders = async () => {
 
 /**
  * triggers the lead gen flow
+ *
+ * @param {userDetails} [userDetails]
+ * @param {Object} [utmParams]
  */
 const triggerLeadGen = (userDetails, utmParams) => {
   const safeParams = safeObject(userDetails);
@@ -205,15 +223,24 @@ const triggerLeadGen = (userDetails, utmParams) => {
 };
 
 /**
- * triggers the lead gen flow with status
+ * triggers the lead gen flow
+ *
+ * @param {userDetails} [userDetails]
+ * * @returns {Promise}
  */
 const triggerLeadGenWithStatus = async (userDetails) => {
   const safeParams = safeObject(userDetails);
+
   return SmallcaseGatewayNative.triggerLeadGenWithStatus(safeParams);
 };
 
 /**
- * triggers the lead gen flow with login CTA
+ * triggers the lead gen flow with an option of "login here" cta
+ *
+ * @param {userDetails} [userDetails]
+ * @param {Object} [utmParams]
+ * @param {boolean} [showLoginCta]
+ * @returns {Promise}
  */
 const triggerLeadGenWithLoginCta = async (
   userDetails,
@@ -233,56 +260,51 @@ const triggerLeadGenWithLoginCta = async (
 
 /**
  * Marks a smallcase as archived
+ *
+ * @param {String} iscid
  */
 const archiveSmallcase = async (iscid) => {
   const safeIscid = typeof iscid === 'string' ? iscid : '';
+
   return SmallcaseGatewayNative.archiveSmallcase(safeIscid);
 };
 
 /**
  * Returns the native android/ios and react-native sdk version
+ * (internal-tracking)
+ * @returns {Promise}
  */
 const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
-// ===== 🎯 GATEWAY EVENT METHODS =====
-
+// ===== GATEWAY EVENT METHODS =====
 /**
- * 🎧 Start listening to Gateway Events via single notification channel
+ * Subscribe to Gateway Events
  * @param {function} callback - Callback function to handle all gateway events
  * @returns {object} subscription - Subscription object with remove() method
  */
-const startGatewayEventListening = (callback) => {
+const subscribeToGatewayEvents = (callback) => {
   return scGatewayEventManager.subscribe(callback);
 };
 
 /**
- * 🔕 Unsubscribe from Gateway Event
- * @param {object} subscription - Subscription returned from startGatewayEventListening
+ * Unsubscribe from Gateway Events
+ * @param {object} subscription - Subscription returned from subscribeToGatewayEvents
  */
-const unsubscribeFromGatewayEvent = (subscription) => {
+const unsubscribeFromGatewayEvents = (subscription) => {
   scGatewayEventManager.unsubscribe(subscription);
-};
-
-/**
- * 🧹 Clean up all Gateway Event listeners
- */
-const cleanupGatewayEvents = () => {
-  scGatewayEventManager.cleanup();
-};
-
-/**
- * 🎯 Stop all Gateway Event listening
- */
-const stopGatewayEventListening = () => {
-  scGatewayEventManager.stopListening();
+  
+  // Auto-cleanup if no more active subscriptions
+  if (scGatewayEventManager.hasNoActiveSubscriptions()) {
+    scGatewayEventManager.cleanup();
+    scGatewayEventManager.stopListening();
+  }
 };
 
 // ===== MAIN EXPORT =====
-
 const SmallcaseGateway = {
-  // 🎯 Core SDK methods
+  // Core SDK methods
   init,
   logoutUser,
   triggerLeadGen,
@@ -296,17 +318,10 @@ const SmallcaseGateway = {
   launchSmallplugWithBranding,
   getSdkVersion,
   showOrders,
-  
-  // 🎯 Gateway Event System (NEW - Unified)
-  gatewayEventManager: scGatewayEventManager,
-  gatewayEventTypes: SCGatewayEventTypes,
-  startGatewayEventListening,
-  unsubscribeFromGatewayEvent,
-  cleanupGatewayEvents,
-  stopGatewayEventListening,
-  
-  // 🎯 Legacy Event Support (for backward compatibility)
-  eventTypes: EVENT_TYPES,
+     
+  // Gateway Event System
+  subscribeToGatewayEvents,
+  unsubscribeFromGatewayEvents,
 };
 
 export default SmallcaseGateway;

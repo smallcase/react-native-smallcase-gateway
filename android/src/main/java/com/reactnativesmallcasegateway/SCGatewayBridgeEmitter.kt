@@ -7,6 +7,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.bridge.UiThreadUtil
 import com.smallcase.gateway.data.listeners.NotificationCenter
 import com.smallcase.gateway.data.listeners.Notification
+import com.smallcase.gateway.portal.SmallcaseGatewaySdk
+import com.smallcase.gateway.portal.ScgNotification
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import java.math.BigDecimal
@@ -16,10 +18,10 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
-        const val ANALYTICS_EVENT = "scgateway_analytics_event"
-        const val SUPER_PROPERTIES_UPDATED = "scgateway_super_properties_updated"
-        const val USER_RESET = "scgateway_user_reset"
-        const val USER_IDENTIFY = "scgateway_user_identify"
+        const val ANALYTICS_EVENT = ScgNotification.ANALYTICS_EVENT
+        const val SUPER_PROPERTIES_UPDATED = ScgNotification.SUPER_PROPS_UPDATED
+        const val USER_RESET = ScgNotification.USER_RESET
+        const val USER_IDENTIFY = ScgNotification.USER_IDENTIFY
     }
 
     private var isListening = false
@@ -91,13 +93,13 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 Log.d("DEBUG_ALL_EVENTS", "All notifications: ${notification.name}")
             }
 
-            // Create notification observer for scg_notification only
+            // Created notification observer
             notificationObserver = { notification ->
                 Log.d(TAG, "Received notification: ${notification.name}")
                 
                 try {
                     // Only process scg_notification - single way to subscribe
-                    if (notification.name == "scg_notification") {
+                    if (notification.name == SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME) {
                         Log.d(TAG, "Processing scg_notification")
                         processScgNotification(notification)
                     }
@@ -165,7 +167,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             
             val eventData = if (notification.userInfo != null) {
                 // Try different payload keys
-                val payloadJson = notification.userInfo!!["payload_str"] as? String
+                val payloadJson = notification.userInfo!![ScgNotification.STRINGIFIED_PAYLOAD_KEY] as? String
                     ?: notification.userInfo!!["payload"] as? String
                     ?: notification.userInfo!!["data"] as? String
                 
@@ -185,29 +187,23 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
             // Ensure eventData has required fields
             if (eventData != null) {
                 if (!eventData.hasKey("eventType")) {
-                    eventData.putString("eventType", "scg_notification")
+                    eventData.putString("eventType", SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME)
                 }
                 if (!eventData.hasKey("type")) {
-                    eventData.putString("type", eventData.getString("eventType") ?: "scg_notification")
+                    eventData.putString("type", eventData.getString("eventType") ?: SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME)
                 }
-                if (!eventData.hasKey("timestamp")) {
-                    eventData.putDouble("timestamp", System.currentTimeMillis().toDouble())
-                }
-                eventData.putString("source", "android")
                 
                 Log.d(TAG, "Sending processed SCG notification")
-                sendEvent("scg_notification", eventData)
+                sendEvent(SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME, eventData)
             } else {
                 Log.e(TAG, "Failed to create event data for SCG notification")
                 // Send a minimal fallback event
                 val fallbackEvent = Arguments.createMap().apply {
-                    putString("eventType", "scg_notification")
-                    putString("type", "scg_notification")
-                    putDouble("timestamp", System.currentTimeMillis().toDouble())
-                    putString("source", "android")
+                    putString("eventType", SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME)
+                    putString("type", SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME)
                     putString("error", "Failed to process notification data")
                 }
-                sendEvent("scg_notification", fallbackEvent)
+                sendEvent(SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME, fallbackEvent)
             }
             
         } catch (e: Exception) {
@@ -217,11 +213,9 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                 val errorEvent = Arguments.createMap().apply {
                     putString("eventType", "scg_notification_error")
                     putString("type", "scg_notification_error")
-                    putDouble("timestamp", System.currentTimeMillis().toDouble())
-                    putString("source", "android")
                     putString("error", e.message ?: "Unknown error processing notification")
                 }
-                sendEvent("scg_notification", errorEvent)
+                sendEvent(SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME, errorEvent)
             } catch (fallbackError: Exception) {
                 Log.e(TAG, "Failed to send error event", fallbackError)
             }

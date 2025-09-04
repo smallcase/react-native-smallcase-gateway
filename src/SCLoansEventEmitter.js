@@ -19,7 +19,6 @@ export class SCLoansEvents {
 
     this.initialize();
   }
-
   initialize() {
     try {
         const nativeModule = NativeModules.SCLoansBridgeEmitter;
@@ -27,7 +26,6 @@ export class SCLoansEvents {
       if (nativeModule) {
         this.eventEmitter = new NativeEventEmitter(nativeModule);
         this.isInitialized = true;
-        console.log('[SCLoansEvents] Initialized for', Platform.OS);
       } else {
         console.warn('[SCLoansEvents] Native module not found for', Platform.OS);
       }
@@ -44,8 +42,6 @@ export class SCLoansEvents {
 
     try {
       const subscription = this.eventEmitter.addListener('scloans_notification', (eventData) => {
-        console.log('[SCLoansEvents] Raw event received:', eventData);
-        
         if (!eventData) {
           console.warn('[SCLoansEvents] Received null/undefined event data');
           return;
@@ -58,14 +54,11 @@ export class SCLoansEvents {
           timestamp: eventData.timestamp || Date.now(),
           ...eventData
         };
-
-        console.log('[SCLoansEvents] Normalized event:', normalizedEvent);
         callback(normalizedEvent);
       });
 
       this.subscriptions.push(subscription);
       
-      console.log('SCLoansEvents Subscribed to gateway events');
       return subscription;
     } catch (error) {
       console.error('SCLoansEvents Subscription failed:', error);
@@ -82,8 +75,6 @@ export class SCLoansEvents {
         if (index > -1) {
           this.subscriptions.splice(index, 1);
         }
-        
-        console.log('SCLoansEvents Unsubscribed from event');
       } catch (error) {
         console.error('SCLoansEvents Unsubscribe error:', error);
       }
@@ -101,10 +92,17 @@ export class SCLoansEvents {
 
       this.subscriptions = [];
       this.listeners.clear();
-      console.log('[SCLoansEvents] All listeners cleaned up');
     } catch (error) {
       console.error('[SCLoansEvents] Cleanup error:', error);
     }
+  }
+
+  hasNoActiveSubscriptions() {
+    return this.subscriptions.length === 0;
+  }
+
+  stopListening() {
+    this.cleanup();
   }
 }
 

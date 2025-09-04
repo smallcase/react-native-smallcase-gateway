@@ -4,12 +4,17 @@ import React
 @objc(SCLoansEmitter)
 class SCLoansEmitter: RCTEventEmitter {
   
-  // MARK: - Static Properties
   private static var shared: SCLoansEmitter?
   private var isListening = false
   private var notificationObserver: NSObjectProtocol?
+  private struct SCLoansNotificationConstants {
+    static let loanNotification = "scloans_notification"
+    static let userReset = "scloans_user_reset"
+    static let userIdentify = "scloans_user_identify"
+    static let payloadKey = "payload"
+    static let strigifiedPayloadKey = "payload_str"
+  }
   
-  // MARK: - Lifecycle
   override init() {
     super.init()
     SCLoansEmitter.shared = self
@@ -22,10 +27,9 @@ class SCLoansEmitter: RCTEventEmitter {
     self.stopListening()
   }
   
-  // MARK: - RCTEventEmitter Overrides
   override func supportedEvents() -> [String]! {
     return [
-      "scloans_notification",
+      SCLoansNotificationConstants.loanNotification,
     ]
   }
   
@@ -44,8 +48,6 @@ class SCLoansEmitter: RCTEventEmitter {
   override static func requiresMainQueueSetup() -> Bool {
     return true
   }
-  
-  // MARK: - Public Methods (Exposed to React Native)
   
   @objc func startListening(
     _ resolve: @escaping RCTPromiseResolveBlock,
@@ -79,7 +81,9 @@ class SCLoansEmitter: RCTEventEmitter {
       "isListening": isListening,
       "hasObserver": notificationObserver != nil,
       "supportedEvents": supportedEvents() ?? [],
-      "notificationName": "scloans_notification"
+      "notificationName": SCLoansNotificationConstants.loanNotification,
+      "payloadKey": SCLoansNotificationConstants.payloadKey,
+      "stringifiedPayloadKey": SCLoansNotificationConstants.strigifiedPayloadKey
     ]
     print("SCLoansEmitter: Debug info: \(debugInfo).")
     resolve(debugInfo)
@@ -88,7 +92,7 @@ class SCLoansEmitter: RCTEventEmitter {
   // MARK: - Private Methods
   
   @discardableResult
-  private func startListening() -> Bool { // add observer(startListening) in init and remove in deinit(stopListening)
+  private func startListening() -> Bool {
     guard !isListening else {
       print("SCLoansEmitter: Already listening.")
       return true
@@ -96,7 +100,7 @@ class SCLoansEmitter: RCTEventEmitter {
     
     self.stopListening()
     
-    let notificationName = Notification.Name("scloans_notification")
+    let notificationName = Notification.Name(SCLoansNotificationConstants.loanNotification)
     
     notificationObserver = NotificationCenter.default.addObserver(
       forName: notificationName,
@@ -123,47 +127,95 @@ class SCLoansEmitter: RCTEventEmitter {
   
   private func handleLoanNotification(_ notification: Notification) {
     let name = notification.name.rawValue
-       //let userInfo = notification.userInfo ?? [:]
-       // we can have a simple logic like first check if userInfo is empty or not, if not empty then try to look out for key like we can see which value of traversed key is a string. that is supposed to be our json string. use that key to access value from userInfo Dict of incoming notification event
-//       let userInfoString: String
-//       if let data = try? JSONSerialization.data(withJSONObject: userInfo, options: .prettyPrinted),
-//          let jsonString = String(data: data, encoding: .utf8) {
-//           userInfoString = jsonString
-//       } else {
-//           userInfoString = userInfo.description
-//       }
-       
-       print("📡 handleLoanNotification triggered:")
-       print("🔹 name: \(name)")
-      // print("🔹 userInfo:\n\(userInfoString)")
-  
-    guard let jsonString = notification.userInfo?["payload_str"] as? String else {
-          print("SCLoansEmitter: Invalid notification object - expected JSON string, got: \(type(of: notification.userInfo)).")
-          return
-      }
+    let userInfo = notification.userInfo ?? [:]
     
-    guard let data = parseJSON(jsonString) else {
-      print("SCLoansEmitter: Failed to parse JSON string.")
+    print("📡 handleLoanNotification triggered:")
+    print("🔹 name: \(name)")
+    print("🔹 userInfo keys: \(userInfo.keys)")
+    
+    // Try to get the stringified payload using our local constant
+    guard let jsonString = userInfo[SCLoansNotificationConstants.strigifiedPayloadKey] as? String else {
+      print("SCLoansEmitter: No stringified payload found with key '\(SCLoansNotificationConstants.strigifiedPayloadKey)'")
+      
+      // Fallback: try to find any string value in userInfo that could be JSON
+      if let foundJsonString = findJsonStringInUserInfo(userInfo) {
+        print("SCLoansEmitter: Found potential JSON string in userInfo")
+        processJsonString(foundJsonString)
+        return
+      }
+      
+      // Final fallback: try the regular payload key
+      if let payloadData = userInfo[SCLoansNotificationConstants.payloadKey] {
+        print("SCLoansEmitter: Found payload data with key '\(SCLoansNotificationConstants.payloadKey)': \(type(of: payloadData))")
+        processPayloadData(payloadData)
+        return
+      }
+      
+      print("SCLoansEmitter: No valid payload found in notification")
       return
     }
     
-    let type = "scloans_notification" // data["type"] as? String ??
+    processJsonString(jsonString)
+  }
+  
+  private func findJsonStringInUserInfo(_ userInfo: [AnyHashable: Any]) -> String? {
+    for (key, value) in userInfo {
+      if let stringValue = value as? String,
+         stringValue.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("{") {
+        print("SCLoansEmitter: Found JSON-like string with key '\(key)'")
+        return stringValue
+      }
+    }
+    return nil
+  }
+  
+  private func processJsonString(_ jsonString: String) {
+    guard let data = parseJSON(jsonString) else {
+      print("SCLoansEmitter: Failed to parse JSON string: \(jsonString)")
+      return
+    }
+    
+    let eventType = SCLoansNotificationConstants.loanNotification
     
     // Only send events that are in our supportedEvents list
     let supportedEventsList = supportedEvents() ?? []
-    if supportedEventsList.contains(type) {
-      self.sendEvent(withName: "scloans_notification", body: data)
-      print("SCLoansEmitter: Emitted event scloans_notification :-'\(type)' with data: \(data).")
+    if supportedEventsList.contains(eventType) {
+      self.sendEvent(withName: eventType, body: data)
+      print("SCLoansEmitter: Emitted event '\(eventType)' with data: \(data).")
     } else {
-      print("SCLoansEmitter: Skipping unsupported event type: \(type)")
+      print("SCLoansEmitter: Skipping unsupported event type: \(eventType)")
+    }
+  }
+  
+  private func processPayloadData(_ payloadData: Any) {
+    var data: [String: Any] = [:]
+    
+    if let dictData = payloadData as? [String: Any] {
+      data = dictData
+    } else if let stringData = payloadData as? String {
+      data = parseJSON(stringData) ?? ["raw_payload": stringData]
+    } else {
+      data = ["raw_payload": String(describing: payloadData)]
+    }
+    
+    let eventType = SCLoansNotificationConstants.loanNotification
+    let supportedEventsList = supportedEvents() ?? []
+    
+    if supportedEventsList.contains(eventType) {
+      self.sendEvent(withName: eventType, body: data)
+      print("SCLoansEmitter: Emitted event '\(eventType)' with processed data: \(data).")
     }
   }
   
   private func parseJSON(_ json: String) -> [String: Any]? {
-    guard let jsonData = json.data(using: .utf8) else { return nil }
+    guard let jsonData = json.data(using: .utf8) else { 
+      print("SCLoansEmitter: Failed to convert string to data")
+      return nil 
+    }
     
     do {
-      return try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any]
+      let parsed = try JSONSerialization.jsonObject(with: jsonData, options: [])
+      return parsed as? [String: Any]
     } catch {
       print("SCLoansEmitter: JSON parsing error: \(error)")
       return nil
@@ -174,10 +226,12 @@ class SCLoansEmitter: RCTEventEmitter {
   
   static func emitEvent(name: String, data: [String: Any]) {
     DispatchQueue.main.async {
+      let eventType = SCLoansNotificationConstants.loanNotification
       let supportedEventsList = shared?.supportedEvents() ?? []
-      if supportedEventsList.contains(name) {
-        shared?.sendEvent(withName: "scloans_notification", body: data)
-        print("SCLoansEmitter: Event '\(name)' sent to React Native.")
+      
+      if supportedEventsList.contains(eventType) {
+        shared?.sendEvent(withName: eventType, body: data)
+        print("SCLoansEmitter: Static event '\(name)' sent to React Native as '\(eventType)'.")
       } else {
         print("SCLoansEmitter: Skipping unsupported static event: \(name)")
       }
