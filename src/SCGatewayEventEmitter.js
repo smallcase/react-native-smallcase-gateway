@@ -16,62 +16,49 @@ export const SCGatewayEventTypes = {
 export class SCGatewayEvents {
   constructor() {
     this.eventEmitter = null;
-    this.listeners = new Map();
     this.subscriptions = [];
-    this.isInitialized = false;
-
     this.initialize();
   }
 
+  get isInitialized() {
+    return this.eventEmitter !== null;
+  }
+
   initialize() {
-    try {
-      const nativeModule = NativeModules.SCGatewayBridgeEmitter;
-      
-      if (!nativeModule) {
-        throw new Error(`Native module 'SCGatewayBridgeEmitter' not found for ${Platform.OS}. Make sure the native SDK is properly installed and linked.`);
-      }
-      
-      this.eventEmitter = new NativeEventEmitter(nativeModule);
-      this.isInitialized = true;
-    } catch (error) {
-      console.error('[SCGatewayEvents] Initialization failed:', error);
-      throw new Error(`SCGatewayEvents initialization failed: ${error.message}`);
-    }
+    const nativeModule = NativeModules.SCGatewayBridgeEmitter;
+    this.eventEmitter = new NativeEventEmitter(nativeModule);
   }
 
   subscribe(callback) {
-    if (!this.isInitialized || !this.eventEmitter) {
+    if (!this.isInitialized) {
       console.warn('[SCGatewayEvents] Event emitter not initialized');
       return null;
     }
 
-    try {
-      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCG_NOTIFICATION, (eventData) => {
-        if (!eventData) {
-          console.warn('[SCGatewayEvents] Received null/undefined event data');
-          return;
-        }
-
-        if (!eventData.type) {
-          console.warn('[SCGatewayEvents] Dropping event - missing event type:', eventData);
-          return;
-        }
-
-        const normalizedEvent = {
-          type: eventData.type,
-          data: eventData.data,
-          timestamp: eventData.timestamp || Date.now()
-        };
-        callback(normalizedEvent);
-      });
-
-      this.subscriptions.push(subscription);
-
-      return subscription;
-    } catch (error) {
-      console.error('[SCGatewayEvents] Subscription failed:', error);
+    if (typeof callback !== 'function') {
+      console.warn('[SCGatewayEvents] Invalid callback provided for subscription');
       return null;
     }
+
+    const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCG_NOTIFICATION, (eventData) => {
+      if (!eventData) {
+        console.warn('[SCGatewayEvents] Received null/undefined event data');
+        return;
+      }
+      if (!eventData.type) {
+        console.warn('[SCGatewayEvents] Dropping event - missing event type:', eventData);
+        return;
+      }
+      const normalizedEvent = {
+        type: eventData.type,
+        data: eventData.data,
+        timestamp: eventData.timestamp || Date.now()
+      };
+      callback(normalizedEvent);
+    });
+
+    this.subscriptions.push(subscription);
+    return subscription;
   }
 
   unsubscribe(subscription) {
@@ -96,7 +83,6 @@ export class SCGatewayEvents {
       });
 
       this.subscriptions = [];
-      this.listeners.clear();
     } catch (error) {
       console.error('[SCGatewayEvents] Cleanup error:', error);
     }
