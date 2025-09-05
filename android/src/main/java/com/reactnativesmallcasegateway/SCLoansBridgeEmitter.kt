@@ -22,8 +22,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         // Event types matching the ScLoanNotification constants
         const val ANALYTICS_EVENT = ScLoanNotification.ANALYTICS_EVENT
         const val SUPER_PROPERTIES_UPDATED = ScLoanNotification.SUPER_PROPS_UPDATED
-        const val USER_RESET = ScLoanNotification.USER_IDENTIFY
-        const val USER_IDENTIFY = ScLoanNotification.USER_RESET
     }
 
     private var isListening = false
@@ -32,7 +30,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     override fun getName(): String = "SCLoansBridgeEmitter"
 
     init {
-        Log.d(TAG, "SCLoansBridgeEmitter initialized - auto-starting listener")
         UiThreadUtil.runOnUiThread {
             startListeningInternal()
         }
@@ -41,10 +38,8 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     @ReactMethod
     fun startListening(promise: Promise) {
         try {
-            Log.d(TAG, "startListening called from React Native")
             
             if (isListening) {
-                Log.d(TAG, "Already listening to events")
                 promise.resolve("Already listening")
                 return
             }
@@ -66,26 +61,21 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     // Internal start listening method with debug logging
     private fun startListeningInternal(): Boolean {
         return try {
-            Log.d(TAG, "Starting internal listener on thread: ${Thread.currentThread().name}")
 
             if (isListening) {
-                Log.d(TAG, "Already listening")
                 return true
             }
 
             // Add debug observer for all notifications
             NotificationCenter.addObserver { notification ->
-                Log.d("DEBUG_ALL_EVENTS", "All notifications: ${notification.name}")
             }
 
             // Create notification observer for scloans_notification only
             notificationObserver = { notification ->
-                Log.d(TAG, "Received notification: ${notification.name}")
                 
                 try {
                     // Only process scloans_notification - single way to subscribe
                     if (notification.name == "scloans_notification") {
-                        Log.d(TAG, "Processing scloans_notification")
                         processScLoansNotification(notification)
                     }
                 } catch (e: Exception) {
@@ -96,7 +86,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             notificationObserver?.let { observer ->
                 NotificationCenter.addObserver(observer)
                 isListening = true
-                Log.d(TAG, "Successfully started listening for scloans_notification events")
                 true
             } ?: false
 
@@ -109,10 +98,8 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     @ReactMethod
     fun stopListening(promise: Promise) {
         try {
-            Log.d(TAG, "Stopping SCLoans event listening (on main thread? ${Looper.myLooper() == Looper.getMainLooper()})")
 
             if (!isListening) {
-                Log.d(TAG, "Not currently listening")
                 promise.resolve("Not listening")
                 return
             }
@@ -123,7 +110,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                         NotificationCenter.removeObserver(observer)
                         notificationObserver = null
                         isListening = false
-                        Log.d(TAG, "Successfully stopped listening for events")
                         promise.resolve("Stopped listening successfully")
                     } ?: run {
                         promise.resolve("No observer to remove")
@@ -156,7 +142,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
     @ReactMethod
     fun emitTestEvent(eventType: String, testData: ReadableMap?, promise: Promise) {
         try {
-            Log.d(TAG, "Emitting test event: $eventType")
 
             val payload = Arguments.createMap().apply {
                 putString("type", eventType)
@@ -180,16 +165,14 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
      */
     private fun processScLoansNotification(notification: Notification) {
         try {
-            Log.d(TAG, "SCLoansBridgeEmitter: Handling SCLoans notification")
             
             // Try to get the JSON string using "payload_str" key
-            val jsonString = notification.userInfo?.get(SCLoans.) as? String
+            val jsonString = notification.userInfo?.get(ScLoanNotification.STRINGIFIED_PAYLOAD_KEY) as? String
             if (jsonString == null) {
                 Log.e(TAG, "SCLoansBridgeEmitter: Invalid notification object - expected JSON string")
                 return
             }
             
-            Log.d(TAG, "SCLoansBridgeEmitter: Received JSON string: $jsonString")
             
             // Parse the JSON string to extract notification details
             val notificationData = parseNotificationJSON(jsonString)
@@ -198,18 +181,15 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 return
             }
             
-            Log.d(TAG, "SCLoansBridgeEmitter: Successfully parsed notification data")
             
             // Map notification type to React Native event name
             val notificationType = notificationData["type"] as? String
             val eventName = mapNotificationTypeToEventName(notificationType)
-            Log.d(TAG, "SCLoansBridgeEmitter: Mapped notification type to event name: $eventName")
             
             // Emit the event to React Native
             val eventPayload = convertMapToWritableMap(notificationData)
             sendEvent("scloans_notification", eventPayload)
             
-            Log.d(TAG, "SCLoansBridgeEmitter: Emitted event '$eventName' with data")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing SCLoans notification", e)
@@ -251,7 +231,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 reactContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                     .emit("scloans_notification", params)
-                Log.d(TAG, "Event sent to React Native: $eventName")
             } else {
                 Log.w(TAG, "React context not active, cannot send event: $eventName")
             }
@@ -379,7 +358,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 }
                 notificationObserver = null
                 isListening = false
-                Log.d(TAG, "Cleaned up SCLoans event listeners on destroy")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error during cleanup", e)
