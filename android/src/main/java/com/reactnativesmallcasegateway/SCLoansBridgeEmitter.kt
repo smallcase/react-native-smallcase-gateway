@@ -9,8 +9,8 @@ import com.facebook.react.bridge.UiThreadUtil
 import com.smallcase.loans.data.listeners.NotificationCenter
 import com.smallcase.loans.data.listeners.Notification
 import com.smallcase.loans.core.external.ScLoanNotification
-import com.smallcase.loans.core.external.ScLoan
 import com.google.gson.Gson
+import com.smallcase.loans.core.external
 import com.google.gson.JsonSyntaxException
 
 
@@ -22,6 +22,8 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         // Event types matching the ScLoanNotification constants
         const val ANALYTICS_EVENT = ScLoanNotification.ANALYTICS_EVENT
         const val SUPER_PROPERTIES_UPDATED = ScLoanNotification.SUPER_PROPS_UPDATED
+        const val USER_RESET = ScLoanNotification.USER_IDENTIFY
+        const val USER_IDENTIFY = ScLoanNotification.USER_RESET
     }
 
     private var isListening = false
@@ -82,7 +84,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 
                 try {
                     // Only process scloans_notification - single way to subscribe
-                    if (notification.name == ScLoan.SCLOANS_NOTIFICATION_NAME) {
+                    if (notification.name == "scloans_notification") {
                         Log.d(TAG, "Processing scloans_notification")
                         processScLoansNotification(notification)
                     }
@@ -162,7 +164,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 testData?.let { putMap("data", it) }
             }
 
-            sendEvent(ScLoan.SCLOANS_NOTIFICATION_NAME, payload)
+            sendEvent("scloans_notification", payload)
             promise.resolve("Test event emitted successfully")
 
         } catch (e: Exception) {
@@ -180,8 +182,8 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         try {
             Log.d(TAG, "SCLoansBridgeEmitter: Handling SCLoans notification")
             
-            // Try to get the JSON string using SCLOANS_NOTIFICATION_NAME key
-            val jsonString = notification.userInfo?.get(ScLoan.SCLOANS_NOTIFICATION_NAME) as? String
+            // Try to get the JSON string using "payload_str" key
+            val jsonString = notification.userInfo?.get(SCLoans.) as? String
             if (jsonString == null) {
                 Log.e(TAG, "SCLoansBridgeEmitter: Invalid notification object - expected JSON string")
                 return
@@ -205,7 +207,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             
             // Emit the event to React Native
             val eventPayload = convertMapToWritableMap(notificationData)
-            sendEvent(ScLoan.SCLOANS_NOTIFICATION_NAME, eventPayload)
+            sendEvent("scloans_notification", eventPayload)
             
             Log.d(TAG, "SCLoansBridgeEmitter: Emitted event '$eventName' with data")
             
@@ -237,6 +239,8 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
         return when (notificationType) {
             "scloans_analytics_event" -> ANALYTICS_EVENT
             "scloans_super_properties_updated" -> SUPER_PROPERTIES_UPDATED
+            "scloans_user_reset" -> USER_RESET
+            "scloans_user_identify" -> USER_IDENTIFY
             else -> notificationType ?: "unknown_event"
         }
     }
@@ -246,7 +250,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
             if (reactContext.hasActiveCatalystInstance()) {
                 reactContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit(ScLoan.SCLOANS_NOTIFICATION_NAME, params)
+                    .emit("scloans_notification", params)
                 Log.d(TAG, "Event sent to React Native: $eventName")
             } else {
                 Log.w(TAG, "React context not active, cannot send event: $eventName")

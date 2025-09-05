@@ -37,23 +37,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     @ReactMethod
-    fun getDebugInfo(promise: Promise) {
-        try {
-            val info = Arguments.createMap().apply {
-                putBoolean("hasActiveCatalystInstance", reactContext.hasActiveCatalystInstance())
-                putBoolean("isListening", isListening)
-                putBoolean("hasNotificationObserver", notificationObserver != null)
-                putString("currentThread", Thread.currentThread().name)
-                putBoolean("isMainThread", Looper.myLooper() == Looper.getMainLooper())
-            }
-            promise.resolve(info)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting debug info", e)
-            promise.reject("DEBUG_INFO_ERROR", e.message ?: "Unknown error", e)
-        }
-    }
-
-    @ReactMethod
     fun startListening(promise: Promise) {
         try {
             Log.d(TAG, "startListening called from React Native")

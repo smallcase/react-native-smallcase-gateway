@@ -31,6 +31,14 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {Number} headerOpacity - opacity of the header background
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
+ * 
+ * @typedef {Object} GatewayEvent
+ * @property {string} type - Event type
+ * @property {any} data - Event payload data
+ * @property {number} timestamp - Event timestamp
+ *
+ * @typedef {Object} GatewayEventSubscription
+ * @property {() => void} remove - Method to unsubscribe from gateway events
  *
  */
 
@@ -281,8 +289,8 @@ const getSdkVersion = async () => {
 // ===== GATEWAY EVENT METHODS =====
 /**
  * Subscribe to Gateway Events
- * @param {function} callback - Callback function to handle all gateway events
- * @returns {object} subscription - Subscription object with remove() method
+ * @param {(event: GatewayEvent) => void} callback - Callback function to handle gateway events
+ * @returns {GatewayEventSubscription} subscription - Subscription object with remove() method
  */
 const subscribeToGatewayEvents = (callback) => {
   return scGatewayEventManager.subscribe(callback);
@@ -290,7 +298,7 @@ const subscribeToGatewayEvents = (callback) => {
 
 /**
  * Unsubscribe from Gateway Events
- * @param {object} subscription - Subscription returned from subscribeToGatewayEvents
+ * @param {GatewayEventSubscription} subscription - Subscription returned from subscribeToGatewayEvents
  */
 const unsubscribeFromGatewayEvents = (subscription) => {
   scGatewayEventManager.unsubscribe(subscription);

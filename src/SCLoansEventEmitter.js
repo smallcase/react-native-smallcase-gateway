@@ -2,7 +2,10 @@
 
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
-// Gateway Event Types (as per native iOS + Android emitters)
+const EVENT_CHANNELS = {
+  SCLOANS_NOTIFICATION: 'scloans_notification',
+};
+
 export const SCLoansEventTypes = {
   ANALYTICS_EVENT: 'scloans_analytics_event',
   SUPER_PROPERTIES_UPDATED: 'scloans_super_properties_updated',
@@ -19,40 +22,45 @@ export class SCLoansEvents {
 
     this.initialize();
   }
+
   initialize() {
     try {
         const nativeModule = NativeModules.SCLoansBridgeEmitter;
       
-      if (nativeModule) {
-        this.eventEmitter = new NativeEventEmitter(nativeModule);
-        this.isInitialized = true;
-      } else {
-        console.warn('[SCLoansEvents] Native module not found for', Platform.OS);
+      if (!nativeModule) {
+        throw new Error(`Native module SCLoansBridgeEmitter not found for ${Platform.OS}. Make sure the native SDK is properly installed and linked.`);
       }
+      
+      this.eventEmitter = new NativeEventEmitter(nativeModule);
+      this.isInitialized = true;
     } catch (error) {
       console.error('[SCLoansEvents] Initialization failed:', error);
+      throw new Error(`SCLoansEvents initialization failed: ${error.message}`);
     }
   }
 
   subscribe(callback) {
-    if (!this.isInitialized || !this.eventEmitter) {
-      console.warn('[SCLoansEvents] Event emitter not initialized');
-      return null;
-    }
+  if (!this.isInitialized || !this.eventEmitter) {
+    console.warn('[SCLoansEvents] Event emitter not initialized');
+    return null;
+  }
 
     try {
-      const subscription = this.eventEmitter.addListener('scloans_notification', (eventData) => {
+      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCLOANS_NOTIFICATION, (eventData) => {
         if (!eventData) {
           console.warn('[SCLoansEvents] Received null/undefined event data');
           return;
         }
 
+        if (!eventData.type) {
+          console.warn('[SCLoansEvents] Dropping event - missing event type:', eventData);
+          return;
+        }
+
         const normalizedEvent = {
-          type: eventData.eventType || eventData.type || 'unknown_event',
-          eventType: eventData.eventType || eventData.type || 'unknown_event',
-          data: eventData.data || eventData,
-          timestamp: eventData.timestamp || Date.now(),
-          ...eventData
+          type: eventData.type,
+          data: eventData.data,
+          timestamp: eventData.timestamp || Date.now()
         };
         callback(normalizedEvent);
       });
@@ -70,17 +78,13 @@ export class SCLoansEvents {
     if (subscription && typeof subscription.remove === 'function') {
       try {
         subscription.remove();
-        
-        const index = this.subscriptions.indexOf(subscription);
-        if (index > -1) {
-          this.subscriptions.splice(index, 1);
-        }
+      
+        this.subscriptions = this.subscriptions.filter(sub => sub !== subscription);
       } catch (error) {
         console.error('SCLoansEvents Unsubscribe error:', error);
       }
     }
   }
-
 
   cleanup() {
     try {

@@ -10,14 +10,11 @@
 #import "SmallcaseGateway-Bridging-Header.h"
 
 @interface RCT_EXTERN_REMAP_MODULE(SCLoansBridgeEmitter, SCLoansEmitter, NSObject)
-// naming should be diff 
-RCT_EXTERN_METHOD(startListening:(RCTPromiseResolveBlock)resolve // check by removing this
+
+RCT_EXTERN_METHOD(startListening:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(stopListening:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-
-RCT_EXTERN_METHOD(getDebugInfo:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 @end

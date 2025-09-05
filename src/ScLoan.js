@@ -21,6 +21,13 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {number} code
  * @property {string} message
  * @property {string} data
+ *
+ * @typedef {Object} LoansEvent
+ * @property {string} type - Event type
+ * @property {number} timestamp - Event timestamp
+ *
+ * @typedef {Object} LoansEventSubscription
+ * @property {() => void} remove - Method to unsubscribe from loans events
  */
 
 /**
@@ -61,7 +68,6 @@ const apply = async (loanInfo) => {
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.pay(safeLoanInfo);
   };
 
@@ -75,7 +81,6 @@ const pay = async (loanInfo) => {
  */
 const withdraw = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
-
     return SmallcaseGatewayNative.withdraw(safeLoanInfo);
   };
 
@@ -110,8 +115,8 @@ const triggerInteraction = async (loanInfo) => {
 
 /**
  * Subscribe to Loans Events
- * @param {function} callback - Callback function to handle events
- * @returns {object} subscription - Subscription object with remove() method
+ * @param {(event: LoansEvent) => void} callback - Callback function to handle loans events
+ * @returns {LoansEventSubscription} subscription - Subscription object with remove() method
  */
 const subscribeToLoansEvent = (callback) => {
     return scLoansEventManager.subscribe(callback);
@@ -119,7 +124,7 @@ const subscribeToLoansEvent = (callback) => {
 
 /**
  * Unsubscribe from Loans Events
- * @param {object} subscription - Subscription returned from subscribeToLoansEvent
+ * @param {LoansEventSubscription} subscription - Subscription returned from subscribeToLoansEvent
  */
 const unsubscribeFromLoansEvent = (subscription) => {
     scLoansEventManager.unsubscribe(subscription);

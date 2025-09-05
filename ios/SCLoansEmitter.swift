@@ -73,22 +73,6 @@ class SCLoansEmitter: RCTEventEmitter {
     }
   }
   
-  @objc func getDebugInfo(
-    _ resolve: @escaping RCTPromiseResolveBlock,
-    rejecter reject: @escaping RCTPromiseRejectBlock
-  ) {
-    let debugInfo: [String: Any] = [
-      "isListening": isListening,
-      "hasObserver": notificationObserver != nil,
-      "supportedEvents": supportedEvents() ?? [],
-      "notificationName": SCLoansNotificationConstants.loanNotification,
-      "payloadKey": SCLoansNotificationConstants.payloadKey,
-      "stringifiedPayloadKey": SCLoansNotificationConstants.strigifiedPayloadKey
-    ]
-    print("SCLoansEmitter: Debug info: \(debugInfo).")
-    resolve(debugInfo)
-  }
-  
   // MARK: - Private Methods
   
   @discardableResult

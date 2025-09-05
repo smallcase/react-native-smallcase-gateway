@@ -2,6 +2,10 @@
 
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
+const EVENT_CHANNELS = {
+  SCG_NOTIFICATION: 'scg_notification',
+};
+
 export const SCGatewayEventTypes = {
   ANALYTICS_EVENT: 'scgateway_analytics_event',
   SUPER_PROPERTIES_UPDATED: 'scgateway_super_properties_updated',
@@ -22,15 +26,16 @@ export class SCGatewayEvents {
   initialize() {
     try {
       const nativeModule = NativeModules.SCGatewayBridgeEmitter;
-
-      if (nativeModule) {
-        this.eventEmitter = new NativeEventEmitter(nativeModule);
-        this.isInitialized = true;
-      } else {
-        console.warn('[SCGatewayEvents] Native module not found for', Platform.OS);
+      
+      if (!nativeModule) {
+        throw new Error(`Native module 'SCGatewayBridgeEmitter' not found for ${Platform.OS}. Make sure the native SDK is properly installed and linked.`);
       }
+      
+      this.eventEmitter = new NativeEventEmitter(nativeModule);
+      this.isInitialized = true;
     } catch (error) {
       console.error('[SCGatewayEvents] Initialization failed:', error);
+      throw new Error(`SCGatewayEvents initialization failed: ${error.message}`);
     }
   }
 
@@ -41,18 +46,21 @@ export class SCGatewayEvents {
     }
 
     try {
-      const subscription = this.eventEmitter.addListener("scg_notification", (eventData) => {
+      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCG_NOTIFICATION, (eventData) => {
         if (!eventData) {
           console.warn('[SCGatewayEvents] Received null/undefined event data');
           return;
         }
 
+        if (!eventData.type) {
+          console.warn('[SCGatewayEvents] Dropping event - missing event type:', eventData);
+          return;
+        }
+
         const normalizedEvent = {
-          type: eventData.eventType || eventData.type || 'unknown_event',
-          eventType: eventData.eventType || eventData.type || 'unknown_event',
-          data: eventData.data || eventData,
-          timestamp: eventData.timestamp || Date.now(),
-          ...eventData 
+          type: eventData.type,
+          data: eventData.data,
+          timestamp: eventData.timestamp || Date.now()
         };
         callback(normalizedEvent);
       });
@@ -71,10 +79,8 @@ export class SCGatewayEvents {
       try {
         subscription.remove();
         
-        const index = this.subscriptions.indexOf(subscription);
-        if (index > -1) {
-          this.subscriptions.splice(index, 1);
-        }
+        // Use filter instead of indexOf + splice
+        this.subscriptions = this.subscriptions.filter(sub => sub !== subscription);
       } catch (error) {
         console.error('[SCGatewayEvents] Unsubscribe error:', error);
       }
@@ -103,7 +109,7 @@ export class SCGatewayEvents {
   stopListening() {
     this.cleanup();
   }
-  }
+}
 
 const scGatewayEventManager = new SCGatewayEvents();
 

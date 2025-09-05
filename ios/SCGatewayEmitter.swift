@@ -82,23 +82,6 @@ class SCGatewayEmitter: RCTEventEmitter {
         }
     }
     
-    @objc func getDebugInfo(
-        _ resolve: @escaping RCTPromiseResolveBlock,
-        rejecter reject: @escaping RCTPromiseRejectBlock
-    ) {
-        let debugInfo: [String: Any] = [
-            "isListening": isListening,
-            "hasObserver": notificationObserver != nil,
-            "supportedEvents": supportedEvents() ?? [],
-            "notificationName": SCGatewayNotificationConstants.scgNotificationName,
-            "payloadKey": SCGatewayNotificationConstants.payloadKey,
-            "stringifiedPayloadKey": SCGatewayNotificationConstants.strigifiedPayloadKey,
-            "scgNotificationName": SCGatewayNotificationConstants.scgNotificationName
-        ]
-        print("SCGatewayEmitter: Debug info: \(debugInfo).")
-        resolve(debugInfo)
-    }
-    
     @discardableResult
     private func startListeningToNotifications() -> Bool {
         print("SCGatewayEmitter: Starting to listen for notifications.")

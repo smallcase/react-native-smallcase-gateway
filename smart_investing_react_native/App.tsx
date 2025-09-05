@@ -98,7 +98,6 @@ class App extends React.Component<AppProps, AppState> {
           const eventType =
             eventData?.eventType || eventData?.type || 'unknown_event';
 
-
           // Handle specific event types
           // this.handleGatewayEvent(eventType, eventData);
         },
