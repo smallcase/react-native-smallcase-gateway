@@ -1,4 +1,8 @@
-export { ScLoan };
+export { ScLoan, SCGatewayEventManager, SCLoansEventManager };
+
+declare const SCGatewayEventManager: any;
+declare const SCLoansEventManager: any;
+
 declare const _default: {
     ENV: {
         STAG: string;
@@ -46,6 +50,13 @@ declare const _default: {
     launchSmallplugWithBranding: (targetEndpoint: string, params: string, headerColor: string, headerOpacity: number, backIconColor: string, backIconOpacity: number) => unknown;
     getSdkVersion: () => Promise;
     showOrders: () => unknown;
+    // Event managers and methods
+    SCGatewayEventManager: any;
+    SCLoansEventManager: any;
+    subscribeToGatewayEvents: (callback: (event: any) => void) => any;
+    unsubscribeFromGatewayEvents: (subscription: any) => void;
+    subscribeToLoansEvent: (callback: (event: any) => void) => any;
+    unsubscribeFromLoansEvent: (subscription: any) => void;
 };
 export default _default;
 import ScLoan from "./ScLoan";

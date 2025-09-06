@@ -2,86 +2,110 @@
 
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
+/**
+ * @typedef {Object} LoansEvent
+ * @property {string} type - Event type
+ * @property {number} timestamp - Event timestamp
+ *
+ * @typedef {Object} LoansEventSubscription
+ * @property {() => void} remove - Method to unsubscribe from loans events
+*/
+
 const EVENT_CHANNELS = {
   SCLOANS_NOTIFICATION: 'scloans_notification',
 };
 
+const nativeModule = NativeModules.SCLoansBridgeEmitter;
 export const SCLoansEventTypes = {
-  ANALYTICS_EVENT: 'scloans_analytics_event',
-  SUPER_PROPERTIES_UPDATED: 'scloans_super_properties_updated',
-  USER_RESET: 'scloans_user_reset',
-  USER_IDENTIFY: 'scloans_user_identify',
+  ANALYTICS_EVENT: nativeModule?.ANALYTICS_EVENT || 'scloans_analytics_event',
+  SUPER_PROPERTIES_UPDATED: nativeModule?.SUPER_PROPERTIES_UPDATED || 'scloans_super_properties_updated',
 };
 
 export class SCLoansEvents {
   constructor() {
     this.eventEmitter = null;
-    this.listeners = new Map();
     this.subscriptions = [];
-    this.isInitialized = false;
-
     this.initialize();
   }
 
+  get isInitialized() {
+    return this.eventEmitter !== null;
+  }
+
   initialize() {
-    try {
-        const nativeModule = NativeModules.SCLoansBridgeEmitter;
-      
-      if (!nativeModule) {
-        throw new Error(`Native module SCLoansBridgeEmitter not found for ${Platform.OS}. Make sure the native SDK is properly installed and linked.`);
-      }
-      
+    if (nativeModule) {
       this.eventEmitter = new NativeEventEmitter(nativeModule);
-      this.isInitialized = true;
-    } catch (error) {
-      console.error('[SCLoansEvents] Initialization failed:', error);
-      throw new Error(`SCLoansEvents initialization failed: ${error.message}`);
+    } else {
+      console.warn('[SCLoansEvents] Native module not available');
     }
   }
 
-  subscribe(callback) {
-  if (!this.isInitialized || !this.eventEmitter) {
-    console.warn('[SCLoansEvents] Event emitter not initialized');
-    return null;
-  }
-
-    try {
-      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCLOANS_NOTIFICATION, (eventData) => {
-        if (!eventData) {
-          console.warn('[SCLoansEvents] Received null/undefined event data');
-          return;
-        }
-
-        if (!eventData.type) {
-          console.warn('[SCLoansEvents] Dropping event - missing event type:', eventData);
-          return;
-        }
-
-        const normalizedEvent = {
-          type: eventData.type,
-          data: eventData.data,
-          timestamp: eventData.timestamp || Date.now()
-        };
-        callback(normalizedEvent);
-      });
-
-      this.subscriptions.push(subscription);
-      
-      return subscription;
-    } catch (error) {
-      console.error('SCLoansEvents Subscription failed:', error);
+  // ===== LOANS EVENT METHODS =====
+  /**
+   * Subscribe to Loans Events
+   * @param {(event: LoansEvent) => void} callback - Callback function to handle loans events
+   * @returns {LoansEventSubscription} subscription - Subscription object with remove() method
+   */
+  subscribeToLoansEvent(callback) {
+    if (!this.isInitialized) {
+      console.warn('[SCLoansEvents] Event emitter not initialized');
       return null;
     }
+
+    if (typeof callback !== 'function') {
+      console.warn('[SCLoansEvents] Invalid callback provided for subscription');
+      return null;
+    }
+
+      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCLOANS_NOTIFICATION, (jsonString) => {
+      if (!jsonString) {
+        console.warn('[SCLoansEvents] Received null/undefined event data');
+        return;
+      }
+
+      let eventData;
+      try {
+        eventData = JSON.parse(jsonString);
+      } catch (error) {
+        console.warn('[SCLoansEvents] Failed to parse event JSON:', error, 'Raw data:', jsonString);
+        return;
+      }
+
+      if (!eventData.type) {
+        console.warn('[SCLoansEvents] Dropping event - missing event type:', eventData);
+        return;
+      }
+
+      const normalizedEvent = {
+        type: eventData.type,
+        data: eventData.data,
+        timestamp: eventData.timestamp || Date.now()
+      };
+
+      callback(normalizedEvent);
+    });
+
+    this.subscriptions.push(subscription);
+    return subscription;
   }
 
-  unsubscribe(subscription) {
+  /**
+   * Unsubscribe from Loans Events
+   * @param {LoansEventSubscription} subscription - Subscription returned from subscribeToLoansEvents
+   */
+  unsubscribeFromLoansEvent(subscription) {
     if (subscription && typeof subscription.remove === 'function') {
       try {
         subscription.remove();
-      
+        
         this.subscriptions = this.subscriptions.filter(sub => sub !== subscription);
+        
+        if (this.subscriptions.length === 0) {
+          console.log('[SCLoansEvents] No active subscriptions remaining, cleaning up');
+          this.cleanup();
+        }
       } catch (error) {
-        console.error('SCLoansEvents Unsubscribe error:', error);
+        console.error('[SCLoansEvents] Unsubscribe error:', error);
       }
     }
   }
@@ -95,18 +119,9 @@ export class SCLoansEvents {
       });
 
       this.subscriptions = [];
-      this.listeners.clear();
     } catch (error) {
       console.error('[SCLoansEvents] Cleanup error:', error);
     }
-  }
-
-  hasNoActiveSubscriptions() {
-    return this.subscriptions.length === 0;
-  }
-
-  stopListening() {
-    this.cleanup();
   }
 }
 

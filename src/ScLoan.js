@@ -1,7 +1,6 @@
 import { NativeModules } from 'react-native';
 import { safeObject } from './util';
 import { ENV } from './constants';
-import scLoansEventManager from './SCLoansEventEmitter';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -21,13 +20,7 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {number} code
  * @property {string} message
  * @property {string} data
- *
- * @typedef {Object} LoansEvent
- * @property {string} type - Event type
- * @property {number} timestamp - Event timestamp
- *
- * @typedef {Object} LoansEventSubscription
- * @property {() => void} remove - Method to unsubscribe from loans events
+ * 
  */
 
 /**
@@ -111,31 +104,6 @@ const triggerInteraction = async (loanInfo) => {
   return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
 };
 
-// ===== LOANS EVENT METHODS =====
-
-/**
- * Subscribe to Loans Events
- * @param {(event: LoansEvent) => void} callback - Callback function to handle loans events
- * @returns {LoansEventSubscription} subscription - Subscription object with remove() method
- */
-const subscribeToLoansEvent = (callback) => {
-    return scLoansEventManager.subscribe(callback);
-};
-
-/**
- * Unsubscribe from Loans Events
- * @param {LoansEventSubscription} subscription - Subscription returned from subscribeToLoansEvent
- */
-const unsubscribeFromLoansEvent = (subscription) => {
-    scLoansEventManager.unsubscribe(subscription);
-    
-    // Auto-cleanup if no more active subscriptions (following SmallcaseGateway pattern)
-    if (scLoansEventManager.hasNoActiveSubscriptions()) {
-        scLoansEventManager.cleanup();
-        scLoansEventManager.stopListening();
-    }
-};
-
 
 const ScLoan = {
     // Core Loans methods
@@ -145,10 +113,6 @@ const ScLoan = {
     withdraw,
     service,
     triggerInteraction,
-    
-    // Loans Event System
-    subscribeToLoansEvent,
-    unsubscribeFromLoansEvent,
 };
 
 export default ScLoan;

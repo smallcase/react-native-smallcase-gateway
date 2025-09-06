@@ -2,7 +2,6 @@ import { NativeModules, Platform } from 'react-native';
 import { ENV } from './constants';
 import { safeObject, platformSpecificColorHex } from './util';
 import { version } from '../package.json';
-import scGatewayEventManager from './SCGatewayEventEmitter';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -31,14 +30,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {Number} headerOpacity - opacity of the header background
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
- * 
- * @typedef {Object} GatewayEvent
- * @property {string} type - Event type
- * @property {any} data - Event payload data
- * @property {number} timestamp - Event timestamp
- *
- * @typedef {Object} GatewayEventSubscription
- * @property {() => void} remove - Method to unsubscribe from gateway events
  *
  */
 
@@ -286,30 +277,6 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
-// ===== GATEWAY EVENT METHODS =====
-/**
- * Subscribe to Gateway Events
- * @param {(event: GatewayEvent) => void} callback - Callback function to handle gateway events
- * @returns {GatewayEventSubscription} subscription - Subscription object with remove() method
- */
-const subscribeToGatewayEvents = (callback) => {
-  return scGatewayEventManager.subscribe(callback);
-};
-
-/**
- * Unsubscribe from Gateway Events
- * @param {GatewayEventSubscription} subscription - Subscription returned from subscribeToGatewayEvents
- */
-const unsubscribeFromGatewayEvents = (subscription) => {
-  scGatewayEventManager.unsubscribe(subscription);
-  
-  // Auto-cleanup if no more active subscriptions
-  if (scGatewayEventManager.hasNoActiveSubscriptions()) {
-    scGatewayEventManager.cleanup();
-    scGatewayEventManager.stopListening();
-  }
-};
-
 // ===== MAIN EXPORT =====
 const SmallcaseGateway = {
   // Core SDK methods
@@ -326,10 +293,6 @@ const SmallcaseGateway = {
   launchSmallplugWithBranding,
   getSdkVersion,
   showOrders,
-     
-  // Gateway Event System
-  subscribeToGatewayEvents,
-  unsubscribeFromGatewayEvents,
 };
 
 export default SmallcaseGateway;
