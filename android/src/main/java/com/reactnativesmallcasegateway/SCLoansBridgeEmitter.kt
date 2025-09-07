@@ -7,7 +7,7 @@ import com.facebook.react.bridge.UiThreadUtil
 import com.smallcase.loans.data.listeners.NotificationCenter
 import com.smallcase.loans.data.listeners.Notification
 import com.smallcase.loans.core.external.ScLoanNotification
-
+import com.smallcase.loans.core.external.ScLoan
 
 class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -27,7 +27,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
 
         override fun getConstants(): MutableMap<String, Any> {
         return hashMapOf(
-            "SCLOANS_NOTIFICATION" to ScLoanNotification.scloans_notification,
+            "SCLOANS_NOTIFICATION" to ScLoan.SCLOANS_NOTIFICATION_NAME,
             "ANALYTICS_EVENT" to ScLoanNotification.ANALYTICS_EVENT,
             "SUPER_PROPERTIES_UPDATED" to ScLoanNotification.SUPER_PROPS_UPDATED,
         )
@@ -132,7 +132,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 return
             }
             
-            sendEvent(ScLoanNotification.scloans_notification, jsonString)
+            sendEvent(ScLoan.SCLOANS_NOTIFICATION_NAME, jsonString)
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing SCLoans notification", e)

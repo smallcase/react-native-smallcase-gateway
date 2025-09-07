@@ -110,7 +110,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   setupLoansEventListeners = () => {
-    console.log('💰 Setting up Loans event listeners...');
+    console.log('Setting up Loans event listeners...');
 
     try {
       const loansSubscription = SCLoansEventManager.subscribeToLoansEvent(eventData => {
