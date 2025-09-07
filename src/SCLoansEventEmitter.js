@@ -1,6 +1,10 @@
-// SCLoansEventEmitter.js - Unified Cross-Platform Loans Event System  
+// SCLoansEventEmitter.js  
 
-import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import {
+    NativeEventEmitter,
+    NativeModules,
+    Platform
+} from 'react-native';
 
 /**
  * @typedef {Object} LoansEvent
@@ -9,124 +13,119 @@ import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
  *
  * @typedef {Object} LoansEventSubscription
  * @property {() => void} remove - Method to unsubscribe from loans events
-*/
-
-const EVENT_CHANNELS = {
-  SCLOANS_NOTIFICATION: 'scloans_notification',
-};
+ */
 
 const nativeModule = NativeModules.SCLoansBridgeEmitter;
+
 export const SCLoansEventTypes = {
-  ANALYTICS_EVENT: nativeModule?.ANALYTICS_EVENT || 'scloans_analytics_event',
-  SUPER_PROPERTIES_UPDATED: nativeModule?.SUPER_PROPERTIES_UPDATED || 'scloans_super_properties_updated',
+    ANALYTICS_EVENT: nativeModule?.ANALYTICS_EVENT || 'scloans_analytics_event',
+    SUPER_PROPERTIES_UPDATED: nativeModule?.SUPER_PROPERTIES_UPDATED || 'scloans_super_properties_updated',
 };
 
-export class SCLoansEvents {
-  constructor() {
-    this.eventEmitter = null;
-    this.subscriptions = [];
-    this.initialize();
-  }
-
-  get isInitialized() {
-    return this.eventEmitter !== null;
-  }
-
-  initialize() {
-    if (nativeModule) {
-      this.eventEmitter = new NativeEventEmitter(nativeModule);
-    } else {
-      console.warn('[SCLoansEvents] Native module not available');
-    }
-  }
-
-  // ===== LOANS EVENT METHODS =====
-  /**
-   * Subscribe to Loans Events
-   * @param {(event: LoansEvent) => void} callback - Callback function to handle loans events
-   * @returns {LoansEventSubscription} subscription - Subscription object with remove() method
-   */
-  subscribeToLoansEvent(callback) {
-    if (!this.isInitialized) {
-      console.warn('[SCLoansEvents] Event emitter not initialized');
-      return null;
+class SCLoansEvents {
+    constructor() {
+        this.eventEmitter = null;
+        this.subscriptions = [];
+        this.initialize();
     }
 
-    if (typeof callback !== 'function') {
-      console.warn('[SCLoansEvents] Invalid callback provided for subscription');
-      return null;
+    get isInitialized() {
+        return this.eventEmitter !== null;
     }
 
-      const subscription = this.eventEmitter.addListener(EVENT_CHANNELS.SCLOANS_NOTIFICATION, (jsonString) => {
-      if (!jsonString) {
-        console.warn('[SCLoansEvents] Received null/undefined event data');
-        return;
-      }
-
-      let eventData;
-      try {
-        eventData = JSON.parse(jsonString);
-      } catch (error) {
-        console.warn('[SCLoansEvents] Failed to parse event JSON:', error, 'Raw data:', jsonString);
-        return;
-      }
-
-      if (!eventData.type) {
-        console.warn('[SCLoansEvents] Dropping event - missing event type:', eventData);
-        return;
-      }
-
-      const normalizedEvent = {
-        type: eventData.type,
-        data: eventData.data,
-        timestamp: eventData.timestamp || Date.now()
-      };
-
-      callback(normalizedEvent);
-    });
-
-    this.subscriptions.push(subscription);
-    return subscription;
-  }
-
-  /**
-   * Unsubscribe from Loans Events
-   * @param {LoansEventSubscription} subscription - Subscription returned from subscribeToLoansEvents
-   */
-  unsubscribeFromLoansEvent(subscription) {
-    if (subscription && typeof subscription.remove === 'function') {
-      try {
-        subscription.remove();
-        
-        this.subscriptions = this.subscriptions.filter(sub => sub !== subscription);
-        
-        if (this.subscriptions.length === 0) {
-          console.log('[SCLoansEvents] No active subscriptions remaining, cleaning up');
-          this.cleanup();
+    initialize() {
+        if (nativeModule) {
+            this.eventEmitter = new NativeEventEmitter(nativeModule);
+        } else {
+            console.warn('[SCLoansEvents] Native module not available');
         }
-      } catch (error) {
-        console.error('[SCLoansEvents] Unsubscribe error:', error);
-      }
     }
-  }
 
-  cleanup() {
-    try {
-      this.subscriptions.forEach(subscription => {
+    // ===== LOANS EVENT METHODS =====
+    /**
+     * Subscribe to Loans Events
+     * @param {(event: LoansEvent) => void} callback - Callback function to handle loans events
+     * @returns {LoansEventSubscription} subscription - Subscription object with remove() method
+     */
+    subscribeToLoansEvent(callback) {
+        if (!this.isInitialized) {
+            console.warn('[SCLoansEvents] Event emitter not initialized');
+            return null;
+        }
+
+        if (typeof callback !== 'function') {
+            console.warn('[SCLoansEvents] Invalid callback provided for subscription');
+            return null;
+        }
+
+        const subscription = this.eventEmitter.addListener(nativeModule?.SCLOANS_NOTIFICATION || 'scloans_notification', (jsonString) => {
+            if (!jsonString) {
+                console.warn('[SCLoansEvents] Received null/undefined event data');
+                return;
+            }
+
+            let eventData;
+            try {
+                eventData = JSON.parse(jsonString);
+            } catch (error) {
+                console.warn('[SCLoansEvents] Failed to parse event JSON:', error, 'Raw data:', jsonString);
+                return;
+            }
+
+            if (!eventData.type) {
+                console.warn('[SCLoansEvents] Dropping event - missing event type:', eventData);
+                return;
+            }
+
+            const normalizedEvent = {
+                type: eventData.type,
+                data: eventData.data,
+                timestamp: eventData.timestamp || Date.now()
+            };
+
+            callback(normalizedEvent);
+        });
+
+        this.subscriptions.push(subscription);
+        return subscription;
+    }
+
+    /**
+     * Unsubscribe from Loans Events
+     * @param {LoansEventSubscription} subscription - Subscription returned from subscribeToLoansEvents
+     */
+    unsubscribeFromLoansEvent(subscription) {
         if (subscription && typeof subscription.remove === 'function') {
-          subscription.remove();
-        }
-      });
+            try {
+                subscription.remove();
 
-      this.subscriptions = [];
-    } catch (error) {
-      console.error('[SCLoansEvents] Cleanup error:', error);
+                this.subscriptions = this.subscriptions.filter(sub => sub !== subscription);
+
+                if (this.subscriptions.length === 0) {
+                    console.log('[SCLoansEvents] No active subscriptions remaining, cleaning up');
+                    this.cleanup();
+                }
+            } catch (error) {
+                console.error('[SCLoansEvents] Unsubscribe error:', error);
+            }
+        }
     }
-  }
+
+    cleanup() {
+        try {
+            this.subscriptions.forEach(subscription => {
+                if (subscription && typeof subscription.remove === 'function') {
+                    subscription.remove();
+                }
+            });
+
+            this.subscriptions = [];
+        } catch (error) {
+            console.error('[SCLoansEvents] Cleanup error:', error);
+        }
+    }
 }
 
 const scLoansEventManager = new SCLoansEvents();
 
 export default scLoansEventManager;
-
-export { scLoansEventManager };

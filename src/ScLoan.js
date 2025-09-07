@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import { safeObject } from './util';
 import { ENV } from './constants';
+
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
 /**
@@ -20,11 +21,10 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {number} code
  * @property {string} message
  * @property {string} data
- * 
  */
 
 /**
- * Setup ScLoans    
+ * Setup ScLoans
  *
  * @param {ScLoanConfig} config
  * @returns {Promise<ScLoanSuccess>}
@@ -61,6 +61,7 @@ const apply = async (loanInfo) => {
  */
 const pay = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
+
     return SmallcaseGatewayNative.pay(safeLoanInfo);
   };
 
@@ -74,6 +75,7 @@ const pay = async (loanInfo) => {
  */
 const withdraw = async (loanInfo) => {
     const safeLoanInfo = safeObject(loanInfo);
+
     return SmallcaseGatewayNative.withdraw(safeLoanInfo);
   };
 
@@ -104,15 +106,13 @@ const triggerInteraction = async (loanInfo) => {
   return SmallcaseGatewayNative.triggerInteraction(safeLoanInfo);
 };
 
-
 const ScLoan = {
-    // Core Loans methods
-    setup,
-    apply,
-    pay,
-    withdraw,
-    service,
-    triggerInteraction,
+  setup,
+  apply,
+  pay,
+  withdraw,
+  service,
+  triggerInteraction,
 };
 
 export default ScLoan;

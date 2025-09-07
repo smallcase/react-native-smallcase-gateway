@@ -277,9 +277,7 @@ const getSdkVersion = async () => {
   return SmallcaseGatewayNative.getSdkVersion(version);
 };
 
-// ===== MAIN EXPORT =====
 const SmallcaseGateway = {
-  // Core SDK methods
   init,
   logoutUser,
   triggerLeadGen,

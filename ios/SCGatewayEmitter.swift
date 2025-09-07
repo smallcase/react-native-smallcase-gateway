@@ -40,6 +40,7 @@ class SCGatewayEmitter: RCTEventEmitter {
   
   @objc static func constantsToExport() -> [String: Any]! {
     return [
+      "SCG_NOTIFICATION": SCGatewayNotificationConstants.scgNotificationName,
       "ANALYTICS_EVENT": SCGatewayNotificationConstants.analyticsEvent,
       "SUPER_PROPERTIES_UPDATED": SCGatewayNotificationConstants.superPropertiesUpdated,
       "USER_RESET": SCGatewayNotificationConstants.userReset,
@@ -128,16 +129,5 @@ class SCGatewayEmitter: RCTEventEmitter {
     print("SCGatewayEmitter: Received JSON string: \(jsonString).")
     sendEvent(withName: SCGatewayNotificationConstants.scgNotificationName, body: jsonString)
     print("SCGatewayEmitter: Emitted event '\(SCGatewayNotificationConstants.scgNotificationName)' with JSON string.")
-  }
-  
-  static func emitEvent(name: String, data: [String: Any]) {
-    DispatchQueue.main.async {
-      if let shared = shared {
-        shared.sendEvent(withName: SCGatewayNotificationConstants.scgNotificationName, body: data)
-        print("SCGatewayEmitter: Static event '\(name)' sent to React Native.")
-      } else {
-        print("SCGatewayEmitter: Cannot send static event - emitter not initialized.")
-      }
-    }
   }
 }

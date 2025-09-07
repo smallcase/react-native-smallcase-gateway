@@ -7,7 +7,6 @@ class SCLoansEmitter: RCTEventEmitter {
   private static var shared: SCLoansEmitter?
   private var notificationObserver: NSObjectProtocol?
   
-  // Computed property for listening status
   private var isListening: Bool {
     return notificationObserver != nil
   }
@@ -19,7 +18,6 @@ class SCLoansEmitter: RCTEventEmitter {
     static let payloadKey = "payload"
     static let stringifiedPayloadKey = "payload_str"
     
-    // Analytics constants
     static let analyticsEvent = "scloans_analytics_event"
     static let superPropertiesUpdated = "scloans_super_properties_updated"
   }
@@ -40,9 +38,9 @@ class SCLoansEmitter: RCTEventEmitter {
     return [SCLoansNotificationConstants.loanNotification]
   }
   
-  // Export constants to React Native
   @objc static func constantsToExport() -> [String: Any]! {
     return [
+      "SCLOANS_NOTIFICATION": SCLoansNotificationConstants.loanNotification,
       "ANALYTICS_EVENT": SCLoansNotificationConstants.analyticsEvent,
       "SUPER_PROPERTIES_UPDATED": SCLoansNotificationConstants.superPropertiesUpdated
     ]
@@ -123,7 +121,6 @@ class SCLoansEmitter: RCTEventEmitter {
     
     print("SCLoansEmitter: Received notification with userInfo keys: \(userInfo.keys)")
     
-    // Get the stringified payload and pass it directly
     guard let jsonString = userInfo[SCLoansNotificationConstants.stringifiedPayloadKey] as? String else {
       print("SCLoansEmitter: No stringified payload found with key '\(SCLoansNotificationConstants.stringifiedPayloadKey)'")
       return
@@ -132,22 +129,5 @@ class SCLoansEmitter: RCTEventEmitter {
     print("SCLoansEmitter: Received JSON string: \(jsonString).")
     sendEvent(withName: SCLoansNotificationConstants.loanNotification, body: jsonString)
     print("SCLoansEmitter: Emitted event '\(SCLoansNotificationConstants.loanNotification)' with JSON string.")
-  }
-  
-  // MARK: - Static API (Optional External Access)
-  
-  static func emitEvent(name: String, data: [String: Any]) {
-    DispatchQueue.main.async {
-      if let shared = shared {
-        shared.sendEvent(withName: SCLoansNotificationConstants.loanNotification, body: data)
-        print("SCLoansEmitter: Static event '\(name)' sent to React Native.")
-      } else {
-        print("SCLoansEmitter: Cannot send static event - emitter not initialized.")
-      }
-    }
-  }
-  
-  static func isCurrentlyListening() -> Bool {
-    return shared?.isListening ?? false
   }
 }

@@ -28,6 +28,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     override fun getConstants(): MutableMap<String, Any> {
         return hashMapOf(
+            "SCG_NOTIFICATION" to SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME,
             "ANALYTICS_EVENT" to ScgNotification.ANALYTICS_EVENT,
             "SUPER_PROPERTIES_UPDATED" to ScgNotification.SUPER_PROPS_UPDATED,
             "USER_RESET" to ScgNotification.USER_RESET,
@@ -66,13 +67,13 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
                         }
                     }
 
-                    notificationObserver?.let { observer ->
-                        NotificationCenter.addObserver(observer)
-                        Log.d(TAG, "Successfully started listening for notifications")
-                        promise?.resolve("Started listening successfully")
-                    } ?: run {
-                        promise?.reject("START_LISTENING_ERROR", "Failed to create observer")
-                    }
+                notificationObserver?.let {
+                    NotificationCenter.addObserver(it)
+                    Log.d(TAG, "Successfully started listening for notifications")
+                    promise?.resolve("Started listening successfully")
+                } ?: run {
+                    promise?.reject("START_LISTENING_ERROR", "Failed to create observer")
+                }
 
                 } catch (e: Exception) {
                     Log.e(TAG, "Error starting listener", e)

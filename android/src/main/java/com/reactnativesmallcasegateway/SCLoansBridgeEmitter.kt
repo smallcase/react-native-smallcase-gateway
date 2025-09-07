@@ -27,6 +27,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
 
         override fun getConstants(): MutableMap<String, Any> {
         return hashMapOf(
+            "SCLOANS_NOTIFICATION" to ScLoanNotification.scloans_notification,
             "ANALYTICS_EVENT" to ScLoanNotification.ANALYTICS_EVENT,
             "SUPER_PROPERTIES_UPDATED" to ScLoanNotification.SUPER_PROPS_UPDATED,
         )
@@ -131,7 +132,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext) : 
                 return
             }
             
-            sendEvent("scloans_notification", jsonString)
+            sendEvent(ScLoanNotification.scloans_notification, jsonString)
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing SCLoans notification", e)
