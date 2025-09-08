@@ -31,15 +31,12 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
-        try {
-            if (isListening) {
-                notificationObserver?.let { observer ->
-                    NotificationCenter.removeObserver(observer)
-                }
-                notificationObserver = null
+        if (isListening) {
+            notificationObserver?.let { observer ->
+                NotificationCenter.removeObserver(observer)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error during cleanup", e)
+            notificationObserver = null
+            Log.d(TAG, "Successfully cleaned up notification observer")
         }
     }
 
