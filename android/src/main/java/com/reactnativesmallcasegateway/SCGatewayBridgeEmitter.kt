@@ -17,7 +17,7 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
         
-        const val GATEWAY_NOTIFICATION = "scgateway_notification"
+        const val GATEWAY_NOTIFICATION = "scg_notification"
         const val PAYLOAD_KEY = "payload"
         const val STRINGIFIED_PAYLOAD_KEY = "payload_str"
     }
