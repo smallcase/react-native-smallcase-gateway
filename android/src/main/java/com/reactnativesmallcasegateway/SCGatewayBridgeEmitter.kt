@@ -16,10 +16,6 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
-        
-        const val GATEWAY_NOTIFICATION = "scg_notification"
-        const val PAYLOAD_KEY = "payload"
-        const val STRINGIFIED_PAYLOAD_KEY = "payload_str"
     }
 
     private var notificationObserver: ((Notification) -> Unit)? = null
@@ -91,22 +87,26 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     private fun processScgNotification(notification: Notification) {
-        val jsonString = notification.userInfo?.get(STRINGIFIED_PAYLOAD_KEY) as? String
+        val jsonString = notification.userInfo?.get(ScgNotification.STRINGIFIED_PAYLOAD_KEY) as? String
         if (jsonString == null) {
             Log.e(TAG, "SCGatewayBridgeEmitter: Invalid notification object - expected JSON string")
             return
         }
 
-        sendEvent(GATEWAY_NOTIFICATION, jsonString)
+        sendEvent(SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME, jsonString)
     }
 
     private fun sendEvent(eventName: String, jsonString: String) {
-        if (reactContext.hasActiveCatalystInstance()) {
-            reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit(eventName, jsonString)
-        } else {
-            Log.w(TAG, "React context not active, cannot send event: $eventName")
+        try {
+            if (reactContext.hasActiveCatalystInstance()) {
+                reactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                    .emit(eventName, jsonString)
+            } else {
+                Log.w(TAG, "React context not active, cannot send event: $eventName")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to send event: $eventName", e)
         }
     }
 }

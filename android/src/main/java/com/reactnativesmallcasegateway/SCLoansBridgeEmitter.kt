@@ -15,10 +15,6 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext):
 
         companion object {
             const val TAG = "SCLoansBridgeEmitter"
-            
-            const val LOAN_NOTIFICATION = "scloans_notification"
-            const val PAYLOAD_KEY = "payload"
-            const val STRINGIFIED_PAYLOAD_KEY = "payload_str"
         }
 
         private var notificationObserver: ((Notification) -> Unit)? = null
@@ -93,7 +89,7 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext):
 
         private fun processScLoansNotification(notification: Notification) {
             val jsonString =
-                notification.userInfo?.get(STRINGIFIED_PAYLOAD_KEY) as? String
+                notification.userInfo?.get(ScLoanNotification.STRINGIFIED_PAYLOAD_KEY) as? String
             if (jsonString == null) {
                 Log.e(
                     TAG,
@@ -102,16 +98,20 @@ class SCLoansBridgeEmitter(private val reactContext: ReactApplicationContext):
                 return
             }
 
-            sendEvent(LOAN_NOTIFICATION, jsonString)
+            sendEvent(ScLoan.SCLOANS_NOTIFICATION_NAME, jsonString)
         }
 
         private fun sendEvent(eventName: String, jsonString: String) {
-            if (reactContext.hasActiveCatalystInstance()) {
-                reactContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit(eventName, jsonString)
-            } else {
-                Log.w(TAG, "React context not active, cannot send event: $eventName")
+            try {
+                if (reactContext.hasActiveCatalystInstance()) {
+                    reactContext
+                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                        .emit(eventName, jsonString)
+                } else {
+                    Log.w(TAG, "React context not active, cannot send event: $eventName")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send event: $eventName", e)
             }
         }
     }
