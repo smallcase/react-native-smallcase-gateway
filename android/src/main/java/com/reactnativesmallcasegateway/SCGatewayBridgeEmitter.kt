@@ -16,6 +16,10 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
 
     companion object {
         const val TAG = "SCGatewayBridgeEmitter"
+        
+        const val GATEWAY_NOTIFICATION = "scgateway_notification"
+        const val PAYLOAD_KEY = "payload"
+        const val STRINGIFIED_PAYLOAD_KEY = "payload_str"
     }
 
     private var notificationObserver: ((Notification) -> Unit)? = null
@@ -87,13 +91,13 @@ class SCGatewayBridgeEmitter(private val reactContext: ReactApplicationContext) 
     }
 
     private fun processScgNotification(notification: Notification) {
-        val jsonString = notification.userInfo?.get(ScgNotification.STRINGIFIED_PAYLOAD_KEY) as? String
+        val jsonString = notification.userInfo?.get(STRINGIFIED_PAYLOAD_KEY) as? String
         if (jsonString == null) {
             Log.e(TAG, "SCGatewayBridgeEmitter: Invalid notification object - expected JSON string")
             return
         }
 
-        sendEvent(SmallcaseGatewaySdk.SCG_NOTIFICATION_NAME, jsonString)
+        sendEvent(GATEWAY_NOTIFICATION, jsonString)
     }
 
     private fun sendEvent(eventName: String, jsonString: String) {
