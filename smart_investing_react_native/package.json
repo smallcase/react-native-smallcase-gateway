@@ -4,21 +4,22 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "generateAndroidRelease": "cd android && ./gradlew assembleRelease",
     "ios": "react-native run-ios --list-devices",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
   },
   "dependencies": {
+    "react": "19.0.0",
+    "react-native": "0.79.4",
     "@react-native-clipboard/clipboard": "1.16.2",
     "@react-native-segmented-control/segmented-control": "^2.5.0",
     "@react-navigation/bottom-tabs": "6.5.20",
     "@react-navigation/native": "6.1.17",
     "@react-navigation/stack": "6.3.29",
-    "react": "19.0.0",
-    "react-native": "0.79.4",
-    "react-native-element-dropdown": "^2.10.1",
     "react-native-gesture-handler": "2.25.0",
+    "react-native-element-dropdown": "^2.10.1",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "^3.34.0",
     "react-native-smallcase-gateway": "file:../"

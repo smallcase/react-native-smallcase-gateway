@@ -5,6 +5,10 @@ import SCGateway
 @objc(SCGatewayEmitter)
 class SCGatewayEmitter: RCTEventEmitter {
 
+  private struct Constants {
+    static let stringifiedPayloadKey = "payload_str"
+  }
+
   private static var shared: SCGatewayEmitter?
 
   private var notificationObserver: NSObjectProtocol?
@@ -25,7 +29,7 @@ class SCGatewayEmitter: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return [SCGateway.scgNotificationName.rawValue]
+    return [SCGateway.scgNotificationName]
   }
 
   override func startObserving() {
@@ -65,7 +69,7 @@ class SCGatewayEmitter: RCTEventEmitter {
       self.stopListening()
 
       self.notificationObserver = NotificationCenter.default.addObserver(
-        forName: SCGateway.scgNotificationName,
+        forName: Notification.Name(SCGateway.scgNotificationName),
         object: nil,
         queue: .main
       ) { [weak self] notification in
@@ -73,7 +77,7 @@ class SCGatewayEmitter: RCTEventEmitter {
       }
 
       print(
-        "SCGatewayEmitter: Started listening to notifications with name: \(SCGateway.scgNotificationName.rawValue)."
+        "SCGatewayEmitter: Started listening to notifications with name: \(SCGateway.scgNotificationName)."
       )
       resolve?("Started listening to SCGateway events")
     }
@@ -103,15 +107,15 @@ class SCGatewayEmitter: RCTEventEmitter {
 
     print("SCGatewayEmitter: Received notification with userInfo keys: \(userInfo.keys)")
 
-    guard let jsonString = userInfo[SCGNotification.strigifiedPayloadKey] as? String else {
+    guard let jsonString = userInfo[SCGNotification.SCGNotification] as? String else {
       print(
-        "SCGatewayEmitter: No stringified payload found with key '\(SCGNotification.strigifiedPayloadKey)'"
+        "SCGatewayEmitter: No stringified payload found with key '\(SCGNotification.SCGNotification)'"
       )
       return
     }
 
     print("SCGatewayEmitter: Received JSON string: \(jsonString).")
-    sendEvent(withName: SCGateway.scgNotificationName.rawValue, body: jsonString)
-    print("SCGatewayEmitter: Emitted event '\(SCGateway.scgNotificationName.rawValue)' with JSON string.")
+    sendEvent(withName: SCGateway.scgNotificationName, body: jsonString)
+    print("SCGatewayEmitter: Emitted event '\(SCGateway.scgNotificationName)' with JSON string.")
   }
 }

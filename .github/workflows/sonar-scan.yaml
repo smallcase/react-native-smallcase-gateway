@@ -1,0 +1,29 @@
+name: "SonarQube Scan"
+
+on:
+  push:
+    tags:
+      - "sonar-**"
+      - "v**"
+    paths:
+      - "**"
+      - "!.github/**"
+      - "!deployment/**"
+  pull_request:
+    branches:
+      - "development"
+      - "prod"
+    paths:
+      - "**"
+      - "!.github/**"
+      - "!deployment/**"
+
+jobs:
+  sonar_scan:
+    uses: smallcase/sc-infra-configs/.github/workflows/sonarqube_scan.yaml@master
+    with:
+      RUNNER_NAME: arc-runner-set-dind
+      APPLICATION_NAME: "react-native-smallcase-gateway"
+      BRANCH_NAME: "${{ github.ref_name }}"
+      SONAR_SCAN: true
+    secrets: inherit

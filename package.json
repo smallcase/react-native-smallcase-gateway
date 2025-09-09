@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "5.0.1",
+  "version": "5.2.0",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [
@@ -13,6 +13,7 @@
     "types",
     "react-native-smallcase-gateway.podspec",
     "!lib/typescript/example",
+    "!lib/typescript/smart_investing_react_native",
     "!android/build",
     "!ios/build",
     "!**/__tests__",
@@ -32,7 +33,8 @@
     "commit": "yarn cz",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "release:major": "standard-version --release-as major",
+    "release:major:rc": "standard-version --release-as major --prerelease rc"
   },
   "keywords": [
     "react-native",
@@ -83,7 +85,8 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
+      "<rootDir>/lib/",
+      "<rootDir>/smart_investing_react_native/node_modules"
     ]
   },
   "commitlint": {
@@ -155,5 +158,9 @@
   },
   "dependencies": {
     "standard-version": "^9.5.0"
+  },
+  "volta": {
+    "node": "20.15.0",
+    "yarn": "1.19.2"
   }
 }

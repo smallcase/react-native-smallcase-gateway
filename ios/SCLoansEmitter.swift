@@ -1,14 +1,9 @@
 import Foundation
 import React
+import Loans
 
 @objc(SCLoansEmitter)
 class SCLoansEmitter: RCTEventEmitter {
-
-  private struct Constants {
-    static let loanNotification = "scloans_notification"
-    static let payloadKey = "payload"
-    static let stringifiedPayloadKey = "payload_str"
-  }
 
   private static var shared: SCLoansEmitter?
 
@@ -31,7 +26,7 @@ class SCLoansEmitter: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return [Constants.loanNotification]
+    return [ScLoan.scLoansNotificationName.rawValue]
   }
 
   override func startObserving() {
@@ -70,7 +65,7 @@ class SCLoansEmitter: RCTEventEmitter {
 
       self.stopListening()
 
-      let notificationName = Notification.Name(Constants.loanNotification)
+      let notificationName = Notification.Name(ScLoan.scLoansNotificationName.rawValue)
 
       self.notificationObserver = NotificationCenter.default.addObserver(
         forName: notificationName,
@@ -109,15 +104,15 @@ class SCLoansEmitter: RCTEventEmitter {
 
     print("SCLoansEmitter: Received notification with userInfo keys: \(userInfo.keys)")
 
-    guard let jsonString = userInfo[Constants.stringifiedPayloadKey] as? String else {
+    guard let jsonString = userInfo[ScLoanNotification.strigifiedPayloadKey] as? String else {
       print(
-        "SCLoansEmitter: No stringified payload found with key '\(Constants.stringifiedPayloadKey)'"
+        "SCLoansEmitter: No stringified payload found with key '\(ScLoanNotification.strigifiedPayloadKey)'"
       )
       return
     }
 
     print("SCLoansEmitter: Received JSON string: \(jsonString).")
-    sendEvent(withName: Constants.loanNotification, body: jsonString)
-    print("SCLoansEmitter: Emitted event '\(Constants.loanNotification)' with JSON string.")
+    sendEvent(withName: ScLoan.scLoansNotificationName.rawValue, body: jsonString)
+    print("SCLoansEmitter: Emitted event '\(ScLoan.scLoansNotificationName)' with JSON string.")
   }
 }
