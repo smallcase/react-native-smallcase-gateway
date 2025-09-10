@@ -65,17 +65,14 @@ class SCLoansEmitter: RCTEventEmitter {
 
       self.stopListening()
 
-      let notificationName = Notification.Name(ScLoan.scLoansNotificationName.rawValue)
-
       self.notificationObserver = NotificationCenter.default.addObserver(
-        forName: notificationName,
+        forName: ScLoan.scLoansNotificationName,
         object: nil,
         queue: .main
       ) { [weak self] notification in
         self?.processScLoansNotification(notification)
       }
 
-      print("SCLoansEmitter: Listening to \(notificationName.rawValue)")
       resolve?("Started listening to SCLoans events")
     }
   }

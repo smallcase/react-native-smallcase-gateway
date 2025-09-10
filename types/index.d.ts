@@ -1,7 +1,37 @@
-export { ScLoan, SCGatewayEventManager, SCLoansEventManager };
+import ScLoan from "./ScLoan";
 
-declare const SCGatewayEventManager: any;
-declare const SCLoansEventManager: any;
+export interface GatewayEvent {
+    type: string;
+    data?: Record<string, any>;
+    timestamp: number;
+}
+
+export interface LoansEvent {
+    type: string;
+    data?: Record<string, any>;
+    timestamp: number;
+}
+
+export interface GatewayEventSubscription {
+    remove(): void;
+}
+
+export interface LoansEventSubscription {
+    remove(): void;
+}
+
+interface SCGatewayEventManagerInterface {
+    subscribeToGatewayEvents(callback: ((event: GatewayEvent) => void)): GatewayEventSubscription | null;
+    unsubscribeFromGatewayEvents(subscription: GatewayEventSubscription): void;
+}
+
+interface SCLoansEventManagerInterface {
+    subscribeToLoansEvent(callback: ((event: LoansEvent) => void)): LoansEventSubscription | null;
+    unsubscribeFromLoansEvent(subscription: LoansEventSubscription): void;
+}
+
+declare const SCGatewayEventManager: SCGatewayEventManagerInterface;
+declare const SCLoansEventManager: SCLoansEventManagerInterface;
 
 declare const _default: {
     ENV: {
@@ -50,13 +80,15 @@ declare const _default: {
     launchSmallplugWithBranding: (targetEndpoint: string, params: string, headerColor: string, headerOpacity: number, backIconColor: string, backIconOpacity: number) => unknown;
     getSdkVersion: () => Promise;
     showOrders: () => unknown;
-    // Event managers and methods
-    SCGatewayEventManager: any;
-    SCLoansEventManager: any;
-    subscribeToGatewayEvents: (callback: (event: any) => void) => any;
-    unsubscribeFromGatewayEvents: (subscription: any) => void;
-    subscribeToLoansEvent: (callback: (event: any) => void) => any;
-    unsubscribeFromLoansEvent: (subscription: any) => void;
+
+    // Events System
+    SCGatewayEventManager: SCGatewayEventManagerInterface;
+    SCLoansEventManager: SCLoansEventManagerInterface;
+    subscribeToGatewayEvents: (callback: (event: GatewayEvent) => void) => GatewayEventSubscription | null;
+    unsubscribeFromGatewayEvents: (subscription: GatewayEventSubscription) => void;
+    subscribeToLoansEvent: (callback: (event: LoansEvent) => void) => LoansEventSubscription | null;
+    unsubscribeFromLoansEvent: (subscription: LoansEventSubscription) => void;
 };
+
 export default _default;
-import ScLoan from "./ScLoan";
+export { ScLoan, SCGatewayEventManager, SCLoansEventManager };
