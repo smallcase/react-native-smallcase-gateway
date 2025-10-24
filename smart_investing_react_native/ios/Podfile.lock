@@ -1339,9 +1339,9 @@ PODS:
     - React-Core
   - react-native-segmented-control (2.5.7):
     - React-Core
-  - react-native-smallcase-gateway (5.0.2-rc.3):
+  - react-native-smallcase-gateway (5.3.0):
     - React-Core
-    - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751 (= 4.1.5-7-release)
+    - SCGateway (= 4.4.0)
     - SCLoans (= 4.0.0)
   - React-NativeModulesApple (0.79.4):
     - glog
@@ -1691,7 +1691,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.37.0):
+  - RNScreens (4.18.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1716,7 +1716,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751 (4.1.5-7-release):
+  - SCGateway (4.4.0):
     - Mixpanel-swift (~> 4.2.5)
   - SCLoans (4.0.0):
     - Mixpanel-swift (~> 4.2.5)
@@ -1804,10 +1804,9 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/smallcase/cocoapodspec-internal.git:
-    - SCGateway-dhruv-addNewAnalyticsProps-ios-c912751
   trunk:
     - Mixpanel-swift
+    - SCGateway
     - SCLoans
     - SocketRocket
 
@@ -2008,7 +2007,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 9d72abf6d8473da73033b597090a80b709c0b2f1
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: 26c78a1513cd9b9247d89cae439074cc5f70929c
+  react-native-smallcase-gateway: dc006c478e2772119011e52109400f811e442014
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2042,12 +2041,12 @@ SPEC CHECKSUMS:
   ReactCommon: c7d636ec1b9801ff4ee83cce8e0bf74a1610fc3f
   RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade
   RNGestureHandler: 428d7b57ca46b96f09b79597167dda208d1ecf31
-  RNScreens: 215b30dc57bb48466ca46373d6b94cc232626d6c
-  SCGateway-dhruv-addNewAnalyticsProps-ios-c912751: 9e7b87a49c913c82c32de6ea727b217be1d80a97
+  RNScreens: 9f2cb400dfae289ca8eacd6e65b5505d0430ce75
+  SCGateway: e8ccea08c14c95cc57461b3942b0f80638485d6a
   SCLoans: 5e6dd77a7b31bd3ea5acaaee8e22d57ee1609525
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
-PODFILE CHECKSUM: 1d72a8abaa4c54ab6dd64cc488857d497c6311ba
+PODFILE CHECKSUM: 2fb288aa27871f6c0a15c40f7cf3c072cb24a354
 
 COCOAPODS: 1.16.2
