@@ -179,7 +179,14 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     @ReactMethod
-    fun launchSmallplugWithBranding(targetEndpoint: String, params: String, readableMap: ReadableMap?, promise: Promise) {
+    fun launchSmallplugWithBranding(targetEndpoint: String, params: String, headerColor: String?, headerOpacity: Double?, backIconColor: String?, backIconOpacity: Double?, promise: Promise
+    ) {
+        val readableMap = Arguments.createMap().apply {
+            headerColor?.let { putString("headerColor", it) }
+            headerOpacity?.let { putDouble("headerOpacity", it) }
+            backIconColor?.let { putString("backIconColor", it) }
+            backIconOpacity?.let { putDouble("backIconOpacity", it) }
+        }
 
         fun getColorValue(value: Any?, defaultValue: String): String {
             return when (value) {
@@ -196,7 +203,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         var partnerProps: SmallplugPartnerProps? = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff")
 
         try {
-            partnerProps = readableMap?.toHashMap()?.let { map ->
+            partnerProps = readableMap.toHashMap().let { map ->
                 val hc = getColorValue(map["headerColor"], "#2F363F")
                 val ho = map["headerOpacity"]?.let { if (it is Double) it else 1.0 } ?: 1.0
                 val bc = getColorValue(map["backIconColor"], "#ffffff")
@@ -206,11 +213,9 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         } catch (e: Throwable) {
         }
 
-
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 val err = createErrorJSON(errorCode, errorMessage, null)
-
                 promise.reject("error", err)
             }
 
@@ -218,7 +223,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                 val res = resultToWritableMap(smallPlugResult)
                 promise.resolve(res)
             }
-
         }, partnerProps)
     }
 
