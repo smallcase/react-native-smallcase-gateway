@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.3.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.2.0...v5.3.1) (2025-10-28)
+
+
+### Bug Fixes
+
+* update loans SDK dependency to beta version for compatibility ([453385c](https://github.com/smallcase/react-native-smallcase-gateway/commit/453385c736ad57a85f255227dc87ef716e15c49a))
+
+### [5.0.2-rc.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.2-rc.2...v5.0.2-rc.3) (2025-07-22)
+
 ## [5.3.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.2.0...v5.3.0) (2025-10-01)
 
 ### [5.0.2-rc.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.0.2-rc.2...v5.0.2-rc.3) (2025-07-22)
