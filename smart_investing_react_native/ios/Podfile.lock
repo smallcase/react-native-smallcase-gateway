@@ -1410,7 +1410,7 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.5.7):
     - React-Core
-  - react-native-smallcase-gateway (5.2.0):
+  - react-native-smallcase-gateway (5.3.0):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -2129,7 +2129,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: 787d077a4aee189dbf8771f9e28b6599fee91c1f
+  react-native-smallcase-gateway: 8f014b10f2809ff4ca428cc58c42d289c188a852
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2169,6 +2169,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
-PODFILE CHECKSUM: 3d28d003f11ae6ec731dd25deb858391fa07821b
+PODFILE CHECKSUM: 909b22d10c41b476f58bd27b9ba195f353bac90e
 
 COCOAPODS: 1.16.2
