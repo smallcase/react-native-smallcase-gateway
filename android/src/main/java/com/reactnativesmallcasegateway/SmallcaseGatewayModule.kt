@@ -67,7 +67,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun init(sdkToken: String, promise: Promise) {
-        Log.d(TAG, "init: start")
 
         val initReq = InitRequest(sdkToken)
         SmallcaseGatewaySdk.init(authRequest = initReq, gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
@@ -85,7 +84,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, promise: Promise) {
-        Log.d(TAG, "triggerTransaction: start")
 
         var safeBrokerList = listOf<String>()
 
@@ -161,7 +159,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
-        Log.d(TAG, "launchSmallplug: start")
 
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
             override fun onFailure(errorCode: Int, errorMessage: String) {
@@ -198,7 +195,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                 }
             }
         }
-        Log.d(TAG, "launchSmallplugWithBranding: start")
 
         var partnerProps: SmallplugPartnerProps? = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff")
 
@@ -228,7 +224,6 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun archiveSmallcase(iscid: String, promise: Promise) {
-        Log.d(TAG, "markSmallcaseArchive: start")
 
         SmallcaseGatewaySdk.markSmallcaseArchived(iscid, object : DataListener<SmallcaseGatewayDataResponse> {
 
