@@ -1,0 +1,115 @@
+import Foundation
+import React
+import Loans
+
+@objc(SCLoansEmitter)
+class SCLoansEmitter: RCTEventEmitter {
+
+  private static var shared: SCLoansEmitter?
+
+  private var notificationObserver: NSObjectProtocol?
+
+  private var isListening: Bool {
+    return notificationObserver != nil
+  }
+
+  override init() {
+    super.init()
+    SCLoansEmitter.shared = self
+    print("SCLoansEmitter: Initialized.")
+    startListening()
+  }
+
+  deinit {
+    print("SCLoansEmitter: Deinitializing.")
+    stopListening()
+  }
+
+  override func supportedEvents() -> [String]! {
+    return [ScLoan.scLoansNotificationName.rawValue]
+  }
+
+  override func startObserving() {
+    super.startObserving()
+    print("SCLoansEmitter: startObserving called.")
+    startListening()
+  }
+
+  override func stopObserving() {
+    super.stopObserving()
+    print("SCLoansEmitter: stopObserving called.")
+    stopListening()
+  }
+
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+
+  @objc func startListening(
+    _ resolve: RCTPromiseResolveBlock? = nil,
+    rejecter reject: RCTPromiseRejectBlock? = nil
+  ) {
+    print("SCLoansEmitter: Starting to listen for notifications.")
+
+    guard !isListening else {
+      print("SCLoansEmitter: Already listening.")
+      resolve?("Already listening")
+      return
+    }
+
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else {
+        reject?("START_LISTENING_FAILED", "Self deallocated", nil)
+        return
+      }
+
+      self.stopListening()
+
+      self.notificationObserver = NotificationCenter.default.addObserver(
+        forName: ScLoan.scLoansNotificationName,
+        object: nil,
+        queue: .main
+      ) { [weak self] notification in
+        self?.processScLoansNotification(notification)
+      }
+
+      resolve?("Started listening to SCLoans events")
+    }
+  }
+
+  @objc func stopListening(
+    _ resolve: RCTPromiseResolveBlock? = nil,
+    rejecter reject: RCTPromiseRejectBlock? = nil
+  ) {
+    print("SCLoansEmitter: Stopping listening for notifications.")
+
+    guard isListening, let observer = notificationObserver else {
+      print("SCLoansEmitter: Not listening or no observer, no action needed.")
+      resolve?("Not listening")
+      return
+    }
+
+    NotificationCenter.default.removeObserver(observer)
+    notificationObserver = nil
+
+    print("SCLoansEmitter: Stopped listening.")
+    resolve?("Stopped listening to SCLoans events")
+  }
+
+  private func processScLoansNotification(_ notification: Notification) {
+    let userInfo = notification.userInfo ?? [:]
+
+    print("SCLoansEmitter: Received notification with userInfo keys: \(userInfo.keys)")
+
+    guard let jsonString = userInfo[ScLoanNotification.strigifiedPayloadKey] as? String else {
+      print(
+        "SCLoansEmitter: No stringified payload found with key '\(ScLoanNotification.strigifiedPayloadKey)'"
+      )
+      return
+    }
+
+    print("SCLoansEmitter: Received JSON string: \(jsonString).")
+    sendEvent(withName: ScLoan.scLoansNotificationName.rawValue, body: jsonString)
+    print("SCLoansEmitter: Emitted event '\(ScLoan.scLoansNotificationName)' with JSON string.")
+  }
+}

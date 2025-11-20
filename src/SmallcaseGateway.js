@@ -167,18 +167,7 @@ const launchSmallplugWithBranding = async (
   const safeBackIconOpacity =
     typeof backIconOpacity === 'number' ? backIconOpacity : 1;
 
-  return Platform.OS === 'android'
-    ? SmallcaseGatewayNative.launchSmallplugWithBranding(
-        safeEndpoint,
-        safeParams,
-        {
-          headerColor: safeHeaderColor,
-          headerOpacity: safeHeaderOpacity,
-          backIconColor: safeBackIconColor,
-          backIconOpacity: safeBackIconOpacity,
-        }
-      )
-    : SmallcaseGatewayNative.launchSmallplugWithBranding(
+return SmallcaseGatewayNative.launchSmallplugWithBranding(
         safeEndpoint,
         safeParams,
         safeHeaderColor,

@@ -30,8 +30,8 @@ RCT_REMAP_METHOD(getSdkVersion,
 RCT_REMAP_METHOD(setConfigEnvironment,
                  envName:(NSString *)envName
                  gateway:(NSString *)gateway
-                 isLeprechaunActive: (BOOL *)isLeprechaunActive
-                 isAmoEnabled: (BOOL *)isAmoEnabled
+                 isLeprechaunActive: (BOOL)isLeprechaunActive
+                 isAmoEnabled: (BOOL)isAmoEnabled
                  preProvidedBrokers: (NSArray *)preProvidedBrokers
                  setConfigEnvironmentWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
@@ -383,9 +383,25 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
+        
+        NSString* (^processColorValue)(NSString*, NSString*) = ^NSString*(NSString *color, NSString *defaultColor) {
+            if (color == nil || color.length < 6) {
+                return defaultColor;
+            }
+            if ([color hasPrefix:@"#"]) {
+                return [color substringFromIndex:1];
+            }
+            return color;
+        };
+        
+        NSString *processedHeaderColor = processColorValue(headerColor, @"2F363F");
+        NSString *processedBackIconColor = processColorValue(backIconColor, @"ffffff");
+        
+        double finalHeaderOpacity = headerOpacity != nil ? [headerOpacity doubleValue] : 1.0;
+        double finalBackIconOpacity = backIconOpacity != nil ? [backIconOpacity doubleValue] : 1.0;
 
         SmallplugData *smallplugData = [[SmallplugData alloc] init:targetEndpoint :params];
-        SmallplugUiConfig *smallplugUiConfig = [[SmallplugUiConfig alloc] initWithSmallplugHeaderColor:headerColor headerColorOpacity:headerOpacity backIconColor:backIconColor backIconColorOpacity:backIconOpacity];
+        SmallplugUiConfig *smallplugUiConfig = [[SmallplugUiConfig alloc] initWithSmallplugHeaderColor:processedHeaderColor headerColorOpacity:@(finalHeaderOpacity) backIconColor:processedBackIconColor backIconColorOpacity:@(finalBackIconOpacity)];
 
         [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData smallplugUiConfig:smallplugUiConfig completion:^(id smallplugResponse, NSError * error) {
 
@@ -480,7 +496,7 @@ RCT_EXPORT_METHOD(triggerLeadGen: (NSDictionary *)userParams utmParams:(NSDictio
 RCT_REMAP_METHOD(triggerLeadGenWithLoginCta,
                   userParams: (NSDictionary *)userParams
                   utmParams:(NSDictionary *)utmParams
-                  showLoginCta:(BOOL *)showLoginCta
+                  showLoginCta:(BOOL)showLoginCta
                   leadGenGenWithResolver: (RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject
                   ) {
