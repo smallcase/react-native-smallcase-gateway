@@ -35,13 +35,20 @@ Add these lines to your project level `build.gradle`
 ```groovy
 allprojects {
     repositories {
-        // .. you other repositories
+        // .. your existing repositories
+      
+      	// Starting from version 2.3.0 all versions of the sdk are now hosted on a public repository
+  			maven {
+        	url "https://artifactory.smallcase.com/artifactory/SCGateway"
+    		}
+  
+  			// Only for versions < 2.3.0
         maven {
-          url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
+          url "https://artifactory.smallcase.com/artifactory/gradle-dev-local"
           credentials {
             username "react_native_user"
             password "reactNativeUser123"
-          }
+        }
       }
     }
 }
@@ -50,30 +57,30 @@ allprojects {
 add these lines in `AndroidManifest.xml` in the main `<application />` tag
 
 ```xml
-<activity android:name="com.smallcase.gateway.screens.transaction.activity.TransactionProcessActivity">
-  <intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-
-    <category android:name="android.intent.category.BROWSABLE" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <data
-      android:host="{YOUR_HOST_NAME}"
-      android:scheme="scgateway" />
-  </intent-filter>
+<activity android:name="com.smallcase.gateway.screens.transaction.activity.TransactionProcessActivity"
+          android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data
+            android:host="<YOUR_GATEWAY_NAME>"
+            android:scheme="scgateway"
+        />
+    </intent-filter>
 </activity>
 
-<activity android:name="com.smallcase.gateway.screens.common.RedirectActivity">
-  <intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-
-    <category android:name="android.intent.category.BROWSABLE" />
-    <category android:name="android.intent.category.DEFAULT" />
-
-    <data
-      android:host="{YOUR_HOST_NAME}"
-      android:scheme="scgatewayredirect"
-    />
-  </intent-filter>
+<activity android:name="com.smallcase.gateway.screens.common.RedirectActivity"
+          android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data
+            android:host="<YOUR_GATEWAY_NAME>"
+            android:scheme="scgatewayredirect"
+        />
+    </intent-filter>
 </activity>
 ```
 
@@ -83,15 +90,14 @@ add these lines in `AndroidManifest.xml` in the main `<application />` tag
 // import gateway into your file
 import SmallcaseGateway from "react-native-smallcase-gateway";
 
-// configure environment
 await SmallcaseGateway.setConfigEnvironment({
   isLeprechaun: true,
   isAmoEnabled: true,
-  gatewayName: "smallcase-website",
+  gatewayName: "<YOUR_GATEWAY_NAME>",
+  // `environmentName` should always be PROD, regardless of your environment
   environmentName: SmallcaseGateway.ENV.PROD,
-  brokerList: ["kite", "aliceblue", "trustline"],
+  brokerList: [],
 });
-
 // initialize session
 await SmallcaseGateway.init(sdkToken);
 

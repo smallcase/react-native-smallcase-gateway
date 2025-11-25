@@ -67,6 +67,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun init(sdkToken: String, promise: Promise) {
+        Log.d(TAG, "init: start")
 
         val initReq = InitRequest(sdkToken)
         SmallcaseGatewaySdk.init(authRequest = initReq, gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
@@ -84,6 +85,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, promise: Promise) {
+        Log.d(TAG, "triggerTransaction: start")
 
         var safeBrokerList = listOf<String>()
 
@@ -92,7 +94,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         }
 
 
-        val activity = currentActivity;
+        val activity = reactApplicationContext.currentActivity;
         if (activity != null) {
             val utm = readableMapToStrHashMap(utmParams)
             SmallcaseGatewaySdk.triggerTransaction(utmParams = utm,
@@ -118,10 +120,10 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     @ReactMethod
     fun triggerMfTransaction(transactionId: String, promise: Promise) {
 
-        if(currentActivity !=  null) {
+        if(reactApplicationContext.currentActivity !=  null) {
 
             SmallcaseGatewaySdk.triggerMfTransaction(
-                activity = currentActivity!!,
+                activity = reactApplicationContext.currentActivity!!,
                 transactionId = transactionId,
                 listener = object : MFHoldingsResponseListener {
 
@@ -142,7 +144,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun showOrders(promise: Promise) {
-        val activity = currentActivity;
+        val activity = reactApplicationContext.currentActivity;
         if (activity != null) {
             SmallcaseGatewaySdk.showOrders(activity = activity, showOrdersResponseListener = object : DataListener<Any> {
                 override fun onSuccess(response: Any) {
@@ -159,8 +161,9 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
+        Log.d(TAG, "launchSmallplug: start")
 
-        SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
+        SmallcaseGatewaySdk.launchSmallPlug(reactApplicationContext.currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 val err = createErrorJSON(errorCode, errorMessage, null)
 
@@ -195,6 +198,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                 }
             }
         }
+        Log.d(TAG, "launchSmallplugWithBranding: start")
 
         var partnerProps: SmallplugPartnerProps? = SmallplugPartnerProps(headerColor = "#2F363F", backIconColor = "ffffff")
 
@@ -209,7 +213,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         } catch (e: Throwable) {
         }
 
-        SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
+        SmallcaseGatewaySdk.launchSmallPlug(reactApplicationContext.currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
             override fun onFailure(errorCode: Int, errorMessage: String) {
                 val err = createErrorJSON(errorCode, errorMessage, null)
                 promise.reject("error", err)
@@ -224,6 +228,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun archiveSmallcase(iscid: String, promise: Promise) {
+        Log.d(TAG, "markSmallcaseArchive: start")
 
         SmallcaseGatewaySdk.markSmallcaseArchived(iscid, object : DataListener<SmallcaseGatewayDataResponse> {
 
@@ -240,7 +245,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun logoutUser(promise: Promise) {
-        val activity = currentActivity;
+        val activity = reactApplicationContext.currentActivity;
         if (activity != null) {
             SmallcaseGatewaySdk.logoutUser(activity = activity, logoutListener = object : SmallcaseLogoutListener {
                 override fun onLogoutSuccessfull() {
@@ -257,7 +262,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun triggerLeadGen(userDetails: ReadableMap, utmData: ReadableMap) {
-        val activity = currentActivity;
+        val activity = reactApplicationContext.currentActivity;
         if (activity != null) {
             SmallcaseGatewaySdk.triggerLeadGen(activity = activity, utmParams = readableMapToStrHashMap(utmData), params = readableMapToStrHashMap(userDetails))
         }
@@ -265,7 +270,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun triggerLeadGenWithStatus(userDetails: ReadableMap, promise: Promise) {
-        val activity = currentActivity
+        val activity = reactApplicationContext.currentActivity
         if (activity != null) {
 
             SmallcaseGatewaySdk.triggerLeadGen(activity, readableMapToStrHashMap(userDetails), object : LeadGenResponseListener {
@@ -278,10 +283,10 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
      @ReactMethod
      fun triggerLeadGenWithLoginCta(userDetails: ReadableMap, utmData: ReadableMap, showLoginCta: Boolean, promise: Promise) {
-         if(currentActivity != null) {
+         if(reactApplicationContext.currentActivity != null) {
 
              SmallcaseGatewaySdk.triggerLeadGen(
-                 activity = currentActivity!!,
+                 activity = reactApplicationContext.currentActivity!!,
                  params = readableMapToStrHashMap(userDetails),
                  utmParams = readableMapToStrHashMap(utmData),
                  retargeting = null,
@@ -296,7 +301,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun setupLoans(config: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(config)
       val gateway = hashMap["gatewayName"]
       val environment = hashMap["environment"]
@@ -324,7 +329,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
   @ReactMethod
     fun apply(loanConfig: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
       val interactionToken = hashMap["interactionToken"]
       if(interactionToken == null) {
@@ -345,7 +350,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
   @ReactMethod
     fun pay(loanConfig: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
       val interactionToken = hashMap["interactionToken"]
       if(interactionToken == null) {
@@ -366,7 +371,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
   @ReactMethod
     fun withdraw(loanConfig: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
       val interactionToken = hashMap["interactionToken"]
       if(interactionToken == null) {
@@ -387,7 +392,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
   @ReactMethod
     fun service(loanConfig: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
       val interactionToken = hashMap["interactionToken"]
       if(interactionToken == null) {
@@ -408,7 +413,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
     @ReactMethod
     fun triggerInteraction(loanConfig: ReadableMap, promise: Promise) {
-      val appCompatActivity = currentActivity as? AppCompatActivity ?: return
+      val appCompatActivity = reactApplicationContext.currentActivity as? AppCompatActivity ?: return
       val hashMap = readableMapToStrHashMap(loanConfig)
       val interactionToken = hashMap["interactionToken"]
       if(interactionToken == null) {
