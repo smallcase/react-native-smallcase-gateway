@@ -161,7 +161,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
 
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
-                override fun onFailure(errorCode: Int, errorMessage: String, userInfo: UserInfo?) {
+                override fun onFailure(errorCode: Int, errorMessage: String, smallcaseAuthToken: String?, userInfo: UserInfo?) {
                     val dataMap = Arguments.createMap()
                     userInfoToWritableMap(userInfo)?.let {
                         dataMap.putMap("userInfo", it)
@@ -213,7 +213,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         }
 
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
-            override fun onFailure(errorCode: Int, errorMessage: String, userInfo: UserInfo?) {
+            override fun onFailure(errorCode: Int, errorMessage: String, smallcaseAuthToken: String?, userInfo: UserInfo?) {
                 val dataMap = Arguments.createMap()
                 userInfoToWritableMap(userInfo)?.let {
                     dataMap.putMap("userInfo", it)
