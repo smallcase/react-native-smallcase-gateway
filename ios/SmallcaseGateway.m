@@ -355,16 +355,20 @@ RCT_REMAP_METHOD(launchSmallplug,
                         [responseDict setValue:result.smallcaseAuthToken forKey:@"smallcaseAuthToken"];
                     }
                     
-                    // Add userInfo if available
+                    // Add userInfo inside data object if available
                     if (result.userInfo) {
+                        NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] init];
                         NSMutableDictionary *userInfoDict = [[NSMutableDictionary alloc] init];
+                        
                         if (result.userInfo.number) {
                             [userInfoDict setValue:result.userInfo.number forKey:@"number"];
                         }
                         if (result.userInfo.countryCode) {
                             [userInfoDict setValue:result.userInfo.countryCode forKey:@"countryCode"];
                         }
-                        [responseDict setValue:userInfoDict forKey:@"userInfo"];
+                        
+                        [dataDict setValue:userInfoDict forKey:@"userInfo"];
+                        [responseDict setValue:dataDict forKey:@"data"];
                     }
 
                     double delayInSeconds = 0.5;
@@ -434,16 +438,20 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
                         [responseDict setValue:result.smallcaseAuthToken forKey:@"smallcaseAuthToken"];
                     }
                     
-                    // Add userInfo if available
+                    // Add userInfo inside data object if available
                     if (result.userInfo) {
+                        NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] init];
                         NSMutableDictionary *userInfoDict = [[NSMutableDictionary alloc] init];
+                        
                         if (result.userInfo.number) {
                             [userInfoDict setValue:result.userInfo.number forKey:@"number"];
                         }
                         if (result.userInfo.countryCode) {
                             [userInfoDict setValue:result.userInfo.countryCode forKey:@"countryCode"];
                         }
-                        [responseDict setValue:userInfoDict forKey:@"userInfo"];
+                        
+                        [dataDict setValue:userInfoDict forKey:@"userInfo"];
+                        [responseDict setValue:dataDict forKey:@"data"];
                     }
 
                     double delayInSeconds = 0.5;
