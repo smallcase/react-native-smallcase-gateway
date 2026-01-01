@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
+index 0000000..1111111 100644
+--- a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
+@@ -124,7 +124,7 @@ export interface NativeProps extends ViewProps {
+   tabKey: string;
+ 
+   // General
+-  title?: string | undefined | null;
++  title?: string | null;
+   badgeValue?: string;
+ 
+   // Currently iOS-only
