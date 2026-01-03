@@ -27,7 +27,8 @@ Pod::Spec.new do |s|
     }
 
     s.dependency "React-Codegen"
-    s.dependency "RCT-Folly"
+    # RCT-Folly is provided by ReactNativeDependencies in RN 0.81+, so we don't need to declare it
+    # s.dependency "RCT-Folly"
     s.dependency "RCTRequired"
     s.dependency "RCTTypeSafety"
     s.dependency "ReactCommon/turbomodule/core"
