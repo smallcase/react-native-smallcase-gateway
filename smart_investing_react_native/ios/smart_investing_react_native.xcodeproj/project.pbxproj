@@ -7,23 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C9E266655604B530F56BAE3 /* libPods-smart_investing_react_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 66B4C70BC8C5ECE36E4638B7 /* libPods-smart_investing_react_native.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		D4D3228D610583E76981F925 /* libPods-smart_investing_react_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7423467E54E8168F6B403CFB /* libPods-smart_investing_react_native.a */; };
 		EA4A3269BC652E6DDFDC263B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		071904B39E6D594C8EA6889A /* Pods-smart_investing_react_native.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smart_investing_react_native.debug.xcconfig"; path = "Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* smart_investing_react_native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = smart_investing_react_native.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = smart_investing_react_native/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = smart_investing_react_native/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = smart_investing_react_native/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		7423467E54E8168F6B403CFB /* libPods-smart_investing_react_native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smart_investing_react_native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		448D4FB76ADEC2D7CE2D2CF4 /* Pods-smart_investing_react_native.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smart_investing_react_native.debug.xcconfig"; path = "Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native.debug.xcconfig"; sourceTree = "<group>"; };
+		4C864A3F0D96AACCEDB60146 /* Pods-smart_investing_react_native.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smart_investing_react_native.release.xcconfig"; path = "Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native.release.xcconfig"; sourceTree = "<group>"; };
+		66B4C70BC8C5ECE36E4638B7 /* libPods-smart_investing_react_native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smart_investing_react_native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = smart_investing_react_native/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = smart_investing_react_native/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		93FC442B87D40D61F6BED484 /* Pods-smart_investing_react_native.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smart_investing_react_native.release.xcconfig"; path = "Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -32,7 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D4D3228D610583E76981F925 /* libPods-smart_investing_react_native.a in Frameworks */,
+				0C9E266655604B530F56BAE3 /* libPods-smart_investing_react_native.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,7 +55,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7423467E54E8168F6B403CFB /* libPods-smart_investing_react_native.a */,
+				66B4C70BC8C5ECE36E4638B7 /* libPods-smart_investing_react_native.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -92,8 +92,8 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				071904B39E6D594C8EA6889A /* Pods-smart_investing_react_native.debug.xcconfig */,
-				93FC442B87D40D61F6BED484 /* Pods-smart_investing_react_native.release.xcconfig */,
+				448D4FB76ADEC2D7CE2D2CF4 /* Pods-smart_investing_react_native.debug.xcconfig */,
+				4C864A3F0D96AACCEDB60146 /* Pods-smart_investing_react_native.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -105,13 +105,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "smart_investing_react_native" */;
 			buildPhases = (
-				BC06085104338526B784AA7C /* [CP] Check Pods Manifest.lock */,
+				FD13FEC00C5CCBE9E95A250E /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				7B8AA88A145DD39C0C82C942 /* [CP] Embed Pods Frameworks */,
-				36520D5C05E6A55F1941A358 /* [CP] Copy Pods Resources */,
+				5BCBB48CE6A4CE9853E2B4DE /* [CP] Embed Pods Frameworks */,
+				AA64192E231D23FA2CB23E53 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -183,24 +183,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		36520D5C05E6A55F1941A358 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7B8AA88A145DD39C0C82C942 /* [CP] Embed Pods Frameworks */ = {
+		5BCBB48CE6A4CE9853E2B4DE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -217,7 +200,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BC06085104338526B784AA7C /* [CP] Check Pods Manifest.lock */ = {
+		AA64192E231D23FA2CB23E53 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-smart_investing_react_native/Pods-smart_investing_react_native-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FD13FEC00C5CCBE9E95A250E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -255,7 +255,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 071904B39E6D594C8EA6889A /* Pods-smart_investing_react_native.debug.xcconfig */;
+			baseConfigurationReference = 448D4FB76ADEC2D7CE2D2CF4 /* Pods-smart_investing_react_native.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -284,7 +284,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 93FC442B87D40D61F6BED484 /* Pods-smart_investing_react_native.release.xcconfig */;
+			baseConfigurationReference = 4C864A3F0D96AACCEDB60146 /* Pods-smart_investing_react_native.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

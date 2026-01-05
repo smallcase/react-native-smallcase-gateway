@@ -422,14 +422,35 @@ interface UIConfig {
   backIconOpacity: number;
 }
 
+export interface UserInfo {
+  phoneNumber: string;
+  phoneCountryCode: string;
+}
+
+export interface SmallplugRes {
+  success: boolean;
+  smallcaseAuthToken: string;
+  data?: {
+    userInfo?: UserInfo;
+  };
+}
+
+export interface SmallplugError {
+  errorCode: number;
+  errorMessage: string;
+  data?: {
+    userInfo?: UserInfo;
+  };
+}
+
 async function launchSmallPlug(
   targetEndpoint: any,
   params: any,
   uiConfig: UIConfig,
-) {
+): Promise<SmallplugRes> {
   try {
     console.log(`launchSmallPlug start ${JSON.stringify(uiConfig)}`);
-    const res = await SmallcaseGateway.launchSmallplugWithBranding(
+    const res: any = await SmallcaseGateway.launchSmallplugWithBranding(
       targetEndpoint,
       params,
       uiConfig.headerColor ?? '',
@@ -438,12 +459,14 @@ async function launchSmallPlug(
       uiConfig.backIconOpacity,
     );
     console.log(`launch dm res -> ${JSON.stringify(res)}`);
-    alert('Launch Smallplug Success', JSON.stringify(res));
+    await alert('Launch Smallplug Success', JSON.stringify(res));
+    return res;
   } catch (error) {
     console.log(
       'Launch Smallplug error stringified - ' + JSON.stringify(error),
     );
-    alert('Launch Smallplug Error', getErrorString(error));
+    await alert('Launch Smallplug Error', getErrorString(error));
+    throw error;
   }
 }
 

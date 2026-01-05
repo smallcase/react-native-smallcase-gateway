@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0...v7.0.0) (2026-01-05)
+
+
+### Features
+
+* standardize smallplug response structure across iOS and Android ([0d82229](https://github.com/smallcase/react-native-smallcase-gateway/commit/0d82229b10fdd4eb67bd2866ca14b1972942e46d))
+
 ### [6.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0...v6.0.1) (2025-12-06)
 
 ## [6.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.2.0...v6.0.0) (2025-11-20)

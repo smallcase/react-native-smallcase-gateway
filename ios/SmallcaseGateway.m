@@ -333,40 +333,51 @@ RCT_REMAP_METHOD(launchSmallplug,
 
         [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData completion:^(id smallplugResponse, NSError * error) {
 
-            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-
             if (error != nil) {
                 NSLog(@"%@", error.domain);
                 double delayInSeconds = 0.5;
                 dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                 dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"error"];
-
-                    resolve(responseDict);
-                    return;
+                    NSMutableDictionary *errorDict = [[NSMutableDictionary alloc] init];
+                    [errorDict setValue:[NSNumber numberWithInteger:error.code] forKey:@"errorCode"];
+                    [errorDict setValue:error.domain forKey:@"errorMessage"];
+                    
+                    reject(@"error", error.domain, error);
                 });
             } else {
-
-                if ([smallplugResponse isKindOfClass: [NSString class]]) {
-                    NSLog(@"%@", smallplugResponse);
-
-                    [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
-                    [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
+                if ([smallplugResponse isKindOfClass:[SmallPlugResult class]]) {
+                    SmallPlugResult *result = (SmallPlugResult *)smallplugResponse;
+                    
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
+                    
+                    if (result.smallcaseAuthToken) {
+                        [responseDict setValue:result.smallcaseAuthToken forKey:@"smallcaseAuthToken"];
+                    }
+                    
+                    // Add userInfo inside data object if available
+                    if (result.userInfo) {
+                        NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] init];
+                        NSMutableDictionary *userInfoDict = [[NSMutableDictionary alloc] init];
+                        
+                        if (result.userInfo.number) {
+                            [userInfoDict setValue:result.userInfo.number forKey:@"number"];
+                        }
+                        if (result.userInfo.countryCode) {
+                            [userInfoDict setValue:result.userInfo.countryCode forKey:@"countryCode"];
+                        }
+                        
+                        [dataDict setValue:userInfoDict forKey:@"userInfo"];
+                        [responseDict setValue:dataDict forKey:@"data"];
+                    }
 
                     double delayInSeconds = 0.5;
                     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-
                         resolve(responseDict);
-                        return;
-
                     });
                 }
             }
-
         }];
     });
 }
@@ -405,40 +416,51 @@ RCT_REMAP_METHOD(launchSmallplugWithBranding,
 
         [SCGateway.shared launchSmallPlugWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] smallplugData:smallplugData smallplugUiConfig:smallplugUiConfig completion:^(id smallplugResponse, NSError * error) {
 
-            NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-
             if (error != nil) {
                 NSLog(@"%@", error.domain);
                 double delayInSeconds = 0.5;
                 dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                 dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
-                    [responseDict setValue:[NSNumber numberWithBool:false] forKey:@"success"];
-                    [responseDict setValue:[NSNumber numberWithInteger:error.code]  forKey:@"errorCode"];
-                    [responseDict setValue:error.domain  forKey:@"error"];
-
-                    resolve(responseDict);
-                    return;
+                    NSMutableDictionary *errorDict = [[NSMutableDictionary alloc] init];
+                    [errorDict setValue:[NSNumber numberWithInteger:error.code] forKey:@"errorCode"];
+                    [errorDict setValue:error.domain forKey:@"errorMessage"];
+                    
+                    reject(@"error", error.domain, error);
                 });
             } else {
-
-                if ([smallplugResponse isKindOfClass: [NSString class]]) {
-                    NSLog(@"%@", smallplugResponse);
-
-                    [responseDict setValue:[NSNumber numberWithBool: true] forKey:@"success"];
-                    [responseDict setValue:smallplugResponse forKey:@"smallcaseAuthToken"];
+                if ([smallplugResponse isKindOfClass:[SmallPlugResult class]]) {
+                    SmallPlugResult *result = (SmallPlugResult *)smallplugResponse;
+                    
+                    NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
+                    [responseDict setValue:[NSNumber numberWithBool:true] forKey:@"success"];
+                    
+                    if (result.smallcaseAuthToken) {
+                        [responseDict setValue:result.smallcaseAuthToken forKey:@"smallcaseAuthToken"];
+                    }
+                    
+                    // Add userInfo inside data object if available
+                    if (result.userInfo) {
+                        NSMutableDictionary *dataDict = [[NSMutableDictionary alloc] init];
+                        NSMutableDictionary *userInfoDict = [[NSMutableDictionary alloc] init];
+                        
+                        if (result.userInfo.number) {
+                            [userInfoDict setValue:result.userInfo.number forKey:@"number"];
+                        }
+                        if (result.userInfo.countryCode) {
+                            [userInfoDict setValue:result.userInfo.countryCode forKey:@"countryCode"];
+                        }
+                        
+                        [dataDict setValue:userInfoDict forKey:@"userInfo"];
+                        [responseDict setValue:dataDict forKey:@"data"];
+                    }
 
                     double delayInSeconds = 0.5;
                     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
                     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-
                         resolve(responseDict);
-                        return;
-
                     });
                 }
             }
-
         }];
     });
 }
