@@ -31,6 +31,16 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {String} backIconColor - color of the back icon
  * @property {Number} backIconOpacity - opacity of the back icon
  *
+ * @typedef {Object} UserInfo
+ * @property {string} phoneNumber - user's phone number
+ * @property {string} phoneCountryCode - user's phone country code
+ *
+ * @typedef {Object} SmallplugRes
+ * @property {true} success
+ * @property {string} smallcaseAuthToken
+ * @property {Object} data
+ * @property {UserInfo} [data.userInfo]
+ *
  */
 
 let defaultBrokerList = [];
@@ -123,9 +133,12 @@ const triggerMfTransaction = async (transactionId) => {
 
 /**
  * launches smallcases module
+ * On success, resolves with SmallplugRes.
+ * On failure, rejects with an error object containing `errorCode`, `errorMessage`, and an optional `data` object with `userInfo`.
  *
  * @param {string} targetEndpoint
  * @param {string} params
+ * @returns {Promise<SmallplugRes>}
  */
 const launchSmallplug = async (targetEndpoint, params) => {
   const safeEndpoint = typeof targetEndpoint === 'string' ? targetEndpoint : '';
@@ -136,6 +149,8 @@ const launchSmallplug = async (targetEndpoint, params) => {
 
 /**
  * launches smallcases module
+ * On success, resolves with SmallplugRes.
+ * On failure, rejects with an error object containing `errorCode`, `errorMessage`, and an optional `data` object with `userInfo`.
  *
  * @param {string} targetEndpoint
  * @param {string} params
@@ -143,6 +158,7 @@ const launchSmallplug = async (targetEndpoint, params) => {
  * @param {number} headerOpacity
  * @param {string} backIconColor
  * @param {number} backIconOpacity
+ * @returns {Promise<SmallplugRes>}
  */
 const launchSmallplugWithBranding = async (
   targetEndpoint,

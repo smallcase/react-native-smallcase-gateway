@@ -3,8 +3,9 @@ import {Button, TextInput, View} from 'react-native';
 import {launchSmallPlug} from '../apis/Functions';
 
 const SmtScreen = () => {
-  const [targetEndpoint, onChangeTargetEndpoint] =
-    React.useState<string | null>(null);
+  const [targetEndpoint, onChangeTargetEndpoint] = React.useState<
+    string | null
+  >(null);
   const [params, onChangeParams] = React.useState<string | null>(null);
   const [headerColor, onChangeHeaderColor] = React.useState<string | null>(
     null,
@@ -15,8 +16,9 @@ const SmtScreen = () => {
   const [backIconColor, onChangeBackIconColor] = React.useState<string | null>(
     null,
   );
-  const [backIconOpacity, onChangeBackIconOpacity] =
-    React.useState<string | null>(null);
+  const [backIconOpacity, onChangeBackIconOpacity] = React.useState<
+    string | null
+  >(null);
   return (
     <View>
       <TextInput
@@ -56,7 +58,7 @@ const SmtScreen = () => {
         }}
       />
       <Button
-        onPress={() => {
+        onPress={async () => {
           console.log(`SmtScreen - ${headerColor} ${headerOpacity}`);
           let ho = getFloatFromString(headerOpacity, 1);
           let bo = getFloatFromString(backIconOpacity, 1);
@@ -67,7 +69,27 @@ const SmtScreen = () => {
             backIconColor: backIconColor,
             backIconOpacity: bo,
           };
-          launchSmallPlug(targetEndpoint, params, config);
+
+          try {
+            const result = await launchSmallPlug(
+              targetEndpoint,
+              params,
+              config,
+            );
+            console.log('✅ Smallplug Success:', result);
+            if (result?.data?.userInfo) {
+              console.log(' User Info:', result.data.userInfo);
+              // You can use the userInfo object here, for example, show an alert
+              // alert(`Success! User phone: ${result.data.userInfo.phoneNumber}`);
+            }
+          } catch (error: any) {
+            console.error(' Smallplug Error:', error);
+            if (error?.data?.userInfo) {
+              console.log(' User Info from error:', error.data.userInfo);
+              // You can use the userInfo object here
+              // alert(`Failure! User phone: ${error.data.userInfo.phoneNumber}`);
+            }
+          }
         }}
         title={'SmallPlug'}
         accessibilityLabel="Learn more about this purple button"

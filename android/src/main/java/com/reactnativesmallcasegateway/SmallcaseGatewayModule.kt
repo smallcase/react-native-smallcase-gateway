@@ -161,9 +161,8 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     fun launchSmallplug(targetEndpoint: String, params: String, promise: Promise) {
 
         SmallcaseGatewaySdk.launchSmallPlug(currentActivity!!, SmallplugData(targetEndpoint, params), object : SmallPlugResponseListener {
-            override fun onFailure(errorCode: Int, errorMessage: String) {
+                override fun onFailure(errorCode: Int, errorMessage: String) {
                 val err = createErrorJSON(errorCode, errorMessage, null)
-
                 promise.reject("error", err)
             }
 
@@ -469,15 +468,36 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         writableMap.putBoolean("success", result.success)
         writableMap.putString("smallcaseAuthToken", result.smallcaseAuthToken)
 
+        val dataMap = Arguments.createMap()
+        userInfoToWritableMap(result.userInfo)?.let {
+            dataMap.putMap("userInfo", it)
+        }
+
+        if (dataMap.keySetIterator().hasNextKey()) {
+            writableMap.putMap("data", dataMap)
+        }
+
         return writableMap
     }
 
-    private fun createErrorJSON(errorCode: Int?, errorMessage: String?, data: String?): WritableMap {
+    private fun userInfoToWritableMap(userInfo: UserInfo?): WritableMap? {
+        if (userInfo == null) return null
+
+        val map = Arguments.createMap()
+        map.putString("number", userInfo.number)
+        map.putString("countryCode", userInfo.countryCode)
+        return map
+    }
+
+    private fun createErrorJSON(errorCode: Int?, errorMessage: String?, data: Any?): WritableMap {
         val errObj = Arguments.createMap()
 
         errorCode?.let { errObj.putInt("errorCode", it) }
         errorMessage?.let { errObj.putString("errorMessage", it) }
-        data?.let { errObj.putString("data", it) }
+        when (data) {
+            is String -> errObj.putString("data", data)
+            is WritableMap -> errObj.putMap("data", data)
+        }
 
         return errObj
     }
