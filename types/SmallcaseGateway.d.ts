@@ -20,6 +20,10 @@ export type envConfig = {
      * - environment name
      */
     environmentName: 'production' | 'staging' | 'development';
+    /**
+     * - user identification (iOS only, optional)
+     */
+    userId?: string;
 };
 export type transactionRes = {
     /**

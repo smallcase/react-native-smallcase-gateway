@@ -24,8 +24,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
 
     @ReactMethod
-    fun setConfigEnvironment(envName: String, gateway: String, isLeprechaunActive: Boolean, isAmoEnabled: Boolean, preProvidedBrokers: ReadableArray, promise: Promise) {
-
+    fun setConfigEnvironment(envName: String, gateway: String, isLeprechaunActive: Boolean, isAmoEnabled: Boolean, preProvidedBrokers: ReadableArray, userId: String?, promise: Promise) {
         try {
             val brokerList = ArrayList<String>()
             for (index in 0 until preProvidedBrokers.size()) {
@@ -38,6 +37,11 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
             val protocol = getProtocol(envName)
 
             val env = Environment(gateway = gateway, buildType = protocol, isAmoEnabled = isAmoEnabled, preProvidedBrokers = brokerList, isLeprachaunActive = isLeprechaunActive)
+        
+        // Set userIdentification if provided - For Now, we are not accepting this on Gateway SDK
+        // if (!userId.isNullOrEmpty()) {
+        //    env.userId = userIdentification
+        // }
 
             SmallcaseGatewaySdk.setConfigEnvironment(environment = env, smallcaseGatewayListeners = object : SmallcaseGatewayListeners {
                 override fun onGatewaySetupSuccessfull() {
