@@ -73,6 +73,11 @@ async function setEnvironment(
     }
     const initGatewayResponse = await SmallcaseGateway.init(
       authJwtResult.authJwt,
+      {
+        externalIdentifier: {
+          userId: "testValue", // Replace with actual userId if needed
+        },
+      },
     );
     console.log('initGatewayResponse: ' + initGatewayResponse);
     alert('Set Environment', 'Successful!!');
