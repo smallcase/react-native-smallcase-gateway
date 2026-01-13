@@ -12,7 +12,6 @@ const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
  * @property {boolean}       isAmoEnabled    - support AMO (subject to broker support)
  * @property {Array<string>} brokerList      - list of broker names
  * @property {'production' | 'staging' | 'development'}  environmentName - environment name
- * @property {string}        userId           - user identification (iOS only, optional)
  *
  * @typedef {Object} transactionRes
  * @property {string}   data        - response data
@@ -61,7 +60,6 @@ const setConfigEnvironment = async (envConfig) => {
     isLeprechaun,
     isAmoEnabled,
     environmentName,
-    userId,
   } = safeConfig;
 
   const safeIsLeprechaun = Boolean(isLeprechaun);
@@ -70,7 +68,6 @@ const setConfigEnvironment = async (envConfig) => {
   const safeGatewayName = typeof gatewayName === 'string' ? gatewayName : '';
   const safeEnvName =
     typeof environmentName === 'string' ? environmentName : ENV.PROD;
-  const safeUserId = typeof userId === 'string' ? userId : null;
 
   defaultBrokerList = safeBrokerList;
 
@@ -79,8 +76,7 @@ const setConfigEnvironment = async (envConfig) => {
     safeGatewayName,
     safeIsLeprechaun,
     safeIsAmoEnabled,
-    safeBrokerList,
-    safeUserId
+    safeBrokerList
   );
 };
 
@@ -89,10 +85,14 @@ const setConfigEnvironment = async (envConfig) => {
  *
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
+ * @param {Object} [externalMeta] - external metadata (iOS only, optional)
+ * @param {Object} [externalMeta.externalIdentifier] - key-value pairs for external identifiers (e.g., { userId: '123' })
  */
-const init = async (sdkToken) => {
+const init = async (sdkToken, externalMeta) => {
   const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  return SmallcaseGatewayNative.init(safeToken);
+  const safeExternalMeta = externalMeta && typeof externalMeta === 'object' ? externalMeta : null;
+  
+  return SmallcaseGatewayNative.init(safeToken, safeExternalMeta);
 };
 
 /**

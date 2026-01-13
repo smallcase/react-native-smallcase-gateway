@@ -33,7 +33,6 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                  isLeprechaunActive: (BOOL)isLeprechaunActive
                  isAmoEnabled: (BOOL)isAmoEnabled
                  preProvidedBrokers: (NSArray *)preProvidedBrokers
-                 userId:(NSString *)userId
                  setConfigEnvironmentWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     NSInteger environment = EnvironmentProduction;
@@ -52,8 +51,7 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                              brokerConfig:preProvidedBrokers
                              apiEnvironment:environment
                              isLeprechaunActive:isLeprechaunActive
-                             isAmoEnabled:isAmoEnabled
-                             userId:userId];
+                             isAmoEnabled:isAmoEnabled];
 
     [SCGateway.shared setupWithConfig:config completion:^(BOOL success, NSError *error) {
         if(success) {
@@ -73,9 +71,13 @@ RCT_REMAP_METHOD(setConfigEnvironment,
 //MARK: SDK init
 RCT_REMAP_METHOD(init,
                  sdkToken:(NSString *)sdkToken
+                 externalMeta:(NSDictionary *)externalMeta
                  initWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
-    [SCGateway.shared initializeGatewayWithSdkToken:sdkToken completion:^(BOOL success, NSError * error) {
+    
+    [SCGateway.shared initializeGatewayWithSdkToken:sdkToken 
+                                       externalMeta:externalMeta 
+                                         completion:^(BOOL success, NSError *error) {
         if(success) {
             resolve(@(YES));
         } else {

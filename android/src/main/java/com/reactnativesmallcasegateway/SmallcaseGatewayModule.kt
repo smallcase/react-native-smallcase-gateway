@@ -24,7 +24,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
 
 
     @ReactMethod
-    fun setConfigEnvironment(envName: String, gateway: String, isLeprechaunActive: Boolean, isAmoEnabled: Boolean, preProvidedBrokers: ReadableArray, userId: String?, promise: Promise) {
+    fun setConfigEnvironment(envName: String, gateway: String, isLeprechaunActive: Boolean, isAmoEnabled: Boolean, preProvidedBrokers: ReadableArray, promise: Promise) {
         try {
             val brokerList = ArrayList<String>()
             for (index in 0 until preProvidedBrokers.size()) {
@@ -70,8 +70,9 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     @ReactMethod
-    fun init(sdkToken: String, promise: Promise) {
-
+    fun init(sdkToken: String, externalMeta: ReadableMap?, promise: Promise) {
+        // externalMeta is accepted but not used on Android (iOS only feature)
+        // Extract externalIdentifier if needed in future
         val initReq = InitRequest(sdkToken)
         SmallcaseGatewaySdk.init(authRequest = initReq, gatewayInitialisationListener = object : DataListener<InitialisationResponse> {
             override fun onFailure(errorCode: Int, errorMessage: String, data: String?) {
