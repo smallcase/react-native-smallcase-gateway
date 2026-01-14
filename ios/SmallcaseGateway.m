@@ -53,7 +53,7 @@ RCT_REMAP_METHOD(setConfigEnvironment,
                              isLeprechaunActive:isLeprechaunActive
                              isAmoEnabled:isAmoEnabled];
 
-    [SCGateway.shared setupWithConfig: config completion:^(BOOL success,NSError * error) {
+    [SCGateway.shared setupWithConfig:config completion:^(BOOL success, NSError *error) {
         if(success) {
             resolve(@(YES));
         } else {
@@ -65,16 +65,19 @@ RCT_REMAP_METHOD(setConfigEnvironment,
 
             reject(@"setConfigEnvironment", @"Env setup failed", err);
         }
-
     }];
 }
 
 //MARK: SDK init
 RCT_REMAP_METHOD(init,
                  sdkToken:(NSString *)sdkToken
+                 externalMeta:(NSDictionary *)externalMeta
                  initWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
-    [SCGateway.shared initializeGatewayWithSdkToken:sdkToken completion:^(BOOL success, NSError * error) {
+    
+    [SCGateway.shared initializeGatewayWithSdkToken:sdkToken 
+                                       externalMeta:externalMeta 
+                                         completion:^(BOOL success, NSError *error) {
         if(success) {
             resolve(@(YES));
         } else {

@@ -73,6 +73,11 @@ async function setEnvironment(
     }
     const initGatewayResponse = await SmallcaseGateway.init(
       authJwtResult.authJwt,
+      {
+        externalIdentifier: {
+          userId: "testValue", // Replace with actual userId if needed
+        },
+      },
     );
     console.log('initGatewayResponse: ' + initGatewayResponse);
     alert('Set Environment', 'Successful!!');
@@ -94,6 +99,7 @@ async function connect(env: Environment, userId: string): Promise<Boolean> {
       null,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.connect}`);
     console.log('transactionId: ' + transactionId);
     const transactionResponse = await SmallcaseGateway.triggerTransaction(
       transactionId,
@@ -123,6 +129,7 @@ async function connect(env: Environment, userId: string): Promise<Boolean> {
 
 async function triggerMftxn(env: Environment, transactionId: string) {
   try {
+    console.log(`Transaction ID: ${transactionId}, Intent: MF_HOLDINGS_IMPORT`);
     console.log('triggerMftxn txn id: ' + transactionId);
     const res = await SmallcaseGateway.triggerMfTransaction(transactionId);
     console.log('triggerMftxn res: ' + JSON.stringify(res));
@@ -148,6 +155,7 @@ async function placeSstOrder(
       null,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.transaction}`);
     console.log('sst txn id: ' + transactionId);
     const res = await SmallcaseGateway.triggerTransaction(transactionId, {
       test: 'test',
@@ -180,6 +188,7 @@ async function authorizeHoldings(env: Environment, userId: string) {
       null,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.authorizeHoldings}`);
     console.log('authorizeHoldings txn id: ' + transactionId);
     const res = await SmallcaseGateway.triggerTransaction(transactionId, {
       test: 'test',
@@ -204,6 +213,7 @@ async function reconcileHoldings(env: Environment, userId: string) {
       null,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.transaction} (RECONCILIATION)`);
     const res = await SmallcaseGateway.triggerTransaction(transactionId);
     console.log('reconcileHoldings res: ' + JSON.stringify(res));
     alert('Reconcile Holdings', JSON.stringify(res));
@@ -238,6 +248,7 @@ async function importHoldings(
       assetConfig,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.holdingsImport}`);
     console.log('importHoldings txn id: ' + transactionId);
     const res = await SmallcaseGateway.triggerTransaction(transactionId, {
       test: 'test',
@@ -396,6 +407,7 @@ async function fetchFunds(env: Environment, userId: string): Promise<number> {
       null,
       null,
     );
+    console.log(`Transaction ID: ${transactionId}, Intent: ${transactionType.fetchFunds}`);
     console.log('fetchFunds txn id: ' + transactionId);
     const res = await SmallcaseGateway.triggerTransaction(transactionId, {
       test: 'test',
@@ -504,6 +516,7 @@ async function logout() {
 
 async function triggerTxn(txnId: string) {
   try {
+    console.log(`Transaction ID: ${txnId}, Intent: MANUAL_TRIGGER`);
     const res = await SmallcaseGateway.triggerTransaction(txnId, {
       test: 'test',
     });
