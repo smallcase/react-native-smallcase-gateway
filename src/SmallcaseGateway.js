@@ -85,10 +85,14 @@ const setConfigEnvironment = async (envConfig) => {
  *
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
+ * @param {Object} [externalMeta] - external metadata (iOS only, optional)
+ * @param {Object} [externalMeta.externalIdentifier] - key-value pairs for external identifiers (e.g., { userId: '123' })
  */
-const init = async (sdkToken) => {
+const init = async (sdkToken, externalMeta) => {
   const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  return SmallcaseGatewayNative.init(safeToken);
+  const safeExternalMeta = externalMeta && typeof externalMeta === 'object' ? externalMeta : null;
+  
+  return SmallcaseGatewayNative.init(safeToken, safeExternalMeta);
 };
 
 /**

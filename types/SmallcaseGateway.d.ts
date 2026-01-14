@@ -95,8 +95,10 @@ declare namespace SmallcaseGateway {
  *
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
+ * @param {Object} [externalMeta] - external metadata (iOS only, optional)
+ * @param {Object} [externalMeta.externalIdentifier] - key-value pairs for external identifiers (e.g., { userId: '123' })
  */
-declare function init(sdkToken: string): unknown;
+declare function init(sdkToken: string, externalMeta?: { externalIdentifier?: { [key: string]: string } }): unknown;
 /**
  * Logs the user out and removes the web session.
  *
