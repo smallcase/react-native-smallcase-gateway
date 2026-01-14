@@ -51,7 +51,6 @@ const App: React.FC = () => {
         isAmoEnabled: true,
         brokerList: ['zerodha', 'upstox', 'angelone'],
         environmentName: 'development',
-        userId: 'user_12345'
       });
 
       console.log('Configuration set successfully');
