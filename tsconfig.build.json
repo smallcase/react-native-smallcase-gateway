@@ -1,4 +1,3 @@
-
 {
   "extends": "./tsconfig",
   "exclude": ["example", "smart_investing_react_native"]
