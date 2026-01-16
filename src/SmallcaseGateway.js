@@ -94,7 +94,8 @@ const setConfigEnvironment = async (envConfig) => {
  */
 const init = async (sdkToken, externalMeta) => {
   const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  const safeExternalMeta = externalMeta && typeof externalMeta === 'object' ? externalMeta : null;
+  const safeExternalMeta =
+    externalMeta && typeof externalMeta === 'object' ? externalMeta : null;
 
   return SmallcaseGatewayNative.init(safeToken, safeExternalMeta);
 };
@@ -192,14 +193,14 @@ const launchSmallplugWithBranding = async (
   const safeBackIconOpacity =
     typeof backIconOpacity === 'number' ? backIconOpacity : 1;
 
-return SmallcaseGatewayNative.launchSmallplugWithBranding(
-        safeEndpoint,
-        safeParams,
-        safeHeaderColor,
-        safeHeaderOpacity,
-        safeBackIconColor,
-        safeBackIconOpacity
-      );
+  return SmallcaseGatewayNative.launchSmallplugWithBranding(
+    safeEndpoint,
+    safeParams,
+    safeHeaderColor,
+    safeHeaderOpacity,
+    safeBackIconColor,
+    safeBackIconOpacity
+  );
 };
 
 /**
