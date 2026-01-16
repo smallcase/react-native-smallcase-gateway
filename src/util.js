@@ -16,3 +16,14 @@ export function platformSpecificColorHex(hex) {
   }
   return hex
 }
+
+/** sanitize the input broker array to make sure its an array and only has string values */
+export function sanitizeBrokerList(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [];
+  }
+
+  return arr.filter((val) => {
+    return typeof val === 'string' && val.trim() !== '';
+  });
+}
