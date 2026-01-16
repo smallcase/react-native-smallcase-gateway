@@ -2,15 +2,10 @@ name: Lint & Format Check
 
 on:
   pull_request:
-    branches:
-      - main
-      - master
-      - develop
   push:
     branches:
-      - main
-      - master
-      - develop
+      - prod
+      - development
 
 jobs:
   lockfile-check:
