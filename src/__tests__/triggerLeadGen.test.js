@@ -1,35 +1,35 @@
-jest.mock("react-native");
+jest.mock('react-native');
 
-import SmallcaseGateway from "../index";
-import { NativeModules } from "react-native";
+import SmallcaseGateway from '../index';
+import { NativeModules } from 'react-native';
 
-describe("triggerLeadGen", () => {
+describe('triggerLeadGen', () => {
   const leadGenFn = jest.spyOn(
     NativeModules.SmallcaseGateway,
-    "triggerLeadGen"
+    'triggerLeadGen'
   );
 
-  test("valid", async () => {
+  test('valid', async () => {
     await SmallcaseGateway.triggerLeadGen(
       {
-        name: "test-name",
-        phone: "test-phone",
+        name: 'test-name',
+        phone: 'test-phone',
       },
       {
-        source: "test-source",
-        campaign: "test-campaign",
+        source: 'test-source',
+        campaign: 'test-campaign',
       }
     );
 
     expect(leadGenFn).toHaveBeenNthCalledWith(
       1,
       {
-        name: "test-name",
-        phone: "test-phone",
+        name: 'test-name',
+        phone: 'test-phone',
       },
       {
-        source: "test-source",
-        campaign: "test-campaign",
+        source: 'test-source',
+        campaign: 'test-campaign',
       }
     );
 
@@ -37,12 +37,12 @@ describe("triggerLeadGen", () => {
     expect(leadGenFn).toHaveBeenNthCalledWith(2, {}, {});
   });
 
-  test("invalid", async () => {
-    await SmallcaseGateway.triggerLeadGen("test-token", "t");
+  test('invalid', async () => {
+    await SmallcaseGateway.triggerLeadGen('test-token', 't');
     expect(leadGenFn).toHaveBeenNthCalledWith(3, {}, {});
   });
 
-  test("invalid null", async () => {
+  test('invalid null', async () => {
     await SmallcaseGateway.triggerLeadGen(null, undefined);
     expect(leadGenFn).toHaveBeenNthCalledWith(4, {}, {});
   });

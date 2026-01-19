@@ -1,0 +1,7 @@
+node_modules/
+lib/
+example/
+smart_investing_react_native/
+android/build/
+ios/build/
+*.d.ts

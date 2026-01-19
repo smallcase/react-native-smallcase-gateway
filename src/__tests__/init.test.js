@@ -14,8 +14,8 @@ describe('init', () => {
   test('valid with externalMeta', async () => {
     const externalMeta = {
       externalIdentifier: {
-        userId: 'user123'
-      }
+        userId: 'user123',
+      },
     };
     await SmallcaseGateway.init('test-token', externalMeta);
     expect(initFn).toHaveBeenNthCalledWith(2, 'test-token', externalMeta);
