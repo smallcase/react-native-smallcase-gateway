@@ -16,5 +16,5 @@ jobs:
         with:
           node-version: "25.x"
           registry-url: "https://registry.npmjs.org"
-      - run: npm install
+      - run: yarn install --frozen-lockfile
       - run: npm publish
