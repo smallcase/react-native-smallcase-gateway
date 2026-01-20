@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.1...v7.1.0) (2026-01-19)
+
+
+### Bug Fixes
+
+* introduce sanitizeBrokerList utility and update broker list handling ([50c3bcf](https://github.com/smallcase/react-native-smallcase-gateway/commit/50c3bcf859d6f3355d9f871eff2f7c2acb6b3c66))
+
 ### [7.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.0...v7.0.1) (2026-01-14)
 
 
