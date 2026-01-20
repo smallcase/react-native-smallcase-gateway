@@ -132,7 +132,7 @@
     "standard-version": "^9.5.0"
   },
   "volta": {
-    "node": "25.0.0",
+    "node": "25.4.0",
     "yarn": "1.19.2"
   }
 }
