@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {TextInput} from 'react-native';
 import {SmartButton} from './HoldingsScreen';
-import {getTransactionId, triggerMftxn, alert} from '../apis/Functions';
+import {getTransactionId, alert, triggerTxn} from '../apis/Functions';
 import {EnvContext} from '../EnvProvider';
 import {Environment} from '../apis/SmartInvestingService';
 import {postbackSearch} from '../apis/SmartInvestingService';
@@ -27,7 +27,7 @@ async function getMfHoldings(env: Environment, txnId: string) {
   alert('MF Holdings Postback Response', JSON.stringify(res));
 }
 async function importMFHoldings(env: Environment, txnId: string) {
-  await triggerMftxn(env, txnId);
+  await triggerTxn(txnId);
   getMfHoldings(env, txnId);
 }
 

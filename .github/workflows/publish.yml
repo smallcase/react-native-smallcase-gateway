@@ -20,4 +20,75 @@ jobs:
       - uses: volta-cli/action@v4
 
       - run: yarn install --frozen-lockfile
-      - run: npm publish
+      
+      - name: Publish to npm
+        id: publish
+        run: npm publish
+      
+      # Extract package info before cloning small-things (to avoid workspace conflicts)
+      - name: Extract package info
+        id: package_info
+        if: success()
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+      
+      # Install Deno for small-things
+      - name: Install Deno
+        if: success()
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      
+      # Clone small-things repository
+      - name: Clone small-things
+        if: success()
+        uses: actions/checkout@v6
+        with:
+          repository: smallcase/small-things
+          ref: main
+          path: small-things
+      
+      # Track release in small-things (Slack notification)
+      - name: Track release in small-things
+        if: success()
+        env:
+          VERSION: ${{ steps.package_info.outputs.version }}
+          PACKAGE_NAME: ${{ steps.package_info.outputs.name }}
+          RELEASE_TYPE: ${{ vars.RELEASE_TYPE || 'prod' }}
+        run: |
+          # Determine SDK name from package name
+          SDK_NAME="scgateway"
+          if [[ "$PACKAGE_NAME" == *"gateway"* ]] || [[ "$PACKAGE_NAME" == *"Gateway"* ]] || [[ "$PACKAGE_NAME" == *"SCG"* ]]; then
+            SDK_NAME="scgateway"
+          elif [[ "$PACKAGE_NAME" == *"loan"* ]] || [[ "$PACKAGE_NAME" == *"Loan"* ]]; then
+            SDK_NAME="scloans"
+          else
+            SDK_NAME="$PACKAGE_NAME"
+          fi
+          
+          # Determine release type (defaults to prod, can be overridden via vars)
+          RELEASE_TYPE="${RELEASE_TYPE:-prod}"
+          
+          # Call small-things to track release (Slack webhook)
+          if [ -n "$VERSION" ] && [ -n "$SDK_NAME" ]; then
+            echo "Tracking release: $SDK_NAME v$VERSION (type: $RELEASE_TYPE)"
+            
+            if [ -d "small-things" ]; then
+              cd small-things
+              
+              deno run --allow-all main.ts gw track-release \
+                --platform react-native \
+                --sdkName "$SDK_NAME" \
+                --version "$VERSION" \
+                --publishTarget "npm" \
+                --releaseType "$RELEASE_TYPE" \
+                2>&1 || {
+                echo "Warning: Failed to track release in small-things (non-critical - build continues)"
+              }
+            else
+              echo "Warning: small-things directory not found. Skipping release tracking (non-critical)."
+            fi
+          else
+            echo "Warning: Could not determine SDK name or version. Skipping release tracking."
+          fi
