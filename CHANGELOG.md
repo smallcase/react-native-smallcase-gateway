@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.2.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.1...v7.2.0) (2026-01-21)
+
+
+### Bug Fixes
+
+* introduce sanitizeBrokerList utility and update broker list handling ([50c3bcf](https://github.com/smallcase/react-native-smallcase-gateway/commit/50c3bcf859d6f3355d9f871eff2f7c2acb6b3c66))
+
+## [7.1.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.1...v7.1.0) (2026-01-19)
+
+
+### Bug Fixes
+
+* introduce sanitizeBrokerList utility and update broker list handling ([50c3bcf](https://github.com/smallcase/react-native-smallcase-gateway/commit/50c3bcf859d6f3355d9f871eff2f7c2acb6b3c66))
+
+### [7.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.0...v7.0.1) (2026-01-14)
+
+
+### Features
+
+* **a/b-test:** working state ([48a33a1](https://github.com/smallcase/react-native-smallcase-gateway/commit/48a33a1cfa35f0df09edf11b92db3d3d775cf166))
+* **a/b-test:** working state ([705b3bf](https://github.com/smallcase/react-native-smallcase-gateway/commit/705b3bfa84d4368cc300f9fa00e80812f465610d))
+* **chore:** opener ab test iOS SC App ([240cea7](https://github.com/smallcase/react-native-smallcase-gateway/commit/240cea7f9cc2ca1daf42c4ae763c537bb6079eb5))
+* **gateway-sdk:** pass user ID in init for A/B testing ([bf1284a](https://github.com/smallcase/react-native-smallcase-gateway/commit/bf1284aab46195958b75336f4297e7fc06b32b6f))
+* **gateway-sdk:** pass user ID in init for A/B testing ([368e911](https://github.com/smallcase/react-native-smallcase-gateway/commit/368e9117ccef8d1d7232d423d905f3f82d846410))
+
+## [7.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0...v7.0.0) (2026-01-05)
+
+
+### Features
+
+* standardize smallplug response structure across iOS and Android ([0d82229](https://github.com/smallcase/react-native-smallcase-gateway/commit/0d82229b10fdd4eb67bd2866ca14b1972942e46d))
+
 ### [6.0.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v6.0.0...v6.0.1) (2025-12-06)
 
 ## [6.0.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v5.2.0...v6.0.0) (2025-11-20)

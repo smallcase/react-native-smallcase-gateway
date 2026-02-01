@@ -1,6 +1,10 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 import { ENV } from './constants';
-import { safeObject, platformSpecificColorHex } from './util';
+import {
+  safeObject,
+  platformSpecificColorHex,
+  sanitizeBrokerList,
+} from './util';
 import { version } from '../package.json';
 const { SmallcaseGateway: SmallcaseGatewayNative } = NativeModules;
 
@@ -64,7 +68,7 @@ const setConfigEnvironment = async (envConfig) => {
 
   const safeIsLeprechaun = Boolean(isLeprechaun);
   const safeIsAmoEnabled = Boolean(isAmoEnabled);
-  const safeBrokerList = Array.isArray(brokerList) ? brokerList : [];
+  const safeBrokerList = sanitizeBrokerList(brokerList);
   const safeGatewayName = typeof gatewayName === 'string' ? gatewayName : '';
   const safeEnvName =
     typeof environmentName === 'string' ? environmentName : ENV.PROD;
@@ -85,10 +89,15 @@ const setConfigEnvironment = async (envConfig) => {
  *
  * note: this must be called after `setConfigEnvironment()`
  * @param {string} sdkToken
+ * @param {Object} [externalMeta] - external metadata (iOS only, optional)
+ * @param {Object} [externalMeta.externalIdentifier] - key-value pairs for external identifiers (e.g., { userId: '123' })
  */
-const init = async (sdkToken) => {
+const init = async (sdkToken, externalMeta) => {
   const safeToken = typeof sdkToken === 'string' ? sdkToken : '';
-  return SmallcaseGatewayNative.init(safeToken);
+  const safeExternalMeta =
+    externalMeta && typeof externalMeta === 'object' ? externalMeta : null;
+
+  return SmallcaseGatewayNative.init(safeToken, safeExternalMeta);
 };
 
 /**
@@ -103,10 +112,11 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
   const safeUtm = safeObject(utmParams);
   const safeId = typeof transactionId === 'string' ? transactionId : '';
 
-  const safeBrokerList =
-    Array.isArray(brokerList) && brokerList.length
-      ? brokerList
-      : defaultBrokerList;
+  let safeBrokerList = sanitizeBrokerList(brokerList);
+
+  if (safeBrokerList.length === 0) {
+    safeBrokerList = defaultBrokerList;
+  }
 
   return SmallcaseGatewayNative.triggerTransaction(
     safeId,
@@ -183,14 +193,14 @@ const launchSmallplugWithBranding = async (
   const safeBackIconOpacity =
     typeof backIconOpacity === 'number' ? backIconOpacity : 1;
 
-return SmallcaseGatewayNative.launchSmallplugWithBranding(
-        safeEndpoint,
-        safeParams,
-        safeHeaderColor,
-        safeHeaderOpacity,
-        safeBackIconColor,
-        safeBackIconOpacity
-      );
+  return SmallcaseGatewayNative.launchSmallplugWithBranding(
+    safeEndpoint,
+    safeParams,
+    safeHeaderColor,
+    safeHeaderOpacity,
+    safeBackIconColor,
+    safeBackIconOpacity
+  );
 };
 
 /**

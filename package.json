@@ -1,7 +1,7 @@
 {
   "name": "react-native-smallcase-gateway",
   "title": "React Native Smallcase Gateway",
-  "version": "6.0.1",
+  "version": "7.2.0",
   "description": "smallcase gateway bindings for react native",
   "main": "src/index.js",
   "files": [
@@ -26,6 +26,9 @@
     "typescript": "tsc --noEmit",
     "genTypes": "tsc src/index.js --declaration --emitDeclarationOnly --allowJs --noLib --outDir types",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint:fix": "eslint \"**/*.{js,ts,tsx}\" --fix",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json}\"",
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
@@ -53,7 +56,9 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
+    "@babel/core": "^7.28.6",
     "@babel/eslint-parser": "^7.18.2",
+    "@babel/preset-react": "^7.28.5",
     "@commitlint/config-conventional": "^17.0.2",
     "@react-native-community/eslint-config": "^3.0.2",
     "@release-it/conventional-changelog": "^5.0.0",
@@ -109,37 +114,6 @@
       }
     }
   },
-  "eslintConfig": {
-    "root": true,
-    "parser": "@babel/eslint-parser",
-    "extends": [
-      "@react-native-community",
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "quoteProps": "consistent",
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "node_modules/",
-    "lib/"
-  ],
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -158,7 +132,7 @@
     "standard-version": "^9.5.0"
   },
   "volta": {
-    "node": "20.15.0",
+    "node": "25.4.0",
     "yarn": "1.19.2"
   }
 }

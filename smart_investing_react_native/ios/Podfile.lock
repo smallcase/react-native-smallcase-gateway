@@ -1410,15 +1410,15 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.5.7):
     - React-Core
-  - react-native-smallcase-gateway (6.0.1):
+  - react-native-smallcase-gateway (7.0.1):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
-    - SCGateway-dhruv-dm-sam-login-360ab86 (= 6.1.0-15-debug)
-    - SCLoans (= 6.0.2)
+    - SCGateway (= 7.0.1)
+    - SCLoans (= 7.0.0)
   - React-NativeModulesApple (0.79.4):
     - glog
     - hermes-engine
@@ -1789,7 +1789,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.18.0):
+  - RNScreens (4.17.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1813,9 +1813,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.18.0)
+    - RNScreens/common (= 4.17.1)
     - Yoga
-  - RNScreens/common (4.18.0):
+  - RNScreens/common (4.17.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1840,8 +1840,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SCGateway-dhruv-dm-sam-login-360ab86 (6.1.0-15-debug)
-  - SCLoans (6.0.2)
+  - SCGateway (7.0.1)
+  - SCLoans (7.0.0)
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1926,10 +1926,9 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/smallcase/cocoapodspec-internal.git:
-    - SCGateway-dhruv-dm-sam-login-360ab86
   trunk:
     - React-Codegen
+    - SCGateway
     - SCLoans
     - SocketRocket
 
@@ -2130,7 +2129,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: 1b62aa533c634f87ceb55e854346296a4bf8768c
+  react-native-smallcase-gateway: f18198cfef84f88bd6bc03d8f27dabb7f21f8752
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2164,9 +2163,9 @@ SPEC CHECKSUMS:
   ReactCommon: c7d636ec1b9801ff4ee83cce8e0bf74a1610fc3f
   RNCClipboard: 37de6995ef72dc869422879e51a46a520d3f08b3
   RNGestureHandler: ebef699ea17e7c0006c1074e1e423ead60ce0121
-  RNScreens: f38464ec1e83bda5820c3b05ccf4908e3841c5cc
-  SCGateway-dhruv-dm-sam-login-360ab86: 9019e17dc993060de7ea213500ce5d8a9ac58388
-  SCLoans: 34feecf452278449b60fa1b7624717a9a77f3ee8
+  RNScreens: 3f6e41f9f89cb888a6b4b27566bdfdf7a3bf51ad
+  SCGateway: 1951ad3c5204f772a1cc08bfc0a3656cbf67e050
+  SCLoans: bcd3f1235e73557814cb2d59d8ebcf0a87eab163
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
