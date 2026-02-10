@@ -127,19 +127,6 @@ async function connect(env: Environment, userId: string): Promise<Boolean> {
   }
 }
 
-async function triggerMftxn(env: Environment, transactionId: string) {
-  try {
-    console.log(`Transaction ID: ${transactionId}, Intent: MF_HOLDINGS_IMPORT`);
-    console.log('triggerMftxn txn id: ' + transactionId);
-    const res = await SmallcaseGateway.triggerMfTransaction(transactionId);
-    console.log('triggerMftxn res: ' + JSON.stringify(res));
-    await alert('triggerMftxn', JSON.stringify(res));
-  } catch (error) {
-    console.log('triggerMftxn error - ' + error);
-    console.log('triggerMftxn error stringified - ' + JSON.stringify(error));
-    await alert('triggerMftxn Error', getErrorString(error));
-  }
-}
 
 async function placeSstOrder(
   env: Environment,
@@ -524,6 +511,20 @@ async function triggerTxn(txnId: string) {
   } catch (error) {
     console.log('TriggerTxn error stringified - ' + JSON.stringify(error));
     alert('TriggerTxn Error', getErrorString(error));
+  }
+}
+
+async function triggerMftxn(env: Environment, transactionId: string) {
+  try {
+    console.log(`Transaction ID: ${transactionId}, Intent: MF_HOLDINGS_IMPORT`);
+    console.log('triggertxn for MF txn id: ' + transactionId);
+    const res = await SmallcaseGateway.triggerTransaction(transactionId);
+    console.log('triggertxn for MF res: ' + JSON.stringify(res));
+    await alert('triggertxn for MF', JSON.stringify(res));
+  } catch (error) {
+    console.log('triggertxn for MF error - ' + error);
+    console.log('triggertxn for MF error stringified - ' + JSON.stringify(error));
+    await alert('triggertxn for MF Error', getErrorString(error));
   }
 }
 
