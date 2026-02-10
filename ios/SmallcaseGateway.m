@@ -234,6 +234,21 @@ RCT_REMAP_METHOD(triggerTransaction,
                 resolve(responseDict);
                 return;
             }
+            
+            //MARK: intent - mf holdings import
+            if ([response isKindOfClass: [ObjCTransactionIntentMfHoldingsImport class]]) {
+                ObjCTransactionIntentMfHoldingsImport *trxResponse = response;
+                // Use existing responseDict (already has success: true from line 169)
+                [responseDict setValue:@"MF_HOLDINGS_IMPORT"  forKey:@"transaction"];
+
+                if (trxResponse.data != nil && trxResponse.data.length > 0) {
+                    [responseDict setObject:trxResponse.data forKey:@"data"];
+                } else {
+                    [responseDict setObject:@"" forKey:@"data"];
+                }
+                resolve(responseDict);
+                return;
+            }
 
             //MARK: intent - fetch funds
             if([response isKindOfClass: [ObjcTransactionIntentFetchFunds class]]) {
