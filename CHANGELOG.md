@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.2.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.2.0...v7.2.1) (2026-02-12)
+
+
+### Features
+
+* add Slack notifications for npm releases and MF holdings import support ([9452bff](https://github.com/smallcase/react-native-smallcase-gateway/commit/9452bff188f96856dd92ccd233ae2b8db5009a53))
+
+
+### Bug Fixes
+
+* reverting changes/ streamline npm publish step in workflow ([86a64e3](https://github.com/smallcase/react-native-smallcase-gateway/commit/86a64e3114d7429b35ce48753518662b8436d6c3))
+* update dependency for new internal iOS release ([11e8453](https://github.com/smallcase/react-native-smallcase-gateway/commit/11e8453332e4bb9fb02cd1e3f2090cc606a89869))
+
 ## [7.2.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.0.1...v7.2.0) (2026-01-21)
 
 
