@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-dhruv-whitelist-smallPlug-support-471dd5c', '7.1.0-17-debug'
+  s.dependency 'SCGateway-dhruv-mfhi-cct-implementation-0d8b405', '7.1.1-17-debug'
   s.dependency 'SCLoans', '7.0.0'
 end
