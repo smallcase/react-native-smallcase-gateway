@@ -2,6 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import SCGateway
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -31,6 +32,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     return true
   }
+  
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if url.scheme == GatewayMFHIFlowConstants.urlScheme {
+            SCGateway.shared.handleRedirection(with: url)
+            return true
+        }
+        
+        return false
+    }
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
