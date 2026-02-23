@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '7.1.1'
+  s.dependency 'SCGateway-dhruv-aswebauth-window-scene-handling-997a282', '7.1.1-17-debug'
   s.dependency 'SCLoans', '7.0.0'
 end
