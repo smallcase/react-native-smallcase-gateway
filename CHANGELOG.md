@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.2.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.2.1...v7.2.3) (2026-02-23)
+
+
+### Bug Fixes
+
+* update SDK version to 6.0.3 and adjust podspec dependency to 7.1.1 ([6226b7c](https://github.com/smallcase/react-native-smallcase-gateway/commit/6226b7ca33c778161ca7f78c29221a9d3e553632))
+
 ### [7.2.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.2.0...v7.2.2) (2026-02-12)
 
 
