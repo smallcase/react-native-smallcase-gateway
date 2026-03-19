@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '7.1.3'
+  s.dependency 'SCGateway', '7.1.4'
   s.dependency 'SCLoans', '7.1.1'
 end
