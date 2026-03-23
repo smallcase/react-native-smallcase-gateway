@@ -6,6 +6,7 @@ export namespace ENV {
 export namespace TRANSACTION_TYPE {
     const connect: string;
     const sipSetup: string;
+    const imrSetup: string;
     const fetchFunds: string;
     const transaction: string;
     const holdingsImport: string;

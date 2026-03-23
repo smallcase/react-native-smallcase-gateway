@@ -7,6 +7,7 @@ export const ENV = {
 export const TRANSACTION_TYPE = {
   connect: 'CONNECT',
   sipSetup: 'SIP_SETUP',
+  imrSetup: 'IMR_SETUP',
   fetchFunds: 'FETCH_FUNDS',
   transaction: 'TRANSACTION',
   holdingsImport: 'HOLDINGS_IMPORT',
