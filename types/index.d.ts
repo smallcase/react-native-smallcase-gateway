@@ -68,6 +68,7 @@ declare const _default: {
     TRANSACTION_TYPE: {
         connect: string;
         sipSetup: string;
+        imrSetup: string;
         fetchFunds: string;
         transaction: string;
         holdingsImport: string;

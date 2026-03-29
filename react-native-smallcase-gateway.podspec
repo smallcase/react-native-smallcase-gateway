@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-dhruv-propagate-dm-events-eaf8710', '7.1.0-18-debug'
+  s.dependency 'SCGateway', '7.1.6'
   s.dependency 'SCLoans', '7.1.1'
 end
