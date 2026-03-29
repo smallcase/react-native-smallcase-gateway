@@ -18,6 +18,7 @@ export const SCGatewayEventTypes = {
   SUPER_PROPERTIES_UPDATED: 'scgateway_super_properties_updated',
   USER_RESET: 'scgateway_user_reset',
   USER_IDENTIFY: 'scgateway_user_identify',
+  SMALLPLUG_ANALYTICS_EVENT: 'smallplug_analytics_event',
 };
 
 const SCGatewayNotificationEvent = 'scg_notification';
@@ -101,6 +102,43 @@ class SCGatewayEvents {
 
     this.subscriptions.push(subscription);
 
+    return subscription;
+  }
+
+  /**
+   * Subscribe to SmallPlug / DM analytics events streamed during a launchSmallplug session.
+   * Events have shape: { eventName: string, data: object, timestamp: number }
+   * @param {(event: {eventName: string, data: any, timestamp: number}) => void} callback
+   * @returns {GatewayEventSubscription}
+   */
+  subscribeToSmallplugEvents(callback) {
+    if (!this.isInitialized) {
+      console.warn('[SCGatewayEvents] Event emitter not initialized');
+      return null;
+    }
+
+    if (typeof callback !== 'function') {
+      console.warn('[SCGatewayEvents] Invalid callback provided for SmallPlug subscription');
+      return null;
+    }
+
+    const subscription = this.eventEmitter.addListener(
+      SCGatewayNotificationEvent,
+      (jsonString) => {
+        if (!jsonString) return;
+        let parsed;
+        try {
+          parsed = JSON.parse(jsonString);
+        } catch (e) {
+          return;
+        }
+        if (parsed.type !== 'smallplug_analytics_event') return;
+        const { eventName, data } = parsed.data ?? {};
+        callback({ eventName, data, timestamp: parsed.timestamp ?? Date.now() });
+      }
+    );
+
+    this.subscriptions.push(subscription);
     return subscription;
   }
 

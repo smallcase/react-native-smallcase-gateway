@@ -12,6 +12,12 @@ export interface LoansEvent {
     timestamp: number;
 }
 
+export interface SmallplugAnalyticsEvent {
+    eventName: string;
+    data: Record<string, any>;
+    timestamp: number;
+}
+
 export interface GatewayEventSubscription {
     remove(): void;
 }
@@ -22,6 +28,7 @@ export interface LoansEventSubscription {
 
 interface SCGatewayEventManagerInterface {
     subscribeToGatewayEvents(callback: ((event: GatewayEvent) => void)): GatewayEventSubscription | null;
+    subscribeToSmallplugEvents(callback: ((event: SmallplugAnalyticsEvent) => void)): GatewayEventSubscription | null;
     unsubscribeFromGatewayEvents(subscription: GatewayEventSubscription): void;
 }
 
@@ -87,6 +94,7 @@ declare const _default: {
     SCLoansEventManager: SCLoansEventManagerInterface;
     subscribeToGatewayEvents: (callback: (event: GatewayEvent) => void) => GatewayEventSubscription | null;
     unsubscribeFromGatewayEvents: (subscription: GatewayEventSubscription) => void;
+    subscribeToSmallplugEvents: (callback: (event: SmallplugAnalyticsEvent) => void) => GatewayEventSubscription | null;
     subscribeToLoansEvent: (callback: (event: LoansEvent) => void) => LoansEventSubscription | null;
     unsubscribeFromLoansEvent: (subscription: LoansEventSubscription) => void;
 };
