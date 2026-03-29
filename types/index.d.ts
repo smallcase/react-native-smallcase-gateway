@@ -29,6 +29,7 @@ export interface LoansEventSubscription {
 interface SCGatewayEventManagerInterface {
     subscribeToGatewayEvents(callback: ((event: GatewayEvent) => void)): GatewayEventSubscription | null;
     subscribeToSmallplugEvents(callback: ((event: SmallplugAnalyticsEvent) => void)): GatewayEventSubscription | null;
+    unsubscribeFromSmallplugEvents(subscription: GatewayEventSubscription): void;
     unsubscribeFromGatewayEvents(subscription: GatewayEventSubscription): void;
 }
 

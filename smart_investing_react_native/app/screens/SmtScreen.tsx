@@ -93,7 +93,7 @@ const SmtScreen = () => {
               console.log(' User Info from error:', error.data.userInfo);
             }
           } finally {
-            smallplugSub?.remove();
+            SCGatewayEventManager.unsubscribeFromSmallplugEvents(smallplugSub);
           }
         }}
         title={'SmallPlug'}

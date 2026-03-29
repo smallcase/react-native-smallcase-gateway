@@ -143,6 +143,19 @@ class SCGatewayEvents {
   }
 
   /**
+   * Unsubscribe from SmallPlug analytics events
+   * @param {GatewayEventSubscription} subscription - Subscription returned from subscribeToSmallplugEvents
+   */
+  unsubscribeFromSmallplugEvents(subscription) {
+    if (subscription && typeof subscription.remove === 'function') {
+      subscription.remove();
+      this.subscriptions = this.subscriptions.filter(
+        (sub) => sub !== subscription
+      );
+    }
+  }
+
+  /**
    * Unsubscribe from Gateway Events
    * @param {GatewayEventSubscription} subscription - Subscription returned from subscribeToGatewayEvents
    */
