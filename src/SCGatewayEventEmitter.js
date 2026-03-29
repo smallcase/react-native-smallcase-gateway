@@ -118,7 +118,9 @@ class SCGatewayEvents {
     }
 
     if (typeof callback !== 'function') {
-      console.warn('[SCGatewayEvents] Invalid callback provided for SmallPlug subscription');
+      console.warn(
+        '[SCGatewayEvents] Invalid callback provided for SmallPlug subscription'
+      );
       return null;
     }
 
@@ -134,7 +136,11 @@ class SCGatewayEvents {
         }
         if (parsed.type !== 'smallplug_analytics_event') return;
         const { eventName, data } = parsed.data ?? {};
-        callback({ eventName, data, timestamp: parsed.timestamp ?? Date.now() });
+        callback({
+          eventName,
+          data,
+          timestamp: parsed.timestamp ?? Date.now(),
+        });
       }
     );
 
