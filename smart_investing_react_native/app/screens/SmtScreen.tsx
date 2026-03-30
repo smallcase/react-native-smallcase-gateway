@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, TextInput, View} from 'react-native';
 import {launchSmallPlug} from '../apis/Functions';
+import {SCGatewayEventManager} from 'react-native-smallcase-gateway';
 
 const SmtScreen = () => {
   const [targetEndpoint, onChangeTargetEndpoint] = React.useState<
@@ -70,6 +71,12 @@ const SmtScreen = () => {
             backIconOpacity: bo,
           };
 
+          const smallplugSub = SCGatewayEventManager.subscribeToSmallplugEvents(
+            event => {
+              console.log('[SmallPlug Event]:', event);
+            },
+          );
+
           try {
             const result = await launchSmallPlug(
               targetEndpoint,
@@ -79,16 +86,14 @@ const SmtScreen = () => {
             console.log('✅ Smallplug Success:', result);
             if (result?.data?.userInfo) {
               console.log(' User Info:', result.data.userInfo);
-              // You can use the userInfo object here, for example, show an alert
-              // alert(`Success! User phone: ${result.data.userInfo.phoneNumber}`);
             }
           } catch (error: any) {
             console.error(' Smallplug Error:', error);
             if (error?.data?.userInfo) {
               console.log(' User Info from error:', error.data.userInfo);
-              // You can use the userInfo object here
-              // alert(`Failure! User phone: ${error.data.userInfo.phoneNumber}`);
             }
+          } finally {
+            SCGatewayEventManager.unsubscribeFromSmallplugEvents(smallplugSub);
           }
         }}
         title={'SmallPlug'}

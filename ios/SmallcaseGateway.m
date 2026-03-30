@@ -290,6 +290,27 @@ RCT_REMAP_METHOD(triggerTransaction,
                 return;
             }
 
+            //MARK: intent - imr setup
+            if([response isKindOfClass: [ObjcTransactionIntentIMRSetup class]]) {
+                ObjcTransactionIntentIMRSetup *trxResponse = response;
+                [responseDict setValue:@"IMR_SETUP" forKey:@"transaction"];
+
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                [dict setValue: trxResponse.authToken          forKey:@"smallcaseAuthToken"];
+                [dict setValue: trxResponse.transactionId      forKey:@"transactionId"];
+                [dict setValue: trxResponse.imrAction          forKey:@"imrAction"];
+                [dict setValue: trxResponse.frequency          forKey:@"frequency"];
+                [dict setValue: trxResponse.iscid              forKey:@"iscid"];
+                [dict setValue: trxResponse.scheduledDate      forKey:@"scheduledDate"];
+                [dict setValue: trxResponse.triggerDate        forKey:@"triggerDate"];
+                [dict setValue: trxResponse.scid               forKey:@"scid"];
+                [dict setValue: trxResponse.signup             forKey:@"signup"];
+                [dict setValue: trxResponse.imrActive ? @"YES" : @"NO" forKey:@"imrActive"];
+
+                [responseDict setValue:dict forKey:@"data"];
+                resolve(responseDict);
+                return;
+            }
 
             //MARK: intent - authorize holdings
             if([response isKindOfClass: [ObjcTransactionIntentAuthoriseHoldings class]]) {
