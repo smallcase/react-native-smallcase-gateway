@@ -1410,14 +1410,14 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.5.7):
     - React-Core
-  - react-native-smallcase-gateway (7.2.4):
+  - react-native-smallcase-gateway (7.3.1):
     - RCTRequired
     - RCTTypeSafety
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
     - SCGateway (= 7.1.3)
-    - SCLoans (= 7.1.0)
+    - SCLoans-sourav-loan-service-webview-animation-676356b (= 7.1.1-41-release)
   - React-NativeModulesApple (0.79.4):
     - glog
     - hermes-engine
@@ -1840,7 +1840,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SCGateway (7.1.3)
-  - SCLoans (7.1.0)
+  - SCLoans-sourav-loan-service-webview-animation-676356b (7.1.1-41-release)
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1925,10 +1925,11 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/smallcase/cocoapodspec-internal.git:
+    - SCLoans-sourav-loan-service-webview-animation-676356b
   trunk:
     - React-Codegen
     - SCGateway
-    - SCLoans
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2128,7 +2129,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: d7dda3ee5651a6717db4ccddd6c95923e7b40ec4
+  react-native-smallcase-gateway: 9f3e2da745a5acd26cb9cdcaa694d32c7db00759
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2164,7 +2165,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: ebef699ea17e7c0006c1074e1e423ead60ce0121
   RNScreens: 3f6e41f9f89cb888a6b4b27566bdfdf7a3bf51ad
   SCGateway: c8bedc5583917da1253cc907b531a54a50963ab7
-  SCLoans: e0ab384b167dc4f1266512b88b3f82ccedce3eed
+  SCLoans-sourav-loan-service-webview-animation-676356b: 298bed316906f34940af76eaa1ab57a1b1705768
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 

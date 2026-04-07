@@ -35,5 +35,5 @@ Pod::Spec.new do |s|
   end
 
   s.dependency 'SCGateway', '7.1.3'
-  s.dependency 'SCLoans', '7.1.1'
+  s.dependency 'SCLoans-sourav-loan-service-webview-animation-676356b', '7.1.1-41-release'
 end
