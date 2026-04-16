@@ -22,17 +22,29 @@ RELEASE_TYPE="${RELEASE_TYPE:-prod}"
 
 echo "Tracking release: $SDK_NAME v$VERSION (type: $RELEASE_TYPE)"
 
-SMALL_THINGS_PATH="${SMALL_THINGS_PATH:-../small-things}"
+# Determine the target triple for the current platform
+OS=$(uname -s)
+ARCH=$(uname -m)
+case "$OS-$ARCH" in
+    Darwin-arm64)  TARGET="aarch64-apple-darwin" ;;
+    Darwin-x86_64) TARGET="x86_64-apple-darwin" ;;
+    Linux-aarch64) TARGET="aarch64-unknown-linux-gnu" ;;
+    Linux-x86_64)  TARGET="x86_64-unknown-linux-gnu" ;;
+    *)
+        echo "Warning: Unsupported platform $OS-$ARCH. Skipping release tracking."
+        exit 0
+        ;;
+esac
 
-if [[ ! -d "$SMALL_THINGS_PATH" ]]; then
-    echo "Warning: small-things not found at $SMALL_THINGS_PATH. Skipping release tracking."
+SMALL_THINGS_BIN=$(mktemp /tmp/small-things.XXXXXX)
+DOWNLOAD_URL="https://github.com/smallcase/small-things/releases/latest/download/small-things-$TARGET"
+
+if ! curl -fsSL "$DOWNLOAD_URL" -o "$SMALL_THINGS_BIN" 2>&1; then
+    echo "Warning: Failed to download small-things binary. Skipping release tracking."
+    rm -f "$SMALL_THINGS_BIN"
     exit 0
 fi
-
-if ! command -v deno &>/dev/null; then
-    echo "Warning: Deno not found. Skipping release tracking."
-    exit 0
-fi
+chmod +x "$SMALL_THINGS_BIN"
 
 TRACK_ARGS=(
     --platform react-native
@@ -43,9 +55,7 @@ TRACK_ARGS=(
 )
 [ -n "${NOTIFY_WEBHOOK_URL:-}" ] && TRACK_ARGS+=( --webhookUrl "$NOTIFY_WEBHOOK_URL" )
 
-ORIGINAL_DIR=$(pwd)
-cd "$SMALL_THINGS_PATH"
-deno run --allow-all main.ts gw track-release "${TRACK_ARGS[@]}" 2>&1 || {
+"$SMALL_THINGS_BIN" gw track-release "${TRACK_ARGS[@]}" 2>&1 || {
     echo "Warning: Failed to track release in small-things (non-critical - release was successful)"
 }
-cd "$ORIGINAL_DIR"
+rm -f "$SMALL_THINGS_BIN"
