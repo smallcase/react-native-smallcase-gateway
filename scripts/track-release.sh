@@ -22,19 +22,6 @@ RELEASE_TYPE="${RELEASE_TYPE:-prod}"
 
 echo "Tracking release: $SDK_NAME v$VERSION (type: $RELEASE_TYPE)"
 
-if [ -z "${GITHUB_ACCESS_TOKEN:-}" ]; then
-    echo "Warning: GITHUB_ACCESS_TOKEN not set. Skipping release tracking."
-    exit 0
-fi
-
-if ! curl -fsSL -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
-    https://raw.githubusercontent.com/smallcase/small-things/main/install.sh | bash -s -- latest "$GITHUB_ACCESS_TOKEN"; then
-    echo "Warning: Failed to install small-things. Skipping release tracking."
-    exit 0
-fi
-
-export PATH="$HOME/.deno/bin:$PATH"
-
 TRACK_ARGS=(
     --platform react-native
     --sdkName "$SDK_NAME"
