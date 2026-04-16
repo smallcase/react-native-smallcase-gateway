@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Tracks an npm release in small-things (Slack notification).
 # Non-critical: failures are logged but do not affect the release.
-# Invoked automatically by release-it via the after:release hook.
 #
 # Usage: track-release.sh --version <version>
 set -o pipefail
@@ -18,15 +17,12 @@ if [[ -z "$VERSION" ]]; then
     exit 0
 fi
 
-SDK_NAME="scgateway"
+SDK_NAME="react-native-smallcase-gateway"
 RELEASE_TYPE="${RELEASE_TYPE:-prod}"
 
 echo "Tracking release: $SDK_NAME v$VERSION (type: $RELEASE_TYPE)"
 
 SMALL_THINGS_PATH="${SMALL_THINGS_PATH:-../small-things}"
-if [[ ! -d "$SMALL_THINGS_PATH" ]] && [[ -n "${BITRISE_SOURCE_DIR:-}" ]]; then
-    SMALL_THINGS_PATH="$BITRISE_SOURCE_DIR/../small-things"
-fi
 
 if [[ ! -d "$SMALL_THINGS_PATH" ]]; then
     echo "Warning: small-things not found at $SMALL_THINGS_PATH. Skipping release tracking."
