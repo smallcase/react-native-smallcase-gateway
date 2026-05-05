@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-dhruv-imr-changes-8313d6a', '7.1.3-24-debug'
+  s.dependency 'SCGateway-dhruv-imr-changes-8313d6a', '7.1.8'
   s.dependency 'SCLoans', '7.1.1'
 end
