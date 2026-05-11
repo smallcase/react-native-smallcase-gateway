@@ -184,7 +184,6 @@ RCT_REMAP_METHOD(triggerTransaction,
 
              //MARK: intent - mfTransaction
              if ([response isKindOfClass: [ObjcMfTransactionIntentTransaction class]]) {
-                NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
                 ObjcMfTransactionIntentTransaction *trxResponse = response;
                 [responseDict setObject:@"TRANSACTION"  forKey:@"transaction"];
 
