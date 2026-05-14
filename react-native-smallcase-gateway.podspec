@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-dhruv-make-sdk-mfsc-capable-56e7d4d', '7.1.8-27-debug'
+  s.dependency 'SCGateway', '7.1.9'
   s.dependency 'SCLoans', '7.1.2'
 end
