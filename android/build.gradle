@@ -149,7 +149,7 @@ def kotlin_version = getExtOrDefault('kotlinVersion')
 dependencies {
    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.smallcase.gateway:sdk:6.1.1'
+    implementation 'com.smallcase.gateway:sdk-fix-update-mfhi-copy-18009e6:6.1.1-3189-release'
     implementation 'com.smallcase.loans:sdk:5.1.3'
     implementation "androidx.core:core-ktx:1.3.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
