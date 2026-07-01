@@ -352,7 +352,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanInfo(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken, parseColorScheme(hashMap["colorScheme"]))
       ScLoan.apply(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           promise.reject("${error.code}", scLoanResponseToWritableMap(error) ?: return)
@@ -376,7 +376,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanInfo(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken, parseColorScheme(hashMap["colorScheme"]))
       ScLoan.pay(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           promise.reject("${error.code}", scLoanResponseToWritableMap(error) ?: return)
@@ -400,7 +400,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanInfo(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken, parseColorScheme(hashMap["colorScheme"]))
       ScLoan.withdraw(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           promise.reject("${error.code}", scLoanResponseToWritableMap(error) ?: return)
@@ -424,7 +424,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanInfo(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken, parseColorScheme(hashMap["colorScheme"]))
       ScLoan.service(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           promise.reject("${error.code}", scLoanResponseToWritableMap(error) ?: return)
@@ -448,7 +448,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
         promise.reject(Throwable("Interaction token is null"))
         return
       }
-      val loanConfigObj = ScLoanInfo(interactionToken)
+      val loanConfigObj = ScLoanInfo(interactionToken, parseColorScheme(hashMap["colorScheme"]))
       ScLoan.triggerInteraction(appCompatActivity, loanConfigObj, object : ScLoanResult {
         override fun onFailure(error: ScLoanError) {
           promise.reject("${error.code}", scLoanResponseToWritableMap(error) ?: return)
@@ -458,6 +458,16 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
           promise.resolve(scLoanResponseToWritableMap(response) ?: return)
         }
       })
+    }
+
+    // colorScheme rides the bridge as a primitive string (not a serialized object) and is
+    // mapped back to the native enum here. Unknown/absent → null, so the SDK keeps its
+    // "partner sent nothing → light, don't force theme param" default.
+    private fun parseColorScheme(value: String?): ScLoanColorScheme? = when (value) {
+        "dark" -> ScLoanColorScheme.DARK
+        "light" -> ScLoanColorScheme.LIGHT
+        "system" -> ScLoanColorScheme.SYSTEM
+        else -> null
     }
 
     private fun getProtocol(envName: String): Environment.PROTOCOL {
