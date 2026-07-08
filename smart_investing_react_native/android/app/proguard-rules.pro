@@ -9,20 +9,7 @@
 
 # Add any project specific keep options here:
 
-# SCLoans ships -repackageclasses 'com.smallcase.loans' as a consumer rule, which
-# causes the host R8 to move 6 000+ external classes into com.smallcase.loans —
-# colliding with the SDK's own pre-obfuscated classes and corrupting the Koin DI
-# type graph at runtime (ClassCastException in wi/cm/o40 chain).
-# -keeppackagenames overrides -repackageclasses per the ProGuard/R8 spec.
--keeppackagenames **
-
-# SCGateway (com.smallcase.gateway:sdk) ships NO consumer proguard rules and its
-# classes enter R8 with clear names, so the host R8 (full mode) freely obfuscates
-# and merges its Dagger factories and Retrofit interfaces. That breaks
-# retrofit.create(GatewayApiService) — the proxy cast fails at runtime with a
-# ClassCastException routed through R8's synthetic ThrowCCE helper
-# (FakeNetworkModule.provideGatewayApiService chain). Keep the SDK intact,
-# mirroring the -keep that SCLoans already ships for itself.
+# SCGateway proguard rules — keeping it here, same as loans.
 -keep class com.smallcase.gateway.** { *; }
 
 # Retrofit + R8 full mode (AGP 8 default): generic signatures are stripped for
