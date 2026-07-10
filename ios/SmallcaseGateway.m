@@ -628,6 +628,24 @@ RCT_REMAP_METHOD(setupLoans,
     });
 }
 
+// colorScheme rides the bridge as a primitive string (not a serialized object) and is
+// mapped back to the native enum here. Unknown/absent → the token-only initializer, so the
+// SDK keeps its "partner sent nothing → light, don't force theme param" default.
+- (ScLoanInfo *)loanInfoFromDict:(NSDictionary *)loanInfo {
+    NSString *interactionToken = loanInfo[@"interactionToken"];
+    id scheme = loanInfo[@"colorScheme"];
+    if ([scheme isKindOfClass:[NSString class]]) {
+        if ([scheme isEqualToString:@"dark"]) {
+            return [[ScLoanInfo alloc] initWithInteractionToken:interactionToken colorScheme:ScLoanColorSchemeDark];
+        } else if ([scheme isEqualToString:@"light"]) {
+            return [[ScLoanInfo alloc] initWithInteractionToken:interactionToken colorScheme:ScLoanColorSchemeLight];
+        } else if ([scheme isEqualToString:@"system"]) {
+            return [[ScLoanInfo alloc] initWithInteractionToken:interactionToken colorScheme:ScLoanColorSchemeSystem];
+        }
+    }
+    return [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+}
+
 RCT_REMAP_METHOD(apply,
                  loanInfo: (NSDictionary *)loanInfo
                  applyWithResolver:(RCTPromiseResolveBlock)resolve
@@ -640,7 +658,7 @@ RCT_REMAP_METHOD(apply,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [self loanInfoFromDict:loanInfo];
 
             [ScLoan.instance applyWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
@@ -667,7 +685,7 @@ RCT_REMAP_METHOD(pay,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [self loanInfoFromDict:loanInfo];
 
             [ScLoan.instance payWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
@@ -694,7 +712,7 @@ RCT_REMAP_METHOD(withdraw,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [self loanInfoFromDict:loanInfo];
 
             [ScLoan.instance withdrawWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
@@ -721,7 +739,7 @@ RCT_REMAP_METHOD(service,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [self loanInfoFromDict:loanInfo];
 
             [ScLoan.instance serviceWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 
@@ -749,7 +767,7 @@ RCT_REMAP_METHOD(triggerInteraction,
             NSString *interactionToken = loanInfo[@"interactionToken"];
             NSLog(@" ----------- Interaction Token: %@", interactionToken);
 
-            ScLoanInfo *gatewayLoanInfo = [[ScLoanInfo alloc] initWithInteractionToken:interactionToken];
+            ScLoanInfo *gatewayLoanInfo = [self loanInfoFromDict:loanInfo];
 
             [ScLoan.instance triggerInteractionWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController] loanInfo:gatewayLoanInfo completion:^(ScLoanSuccess * success, ScLoanError * error) {
 

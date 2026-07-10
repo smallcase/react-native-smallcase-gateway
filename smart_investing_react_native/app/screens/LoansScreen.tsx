@@ -16,9 +16,22 @@ import {
 import {SIJsonViewer} from '../components/SIJsonViewer';
 import {SmartButton} from './HoldingsScreen';
 import {SIDropDown} from '../components/SIDropdown';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import {ScLoan} from 'react-native-smallcase-gateway';
 
 type LoanSummaryType = Awaited<ReturnType<typeof getUnityUserLoanSummary>>;
+
+// Color scheme passed to the LAS web UI. Index 0 ("None") omits colorScheme
+// entirely so the SDK keeps its "partner sent nothing → light" default; the
+// rest map to the primitive string the native bridge expects.
+type ScLoanColorScheme = 'light' | 'dark' | 'system';
+const COLOR_SCHEME_LABELS = ['None', 'Light', 'Dark', 'System'];
+const COLOR_SCHEME_VALUES: (ScLoanColorScheme | undefined)[] = [
+  undefined,
+  'light',
+  'dark',
+  'system',
+];
 
 export const basePayload = {
   intent: 'LOAN_APPLICATION',
@@ -62,6 +75,16 @@ const LoansScreen = ({route}: {route: any}) => {
   );
   const [loanSummary, setLoanSummary] = useState<LoanSummaryType>();
   const [offersInput] = useState<string>('');
+
+  // Selected LAS color scheme; defaults to index 0 ("None").
+  const [colorSchemeIndex, setColorSchemeIndex] = useState<number>(0);
+
+  // Single source of truth for the ScLoanInfo passed to every trigger. When the
+  // selected scheme is "None" we omit the key so the SDK applies its default.
+  const buildLoanInfo = (token: string) => {
+    const colorScheme = COLOR_SCHEME_VALUES[colorSchemeIndex];
+    return colorScheme ? {interactionToken: token, colorScheme} : {interactionToken: token};
+  };
 
   const [createUnityUserPayload, setCreateUnityUserPayload] =
     useState<GenerateUnityUserPayload>({
@@ -227,9 +250,7 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
-      const applyRes = await ScLoan.apply({
-        interactionToken: interactionToken,
-      });
+      const applyRes = await ScLoan.apply(buildLoanInfo(interactionToken));
       alert('Success', `${JSON.stringify(applyRes)}`);
     } catch (error: any) {
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
@@ -241,9 +262,7 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
-      const payRes = await ScLoan.pay({
-        interactionToken: interactionToken,
-      });
+      const payRes = await ScLoan.pay(buildLoanInfo(interactionToken));
       alert('Success', `${JSON.stringify(payRes)}`);
     } catch (error: any) {
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
@@ -255,9 +274,7 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
-      const withdrawRes = await ScLoan.withdraw({
-        interactionToken: interactionToken,
-      });
+      const withdrawRes = await ScLoan.withdraw(buildLoanInfo(interactionToken));
       alert('Success', `${JSON.stringify(withdrawRes)}`);
     } catch (error: any) {
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
@@ -269,9 +286,7 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
-      const serviceRes = await ScLoan.service({
-        interactionToken: interactionToken,
-      });
+      const serviceRes = await ScLoan.service(buildLoanInfo(interactionToken));
       alert('Success', `${JSON.stringify(serviceRes)}`);
     } catch (error: any) {
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
@@ -283,9 +298,9 @@ const LoansScreen = ({route}: {route: any}) => {
       if (typeof interactionToken !== 'string') {
         throw new Error('Invalid interaction token!');
       }
-      const serviceRes = await ScLoan.triggerInteraction({
-        interactionToken: interactionToken,
-      });
+      const serviceRes = await ScLoan.triggerInteraction(
+        buildLoanInfo(interactionToken),
+      );
       alert('Success', `${JSON.stringify(serviceRes)}`);
     } catch (error: any) {
       alert('Error', `${error}, ${JSON.stringify(error.userInfo)}`);
@@ -515,6 +530,18 @@ const LoansScreen = ({route}: {route: any}) => {
         }}
         title={'Setup'}
       />
+      <View style={{height: 12, backgroundColor: 'transparent'}} />
+      <Text style={{fontSize: 14, fontWeight: 'bold', marginBottom: 6}}>
+        Color Scheme
+      </Text>
+      <SegmentedControl
+        values={COLOR_SCHEME_LABELS}
+        selectedIndex={colorSchemeIndex}
+        onChange={event => {
+          setColorSchemeIndex(event.nativeEvent.selectedSegmentIndex);
+        }}
+      />
+      <View style={{height: 12, backgroundColor: 'transparent'}} />
       <ScButton onPress={applyForLoan} title={'Apply'} />
       <ScButton onPress={payAmount} title={'Pay'} />
       <ScButton onPress={withdrawAmount} title={'Withdraw'} />
