@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.6.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.5.0...v7.6.0) (2026-07-31)
+
+
+### Improvements
+
+* **android:** update Loans SDK to 5.3.0
+
+### Bug Fixes
+
+* **android:** keep SCGateway classes for R8 ([e99d428](https://github.com/smallcase/react-native-smallcase-gateway/commit/e99d4284368827051a46a68f12e2dba75852ac3e))
+
 ## [7.5.0](https://npmjs.com/package/react-native-smallcase-gateway/v/7.5.0?activeTab=versions) (2026-07-10)
 
 Dev Improvements
