@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [7.5.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.4.4...v7.5.0) (2026-07-10)
+## [7.5.0](https://npmjs.com/package/react-native-smallcase-gateway/v/7.5.0?activeTab=versions) (2026-07-10)
+
+Dev Improvements
+
+* Bumped Loans native SDK to the dark-theme internal release (Android 5.1.4-92, iOS 7.1.2-44) and dropped a stale ProGuard workaround while keeping R8 full mode on.
+
+Features
+
+* Added a `colorScheme` (`dark` / `light` / `system`) option to `ScLoanInfo`, letting partner apps control the LAS web UI theme instead of always defaulting to light.
 
 ### [7.4.4](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.4.3...v7.4.4) (2026-06-11)
 
