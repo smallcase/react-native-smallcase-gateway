@@ -8,6 +8,7 @@ export type ScLoanConfig = {
 };
 export type ScLoanInfo = {
     interactionToken: string;
+    colorScheme?: 'dark' | 'light' | 'system';
 };
 export type ScLoanSuccess = {
     isSuccess: boolean;
@@ -34,6 +35,9 @@ declare namespace ScLoan {
  *
  * @typedef {Object} ScLoanInfo
  * @property {String} interactionToken
+ * @property {'dark' | 'light' | 'system'} [colorScheme] - color scheme for the LAS web UI.
+ *   Pass `dark`/`light` when your app has a resolved theme, `system` to mirror the device,
+ *   or omit to let the web app default to light for partner sessions.
  *
  * @typedef {Object} ScLoanSuccess
  * @property {boolean} isSuccess
