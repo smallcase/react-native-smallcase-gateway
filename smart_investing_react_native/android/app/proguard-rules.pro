@@ -12,6 +12,8 @@
 # SCGateway proguard rules — keeping it here, same as loans.
 -keep class com.smallcase.gateway.** { *; }
 
+-keep class com.example.** { *; }
+
 # Retrofit + R8 full mode (AGP 8 default): generic signatures are stripped for
 # any type that is not kept, so ConfigService.getBrokerConfigs(): Call<Foo>
 # degrades to a raw Call and Retrofit rejects it
