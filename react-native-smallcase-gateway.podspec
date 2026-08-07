@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway-dhruv-wo-customizations-4196585', '7.2.0-28-debug'
+  s.dependency 'SCGateway-dhruv-wo-customizations-acc2cf7', '7.2.0-29-debug'
   # INTERNAL TEST PIN: dark-theme branch build (mirrors the android/build.gradle pin).
   # Revert to: s.dependency 'SCLoans', '7.2.0'
   s.dependency 'SCLoans-sourav-native-dark-theme-37c97d9', '7.1.2-45-release'
