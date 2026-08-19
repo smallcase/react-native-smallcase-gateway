@@ -37,5 +37,5 @@ Pod::Spec.new do |s|
   s.dependency 'SCGateway', '7.2.0'
   # INTERNAL TEST PIN: dark-theme branch build (mirrors the android/build.gradle pin).
   # Revert to: s.dependency 'SCLoans', '7.2.0'
-  s.dependency 'SCLoans-sourav-native-dark-theme-37c97d9', '7.1.2-45-release'
+  s.dependency 'SCLoans-fix-kyc-media-permissions-85906df', '7.3.0-48-release'
 end
