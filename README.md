@@ -28,6 +28,17 @@ platform :ios, '11.0'
 then run
 `cd ios; pod update`
 
+Apps using Loans KYC must also add these usage descriptions to the iOS app's `Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Camera access is required to capture your selfie during KYC.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Microphone access is required for audio during video KYC.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Location access is required to verify your location during KYC.</string>
+```
+
 ## android setup
 
 Add these lines to your project level `build.gradle`
