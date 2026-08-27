@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.7.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.6.1...v7.7.0) (2026-08-27)
+
+
+### Features
+
+* add Loans KYC permission usage descriptions ([e384009](https://github.com/smallcase/react-native-smallcase-gateway/commit/e384009584353f89528e07bbf7ee28ce7e2eba2d))
+
 ### [7.6.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.6.0...v7.6.1) (2026-08-17)
 
 ### Improvements
