@@ -145,6 +145,7 @@ RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
                  brokerList:(NSArray *)brokerList
+                 incognito:(BOOL)incognito
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
@@ -153,6 +154,7 @@ RCT_REMAP_METHOD(triggerTransaction,
          presentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
          utmParams:utmParams
          brokerConfig:brokerList
+         incognito:incognito
          completion: ^(id response, NSError * error) {
             if (error != nil) {
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];
