@@ -127,6 +127,8 @@ This is opt-in and fully backward compatible — existing calls to `triggerTrans
 
 **Requires:** `com.smallcase.gateway:sdk` (Android) and `SCGateway` (iOS) versions with incognito support. Check with the platform SDK release notes for the minimum version once released.
 
+**Using incognito for a different (e.g. linked/family) account:** `incognito: true` on its own does not switch which smallcase account the SDK is acting as — it only changes how that call's browser session behaves. To connect or transact on behalf of a different smallcase account than the one currently authenticated, call `SmallcaseGateway.init(sdkToken)` again with that account's own token before calling `triggerTransaction` — the same way you would for any account switch, incognito or not.
+
 ## Debug / Contribution
 
 Make sure you have react native dev environment set up
