@@ -102,6 +102,33 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 ```
 
+## Incognito Mode
+
+`triggerTransaction` accepts an optional 4th `incognito` argument (default `false`):
+
+```javascript
+// execute a transaction in incognito mode
+const res = await SmallcaseGateway.triggerTransaction(
+  transactionId,
+  utmParams,
+  brokerList,
+  true // incognito
+);
+```
+
+When `true`, the broker flow opens in a private/ephemeral browsing session:
+
+- No cookies, cache, or login state from the flow persist on the device once it closes.
+- Native broker app login (e.g. Kite/Zerodha app-to-app login) is skipped in favor of the in-app web login, even if the broker app is installed and would normally be used.
+
+This is opt-in and fully backward compatible — existing calls to `triggerTransaction(transactionId)`, `triggerTransaction(transactionId, utmParams)`, or `triggerTransaction(transactionId, utmParams, brokerList)` are unaffected and continue to run in normal (non-incognito) mode.
+
+**Known limitations:** incognito prevents local browser data from persisting, but it does not (and cannot) override OS-level Password AutoFill suggestions already saved to the device's keychain, and it does not affect the smallcase account's own broker-connection state — once a broker is connected (incognito or not), subsequent transactions for that same account will correctly recognize it as already connected, since that state lives on smallcase's backend, not in local browser storage.
+
+**Requires:** `com.smallcase.gateway:sdk` (Android) and `SCGateway` (iOS) versions with incognito support. Check with the platform SDK release notes for the minimum version once released.
+
+**Using incognito for a different (e.g. linked/family) account:** `incognito: true` on its own does not switch which smallcase account the SDK is acting as — it only changes how that call's browser session behaves. To connect or transact on behalf of a different smallcase account than the one currently authenticated, call `SmallcaseGateway.init(sdkToken)` again with that account's own token before calling `triggerTransaction` — the same way you would for any account switch, incognito or not.
+
 ## Debug / Contribution
 
 Make sure you have react native dev environment set up
