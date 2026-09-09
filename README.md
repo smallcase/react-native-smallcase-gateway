@@ -100,6 +100,9 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 
 // start lead generation flow
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
+
+// launch a standalone WebView; setup/init are not required
+await SmallcaseGateway.launchScWebView("https://www.smallcase.com");
 ```
 
 ## Debug / Contribution

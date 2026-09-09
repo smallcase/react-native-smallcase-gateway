@@ -360,6 +360,27 @@ RCT_REMAP_METHOD(showOrders,
 }
 
 //MARK: smallplug
+RCT_REMAP_METHOD(launchScWebView,
+                 urlString:(NSString *)urlString
+                 launchScWebViewWithResolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSString *scheme = url.scheme.lowercaseString;
+    if (url == nil || url.host.length == 0 ||
+        !([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"])) {
+        reject(@"invalid_url", @"A valid absolute HTTP(S) URL is required", nil);
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [SCGateway.shared
+         launchScWebViewWithPresentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
+         url:url
+         completion:^(__unused id response, __unused NSError *error) {}];
+        resolve(@(YES));
+    });
+}
+
 RCT_REMAP_METHOD(launchSmallplug,
                   targetEndpoint:(NSString *)targetEndpoint
                   params:(NSString *)params
@@ -809,4 +830,3 @@ RCT_REMAP_METHOD(triggerInteraction,
 }
 
 @end
-
