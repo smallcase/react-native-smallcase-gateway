@@ -20,7 +20,15 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+if ENV['MF_LOCAL_SDK'] == '1'
+  ENV['SMALLCASE_GATEWAY_POD_NAME'] = 'SCGateway'
+  ENV['SMALLCASE_GATEWAY_POD_VERSION'] = '0.0.1'
+end
+
 target 'smart_investing_react_native' do
+  if ENV['MF_LOCAL_SDK'] == '1'
+    pod 'SCGateway', :path => '../build/local-sdk/ios'
+  end
   config = use_native_modules!
 
   use_react_native!(

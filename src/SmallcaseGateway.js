@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import launchMutualFundOrder from './launchMutualFundOrder';
 import { ENV } from './constants';
 import {
   safeObject,
@@ -300,6 +301,7 @@ const SmallcaseGateway = {
   triggerLeadGenWithLoginCta,
   archiveSmallcase,
   triggerTransaction,
+  launchMutualFundOrder,
   triggerMfTransaction,
   setConfigEnvironment,
   launchSmallplug,

@@ -1,3 +1,4 @@
+export type { JsonValue, JsonObject, MutualFundAnalyticsEvent, MutualFundCheckoutRequest, MutualFundOrderOptions, MutualFundOrderResult } from "./MutualFundOrder";
 import ScLoan from "./ScLoan";
 
 export interface GatewayEvent {
@@ -83,6 +84,7 @@ declare const _default: {
     triggerLeadGenWithLoginCta: (userDetails?: import("./SmallcaseGateway").userDetails, utmParams?: any, showLoginCta?: boolean) => Promise;
     archiveSmallcase: (iscid: string) => unknown;
     triggerTransaction: (transactionId: string, utmParams?: any, brokerList?: string[]) => Promise<import("./SmallcaseGateway").transactionRes>;
+    launchMutualFundOrder: (options: import("./MutualFundOrder").MutualFundOrderOptions) => Promise<import("./MutualFundOrder").MutualFundOrderResult>;
     triggerMfTransaction: (transactionId: string) => Promise<import("./SmallcaseGateway").transactionRes>;
     setConfigEnvironment: (envConfig: import("./SmallcaseGateway").envConfig) => any;
     launchSmallplug: (targetEndpoint: string, params: string) => unknown;

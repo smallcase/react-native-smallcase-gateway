@@ -83,6 +83,7 @@ declare namespace SmallcaseGateway {
     export { triggerLeadGenWithLoginCta };
     export { archiveSmallcase };
     export { triggerTransaction };
+    export { launchMutualFundOrder };
     export { triggerMfTransaction };
     export { setConfigEnvironment };
     export { launchSmallplug };
@@ -187,3 +188,6 @@ declare function getSdkVersion(): Promise;
  * @returns
  */
 declare function showOrders(): unknown;
+
+/** Launch an embedded MF order using one options object; no onComplete callback. */
+declare function launchMutualFundOrder(options: import("./MutualFundOrder").MutualFundOrderOptions): Promise<import("./MutualFundOrder").MutualFundOrderResult>;

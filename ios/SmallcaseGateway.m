@@ -1,11 +1,23 @@
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
 #import <SCGateway/SCGateway.h>
 #import <SCGateway/SCGateway-Swift.h>
 
 #import <Loans/Loans.h>
 
-@interface RCT_EXTERN_MODULE(SmallcaseGateway, NSObject)
+@interface RCT_EXTERN_MODULE(SmallcaseGateway, RCTEventEmitter)
+
+RCT_EXTERN_METHOD(launchMutualFundOrder:(NSDictionary *)options
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(sendMutualFundCheckoutEvent:(NSString *)launchId
+                  checkoutId:(NSString *)checkoutId
+                  event:(NSString *)event
+                  data:(NSDictionary *)data
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
 
 //MARK: SDK version helpers
 RCT_REMAP_METHOD(setHybridSdkVersion, sdkVersion: (NSString *)sdkVersion) {

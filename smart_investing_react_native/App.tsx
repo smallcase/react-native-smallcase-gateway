@@ -9,6 +9,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {KeyboardAvoidingView, Platform as RNPlatform} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
+import {MFOrderScreen} from './app/screens/MFOrderScreen';
 import {SstScreen} from './app/screens/SstScreen';
 import {ConnectScreenStack} from './app/screens/ConnectScreen';
 import {EnvProvider} from './app/EnvProvider';
@@ -46,11 +47,11 @@ const App: React.FC = () => {
 
       // Set configuration environment first
       await SmallcaseGateway.setConfigEnvironment({
-        gatewayName: 'SmartInvestingApp',
+        gatewayName: 'gatewaydemo-stag',
         isLeprechaun: false,
         isAmoEnabled: true,
         brokerList: ['zerodha', 'upstox', 'angelone'],
-        environmentName: 'development',
+        environmentName: 'staging',
       });
 
       console.log('Configuration set successfully');
@@ -90,7 +91,8 @@ const Content = () => {
         <SafeAreaProvider>
           <EnvProvider>
             <SstCartProvider>
-              <Tab.Navigator>
+              <Tab.Navigator initialRouteName="MF Orders">
+                <Tab.Screen name="MF Orders" component={MFOrderScreen} />
                 <Tab.Screen name="Connect" component={ConnectScreenStack} />
                 <Tab.Screen name="Sst" component={SstScreen} />
                 <Tab.Screen name="Smt" component={SmtScreen} />

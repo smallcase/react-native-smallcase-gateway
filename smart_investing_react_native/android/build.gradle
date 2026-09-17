@@ -9,7 +9,6 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -21,18 +20,27 @@ buildscript {
 
 apply plugin: "com.facebook.react.rootproject"
 
+if (System.getenv('MF_LOCAL_SDK') == '1') {
+    ext.SmallcaseGateway_sdkDependency = 'com.smallcase.gateway:sdk-mf-local:0.0.0-local'
+}
+
 allprojects {
     repositories {
+        if (System.getenv('MF_LOCAL_SDK') == '1') {
+            maven { url rootProject.file('../build/local-sdk/android') }
+        }
         google()
         mavenCentral()
-        jcenter()
         mavenLocal()
         gradlePluginPortal()
         maven { url 'https://www.jitpack.io' }
         maven { url "https://maven.google.com" }
 
         // smallcase gateway PROD SDKs
-        maven { url "${artifactory_contextUrl}/SCGateway" }
+        maven {
+            url "${artifactory_contextUrl}/SCGateway"
+            content { includeGroupByRegex 'com\\.smallcase.*' }
+        }
 
         // checkout juspay
         maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }

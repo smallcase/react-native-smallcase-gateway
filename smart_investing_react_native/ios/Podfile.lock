@@ -1416,8 +1416,8 @@ PODS:
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
-    - SCGateway (= 7.2.0)
-    - SCLoans-sourav-native-dark-theme-0e85bd6 (= 7.1.2-44-release)
+    - SCGateway (= 0.0.1)
+    - SCLoans-sourav-native-dark-theme-37c97d9 (= 7.1.2-45-release)
   - React-NativeModulesApple (0.79.4):
     - glog
     - hermes-engine
@@ -1839,8 +1839,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SCGateway (7.2.0)
-  - SCLoans-sourav-native-dark-theme-0e85bd6 (7.1.2-44-release)
+  - SCGateway (0.0.1)
+  - SCLoans-sourav-native-dark-theme-37c97d9 (7.1.2-45-release)
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1887,7 +1887,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
-  - react-native-smallcase-gateway (from `../node_modules/react-native-smallcase-gateway`)
+  - react-native-smallcase-gateway (from `../..`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1922,14 +1922,14 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - SCGateway (from `../build/local-sdk/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   https://github.com/smallcase/cocoapodspec-internal.git:
-    - SCLoans-sourav-native-dark-theme-0e85bd6
+    - SCLoans-sourav-native-dark-theme-37c97d9
   trunk:
     - React-Codegen
-    - SCGateway
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2015,7 +2015,7 @@ EXTERNAL SOURCES:
   react-native-segmented-control:
     :path: "../node_modules/@react-native-segmented-control/segmented-control"
   react-native-smallcase-gateway:
-    :path: "../node_modules/react-native-smallcase-gateway"
+    :path: "../.."
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-oscompat:
@@ -2084,6 +2084,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  SCGateway:
+    :path: "../build/local-sdk/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2129,7 +2131,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ef2292ca147fa8793305e4693586ad0caf3afad3
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-segmented-control: bf6e0032726727498e18dd437ae88afcdbc18e99
-  react-native-smallcase-gateway: 8e5836a403989efd924992c552fbfdf57dea8a65
+  react-native-smallcase-gateway: b73dfdf8454c888fd5922a2165caf78e4ca17dad
   React-NativeModulesApple: da60186ad0aafff031a9bc86b048711d34acc813
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: bbca3688c62f4f39e972d6e21969c95fe441fb6c
@@ -2164,11 +2166,11 @@ SPEC CHECKSUMS:
   RNCClipboard: 37de6995ef72dc869422879e51a46a520d3f08b3
   RNGestureHandler: ebef699ea17e7c0006c1074e1e423ead60ce0121
   RNScreens: 3f6e41f9f89cb888a6b4b27566bdfdf7a3bf51ad
-  SCGateway: 8089d79c55ecc8e7b581e0bf56fd28a2e3d957d0
-  SCLoans-sourav-native-dark-theme-0e85bd6: 98e7ffbfcc0da3bc0571caeaaf353ae4a7914dfa
+  SCGateway: ad4739e7252ac8b8a769903428cc5d28b7b6c60e
+  SCLoans-sourav-native-dark-theme-37c97d9: 44e13e84ac4051baca87baedeac6129f32e431c2
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a6cb833e04fb8c59a012b49fb1d040fcb0cbb633
 
-PODFILE CHECKSUM: af35a453d8afb8a85bc3c527805a3769386bbccd
+PODFILE CHECKSUM: d33649f36eaba1fedd9e57916ad891413f9adf9e
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0

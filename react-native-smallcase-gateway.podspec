@@ -11,7 +11,8 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "11.0" }
+  s.platforms    = { :ios => "13.0" }
+  s.swift_version = "5.0"
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
   s.vendored_frameworks = 'SCGateway.xcframework'
   s.source_files = "ios/**/*.{h,m,mm,swift}"
@@ -34,7 +35,8 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '7.2.0'
+  # Use an updated MF-capable build until the release dependency is pinned.
+  s.dependency ENV.fetch('SMALLCASE_GATEWAY_POD_NAME', 'SCGateway'), ENV.fetch('SMALLCASE_GATEWAY_POD_VERSION', '7.2.0')
   # INTERNAL TEST PIN: dark-theme branch build (mirrors the android/build.gradle pin).
   # Revert to: s.dependency 'SCLoans', '7.2.0'
   s.dependency 'SCLoans-sourav-native-dark-theme-37c97d9', '7.1.2-45-release'

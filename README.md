@@ -21,8 +21,8 @@ source 'git@github.com:smallcase/cocoapodspecs.git'
 # default source for all other pods
 source 'https://cdn.cocoapods.org'
 
-# update the ios version if it was previously below 11.0
-platform :ios, '11.0'
+# update the ios version if it was previously below 13.0
+platform :ios, '13.0'
 ```
 
 then run
@@ -102,7 +102,73 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 ```
 
+## Mutual fund orders
+
+After configuring and initializing the SDK, launch MF orders with one options object:
+
+```typescript
+import SmallcaseGateway from 'react-native-smallcase-gateway';
+
+const result = await SmallcaseGateway.launchMutualFundOrder({
+  transactionId,
+  metadata: { theme: { preference: 'dark' } }, // optional JSON object
+  // webclientUrl: 'https://your-mf-webclient.example', // optional base override
+  onAnalyticsEvent: (events) => { // optional
+    events.forEach(({ label, data, integrations }) => {
+      // Forward to the app's analytics destinations.
+    });
+  },
+  onNativeAction: (intent, metadata) => {
+    // Required: handle an action in the parent app while the order stays open.
+  },
+});
+
+// The Promise settles after the flow closes. There is no onComplete callback.
+// result: { success, reason, intent?, data?, error?, errorCode? }
+// data contains the order response; intent optionally identifies the next destination.
+```
+
+`metadata` accepts nested JSON values and is snapshotted at launch. Native code
+passes it to the web flow through the READY/INIT message handshake. Transaction
+and authentication parameters stay in the URL returned by the API.
+`webclientUrl` replaces the web base while retaining the API URL's path and query.
+The MF web deployment must support the `sdkBridge=1` order protocol.
+
+Callbacks are scoped to each launch, and event listeners are removed when its
+Promise settles. A second concurrent launch returns `FLOW_IN_PROGRESS`.
+Validation and normal flow failures resolve with `success: false`; unexpected
+React Native bridge failures reject the Promise and should be caught by the app.
+Types are exported as `MutualFundOrderOptions`, `MutualFundOrderResult`,
+`MutualFundAnalyticsEvent`, `JsonObject`, and `JsonValue`.
+
+### Native dependencies for this change
+
+This source requires the matching MF-capable changes in `gw-mob-android` and
+`gw-mob-ios`. The existing default pins (Android `6.1.1`, iOS `7.2.0`) predate this
+API and **cannot compile this wrapper change**. Select updated internal builds
+while developing; update both default pins to their released versions before
+publishing this wrapper. No new native release version is assumed here.
+
+For Android, set `SmallcaseGateway_sdkDependency` in the host's `gradle.properties`
+to the full Maven coordinate of the updated build. For a source integration,
+include the native SDK module in the host's `settings.gradle` and set
+`SmallcaseGateway_nativeProject` to its Gradle project path (for example,
+`:smallcase_gateway`). The project override takes precedence over the artifact.
+Use Android compile SDK 34 or newer and Kotlin 1.8.10 or newer, subject to the
+host React Native version's own requirements.
+
+For iOS, set `SMALLCASE_GATEWAY_POD_NAME` and `SMALLCASE_GATEWAY_POD_VERSION` to the
+updated native pod before running `pod install`/`pod update`. The pod name defaults
+to `SCGateway`; an internal build may use its branch-specific pod name. Keep these
+environment values consistent on developer machines and CI. iOS 13+ is required.
+
+Rebuild the native app after selecting these dependencies; a JS-only update does
+not add the native API. Calling the new method in an older app binary returns
+`NATIVE_API_UNAVAILABLE`.
+
 ## Debug / Contribution
+
+For the current MF test app, follow [local MF order testing](smart_investing_react_native/README.md).
 
 Make sure you have react native dev environment set up
 

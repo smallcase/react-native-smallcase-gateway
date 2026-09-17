@@ -12,11 +12,121 @@ import com.smallcase.gateway.portal.SmallcaseGatewaySdk
 import com.smallcase.gateway.portal.SmallplugPartnerProps
 import com.smallcase.loans.core.external.*
 import com.google.gson.Gson
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import kotlinx.coroutines.*
+import org.json.JSONObject
 
 class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
         const val TAG = "SmallcaseGatewayModule"
     }
+
+    private val checkoutReplies = mutableMapOf<String, (String, JSONObject) -> Unit>()
+
+    @ReactMethod
+    fun sendMutualFundCheckoutEvent(launchId: String, checkoutId: String, event: String, data: ReadableMap, promise: Promise) {
+        mfOrderScope.launch {
+            val reply = checkoutReplies["$launchId:$checkoutId"]
+            if (reply == null) promise.resolve(false)
+            else {
+                reply(event, JSONObject(data.toHashMap()))
+                promise.resolve(true)
+            }
+        }
+    }
+
+    private val mfOrderScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    override fun invalidate() {
+        checkoutReplies.clear()
+        mfOrderScope.cancel()
+        super.invalidate()
+    }
+
+    override fun onCatalystInstanceDestroy() {
+        checkoutReplies.clear()
+        mfOrderScope.cancel()
+        super.onCatalystInstanceDestroy()
+    }
+
+    // Required by NativeEventEmitter. The JS subscription owns per-launch filtering/cleanup.
+    @ReactMethod fun addListener(eventName: String) {}
+    @ReactMethod fun removeListeners(count: Double) {}
+
+    @ReactMethod
+    fun launchMutualFundOrder(options: ReadableMap, promise: Promise) {
+        mfOrderScope.launch {
+            val activity = reactApplicationContext.currentActivity
+            if (activity == null || activity.isFinishing || activity.isDestroyed) {
+                promise.resolve(Arguments.createMap().apply {
+                    putBoolean("success", false)
+                    putString("reason", "launch_error")
+                    putString("errorCode", "NO_ACTIVITY")
+                })
+                return@launch
+            }
+            try {
+                val transactionId = options.getString("transactionId") ?: ""
+                val launchId = options.getString("launchId") ?: ""
+                require(launchId.isNotBlank()) { "Missing launchId" }
+                val analytics: ((List<MutualFundAnalyticsEvent>) -> Unit)? =
+                    if (options.hasKey("hasAnalyticsListener") && options.getBoolean("hasAnalyticsListener")) {
+                        { events -> emitMfOrderEvent(launchId, "ANALYTICS_EVENT", mapOf("events" to events.map { event ->
+                            mutableMapOf<String, Any>("label" to event.label, "integrations" to event.integrations).apply {
+                                event.data?.let { put("data", jsonToMap(it)) }
+                            }
+                        })) }
+                    } else null
+                val result = SmallcaseGatewaySdk.launchMutualFundOrder(MutualFundOrderOptions(
+                    activity = activity,
+                    transactionId = transactionId,
+                    metadata = if (options.hasKey("metadata")) options.getMap("metadata")?.let { JSONObject(it.toHashMap()) } else null,
+                    webclientUrl = if (options.hasKey("webclientUrl")) options.getString("webclientUrl") else null,
+                    onAnalyticsEvent = analytics,
+                    onCheckout = if (options.hasKey("hasCheckoutHandler") && options.getBoolean("hasCheckoutHandler")) {
+                        { checkoutId, config, emit ->
+                            val key = "$launchId:$checkoutId"
+                            checkoutReplies[key] = emit
+                            emitMfOrderEvent(launchId, "CHECKOUT_OPEN", mapOf("checkoutId" to checkoutId, "config" to jsonToMap(config)))
+                            val dismiss: () -> Unit = {
+                                checkoutReplies.remove(key)
+                                emitMfOrderEvent(launchId, "CHECKOUT_DISMISS", mapOf("checkoutId" to checkoutId))
+                            }
+                            dismiss
+                        }
+                    } else null,
+                    onNativeAction = { intent, metadata ->
+                        emitMfOrderEvent(launchId, "NATIVE_ACTION", mutableMapOf<String, Any>("intent" to intent).apply {
+                            metadata?.let { put("metadata", jsonToMap(it)) }
+                        })
+                    }
+                ))
+                promise.resolve(Arguments.makeNativeMap(mutableMapOf<String, Any>(
+                    "success" to result.success, "reason" to result.reason
+                ).apply {
+                    result.intent?.let { put("intent", it) }
+                    result.data?.let { put("data", jsonToMap(it)) }
+                    result.error?.let { put("error", it) }
+                    result.errorCode?.let { put("errorCode", it) }
+                }))
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                promise.reject("MF_ORDER_BRIDGE_ERROR", error.message, error)
+            }
+        }
+    }
+
+    private fun emitMfOrderEvent(launchId: String, type: String, payload: Map<String, Any>) {
+        if (!mfOrderScope.isActive || !reactApplicationContext.hasActiveCatalystInstance()) return
+        val event = payload.toMutableMap().apply { put("launchId", launchId); put("type", type) }
+        reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit("scg_mf_order_event", Arguments.makeNativeMap(event))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun jsonToMap(value: JSONObject): Map<String, Any?> =
+        Gson().fromJson(value.toString(), Map::class.java) as Map<String, Any?>
 
     override fun getName(): String {
         return "SmallcaseGateway"
