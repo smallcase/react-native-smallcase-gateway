@@ -1,0 +1,7 @@
+# Default owner for everything
+*               @smallcase/gw-fe
+
+# Release machinery — always reviewed, regardless of who touches it
+/.github/       @smallcase/gw-fe
+/scripts/       @smallcase/gw-fe
+/lefthook.yml   @smallcase/gw-fe
