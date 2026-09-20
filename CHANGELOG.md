@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.0...v7.7.1) (2026-09-20)
+
+
+### Features
+
+* expose webview-as-a-service ([648f235](https://github.com/smallcase/react-native-smallcase-gateway/commit/648f2359715094ce88f680e3ba18fc2c7cfbae4c))
+
 ## [7.7.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.6.2...v7.7.0) (2026-08-27)
 
 
