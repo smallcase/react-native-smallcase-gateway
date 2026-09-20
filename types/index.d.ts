@@ -85,6 +85,7 @@ declare const _default: {
     triggerTransaction: (transactionId: string, utmParams?: any, brokerList?: string[]) => Promise<import("./SmallcaseGateway").transactionRes>;
     triggerMfTransaction: (transactionId: string) => Promise<import("./SmallcaseGateway").transactionRes>;
     setConfigEnvironment: (envConfig: import("./SmallcaseGateway").envConfig) => any;
+    launchScWebView: (url: string) => Promise<boolean>;
     launchSmallplug: (targetEndpoint: string, params: string) => unknown;
     launchSmallplugWithBranding: (targetEndpoint: string, params: string, headerColor: string, headerOpacity: number, backIconColor: string, backIconOpacity: number) => unknown;
     getSdkVersion: () => Promise;

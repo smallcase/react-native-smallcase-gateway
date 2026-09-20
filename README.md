@@ -28,6 +28,17 @@ platform :ios, '11.0'
 then run
 `cd ios; pod update`
 
+Apps using Loans KYC must also add these usage descriptions to the iOS app's `Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Camera access is required to capture your selfie during KYC.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Microphone access is required for audio during video KYC.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Location access is required to verify your location during KYC.</string>
+```
+
 ## android setup
 
 Add these lines to your project level `build.gradle`
@@ -37,12 +48,8 @@ allprojects {
     repositories {
         // .. you other repositories
         maven {
-          url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
-          credentials {
-            username "react_native_user"
-            password "reactNativeUser123"
-          }
-      }
+          url "https://artifactory.smallcase.com/artifactory/SCGateway"
+        }
     }
 }
 ```
@@ -100,6 +107,9 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 
 // start lead generation flow
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
+
+// launch a standalone WebView; setup/init are not required
+await SmallcaseGateway.launchScWebView("https://www.smallcase.com");
 ```
 
 ## Debug / Contribution

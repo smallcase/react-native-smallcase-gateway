@@ -158,6 +158,22 @@ const launchSmallplug = async (targetEndpoint, params) => {
 };
 
 /**
+ * Launches a standalone native WebView for an absolute HTTP(S) URL.
+ * Gateway setup and initialization are not required.
+ *
+ * @param {string} url
+ * @returns {Promise<boolean>} resolves when the WebView launch is accepted
+ */
+const launchScWebView = async (url) => {
+  const safeUrl = typeof url === 'string' ? url.trim() : '';
+  if (!/^https?:\/\/.+/i.test(safeUrl)) {
+    throw new TypeError('A valid absolute HTTP(S) URL is required');
+  }
+
+  return SmallcaseGatewayNative.launchScWebView(safeUrl);
+};
+
+/**
  * launches smallcases module
  * On success, resolves with SmallplugRes.
  * On failure, rejects with an error object containing `errorCode`, `errorMessage`, and an optional `data` object with `userInfo`.
@@ -302,6 +318,7 @@ const SmallcaseGateway = {
   triggerTransaction,
   triggerMfTransaction,
   setConfigEnvironment,
+  launchScWebView,
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,
