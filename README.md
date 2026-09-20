@@ -48,12 +48,8 @@ allprojects {
     repositories {
         // .. you other repositories
         maven {
-          url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
-          credentials {
-            username "react_native_user"
-            password "reactNativeUser123"
-          }
-      }
+          url "https://artifactory.smallcase.com/artifactory/SCGateway"
+        }
     }
 }
 ```
