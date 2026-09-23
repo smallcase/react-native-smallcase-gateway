@@ -145,14 +145,17 @@ RCT_REMAP_METHOD(triggerTransaction,
                  transactionId:(NSString *)transactionId
                  utmParams:(NSDictionary *)utmParams
                  brokerList:(NSArray *)brokerList
+                 incognito:(nullable NSNumber *)incognito
                  triggerTransactionWithResolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
+        BOOL isIncognito = incognito != nil ? [incognito boolValue] : NO;
         [SCGateway.shared
          triggerTransactionFlowWithTransactionId:transactionId
          presentingController:[[[UIApplication sharedApplication] keyWindow] rootViewController]
          utmParams:utmParams
          brokerConfig:brokerList
+         incognito:isIncognito
          completion: ^(id response, NSError * error) {
             if (error != nil) {
                 NSMutableDictionary *responseDict = [[NSMutableDictionary alloc] init];

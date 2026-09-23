@@ -142,9 +142,10 @@ declare function archiveSmallcase(iscid: string): unknown;
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
+ * @param {boolean} [incognito] - when true, opens the broker flow in a private/incognito session that leaves no local browser data behind
  * @returns {Promise<transactionRes>}
  */
-declare function triggerTransaction(transactionId: string, utmParams?: any, brokerList?: Array<string>): Promise<transactionRes>;
+declare function triggerTransaction(transactionId: string, utmParams?: any, brokerList?: Array<string>, incognito?: boolean): Promise<transactionRes>;
 /**
  * triggers a transaction with a transaction id
  *
