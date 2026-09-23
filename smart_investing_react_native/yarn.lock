@@ -6230,7 +6230,7 @@ react-native-screens@4.17.1:
     warn-once "^0.1.0"
 
 "react-native-smallcase-gateway@file:..":
-  version "7.4.3"
+  version "7.6.2"
   dependencies:
     standard-version "^9.5.0"
 

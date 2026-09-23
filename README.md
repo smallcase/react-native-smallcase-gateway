@@ -48,12 +48,8 @@ allprojects {
     repositories {
         // .. you other repositories
         maven {
-          url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
-          credentials {
-            username "react_native_user"
-            password "reactNativeUser123"
-          }
-      }
+          url "https://artifactory.smallcase.com/artifactory/SCGateway"
+        }
     }
 }
 ```
@@ -111,6 +107,9 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 
 // start lead generation flow
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
+
+// launch a standalone WebView; setup/init are not required
+await SmallcaseGateway.launchScWebView("https://www.smallcase.com");
 ```
 
 ## Debug / Contribution

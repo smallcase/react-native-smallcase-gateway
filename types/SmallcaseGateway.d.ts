@@ -85,6 +85,7 @@ declare namespace SmallcaseGateway {
     export { triggerTransaction };
     export { triggerMfTransaction };
     export { setConfigEnvironment };
+    export { launchScWebView };
     export { launchSmallplug };
     export { launchSmallplugWithBranding };
     export { getSdkVersion };
@@ -157,6 +158,11 @@ declare function triggerMfTransaction(transactionId: string): Promise<transactio
  * @param {envConfig} envConfig
  */
 declare function setConfigEnvironment(envConfig: envConfig): any;
+/**
+ * Launches a standalone native WebView for an absolute HTTP(S) URL.
+ * Gateway setup and initialization are not required.
+ */
+declare function launchScWebView(url: string): Promise<boolean>;
 /**
  * launches smallcases module
  *
