@@ -10,6 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Guard branch
+        run: |
+          if [[ "${{ github.ref_name }}" != "prod" ]]; then
+            echo "::error::publish runs only from prod (got ${{ github.ref_name }})"
+            exit 1
+          fi
+
       - uses: actions/checkout@v6
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v6
