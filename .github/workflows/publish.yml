@@ -21,3 +21,24 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: npm publish
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+        continue-on-error: true
+
+      - name: Clone small-things
+        uses: actions/checkout@v6
+        with:
+          repository: smallcase/small-things
+          path: small-things
+          token: ${{ secrets.GH_PAT }}
+        continue-on-error: true
+
+      - name: Track release
+        env:
+          SMALL_THINGS_PATH: small-things
+          NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+        run: bash scripts/track-release.sh --version $(node -p "require('./package.json').version")
+        continue-on-error: true
