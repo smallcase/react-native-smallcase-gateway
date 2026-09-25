@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Improvements
 
-* **loans:** update Android and iOS production SDK dependencies
+* update Android Gateway SDK to 6.1.4 and Loans SDK to 5.4.0
+* update iOS Gateway SDK to 7.2.2 and Loans SDK to 7.5.0
 
 ### [7.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.0...v7.7.1) (2026-09-20)
 
