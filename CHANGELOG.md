@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Improvements
 
-* **loans:** update Android and iOS SDK internal release dependencies
+* **loans:** update Android and iOS production SDK dependencies
 
 ### [7.7.1](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.0...v7.7.1) (2026-09-20)
 
