@@ -1,6 +1,18 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+
+# Native SDK pins live in native-sdk.json. Run `SMALLCASE_SDK_MODE=debug pod install`
+# in the host app to consume debug builds of the native SDKs.
+native_sdks = JSON.parse(File.read(File.join(__dir__, "native-sdk.json")))
+sdk_mode = ENV.fetch("SMALLCASE_SDK_MODE", "release")
+unless native_sdks.key?(sdk_mode)
+  raise "react-native-smallcase-gateway: unknown SMALLCASE_SDK_MODE '#{sdk_mode}', expected one of #{native_sdks.keys}"
+end
+ios_sdks = native_sdks[sdk_mode]["ios"]
+ios_sdks.each do |sdk, pod|
+  raise "react-native-smallcase-gateway: no #{sdk} SDK pinned for mode '#{sdk_mode}' in native-sdk.json" if pod.nil?
+end
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
 Pod::Spec.new do |s|
@@ -34,6 +46,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '7.2.2'
-  s.dependency 'SCLoans', '7.5.0'
+  s.dependency ios_sdks["gateway"]["name"], ios_sdks["gateway"]["version"]
+  s.dependency ios_sdks["loans"]["name"], ios_sdks["loans"]["version"]
 end

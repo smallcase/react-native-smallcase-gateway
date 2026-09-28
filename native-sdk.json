@@ -1,0 +1,22 @@
+{
+  "release": {
+    "android": {
+      "gateway": "com.smallcase.gateway:sdk:6.1.4",
+      "loans": "com.smallcase.loans:sdk:5.4.0"
+    },
+    "ios": {
+      "gateway": { "name": "SCGateway", "version": "7.2.2" },
+      "loans": { "name": "SCLoans", "version": "7.5.0" }
+    }
+  },
+  "debug": {
+    "android": {
+      "gateway": null,
+      "loans": null
+    },
+    "ios": {
+      "gateway": null,
+      "loans": null
+    }
+  }
+}

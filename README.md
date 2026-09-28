@@ -112,6 +112,17 @@ SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
 await SmallcaseGateway.launchScWebView("https://www.smallcase.com");
 ```
 
+## Native SDK debug mode
+
+The native Gateway and Loans SDK versions this package depends on are pinned in `native-sdk.json`, once for `release` (default) and once for `debug`. Debug builds of the native SDKs enable WebView inspection and debug logging, and are published to smallcase's internal registries only.
+
+To consume the debug builds:
+
+- Android: add `SmallcaseGateway_sdkMode=debug` to the host app's `android/gradle.properties`, then sync. Artifactory access to `SCGateway-internal` is required.
+- iOS: add `source 'git@github.com:smallcase/cocoapodspec-internal.git'` and `source 'https://cdn.cocoapods.org/'` to the host app's `Podfile`, then run `SMALLCASE_SDK_MODE=debug pod install`. Run a plain `pod install` to switch back.
+
+The build fails with an explicit error if debug mode is selected but `native-sdk.json` has no debug pin for an SDK.
+
 ## Debug / Contribution
 
 Make sure you have react native dev environment set up
