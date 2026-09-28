@@ -146,13 +146,25 @@ repositories {
 
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
+// Native SDK pins live in native-sdk.json. Set SmallcaseGateway_sdkMode=debug in the
+// host app's gradle.properties to consume debug builds of the native SDKs.
+def sdkMode = getExtOrDefault('sdkMode') ?: 'release'
+def nativeSdks = new groovy.json.JsonSlurper().parse(file("$projectDir/../native-sdk.json"))
+if (!nativeSdks.containsKey(sdkMode)) {
+  throw new GradleException("${project.name}: unknown SmallcaseGateway_sdkMode '${sdkMode}', expected one of ${nativeSdks.keySet()}")
+}
+def androidSdks = nativeSdks[sdkMode].android
+androidSdks.each { sdk, coordinate ->
+  if (!coordinate) {
+    throw new GradleException("${project.name}: no ${sdk} SDK pinned for mode '${sdkMode}' in native-sdk.json")
+  }
+}
+
 dependencies {
    //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    // INTERNAL TEST PIN: feat/incognito-mode branch build.
-    // Revert to: implementation 'com.smallcase.gateway:sdk:6.1.1'
-    implementation 'com.smallcase.gateway:sdk-feat-incognito-mode-c1b21c9:6.1.2-3193-release'
-    implementation 'com.smallcase.loans:sdk-sourav-native-dark-theme-cb54bf9:5.1.4-92-release'
+    implementation androidSdks.gateway
+    implementation androidSdks.loans
     implementation "androidx.core:core-ktx:1.3.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

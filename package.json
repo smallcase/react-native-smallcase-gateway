@@ -12,6 +12,7 @@
     "cpp",
     "types",
     "react-native-smallcase-gateway.podspec",
+    "native-sdk.json",
     "!lib/typescript/example",
     "!lib/typescript/smart_investing_react_native",
     "!android/build",
