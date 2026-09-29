@@ -34,6 +34,8 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  s.dependency 'SCGateway', '7.2.2'
+  # INTERNAL TEST PIN: fix/aswebauth-foreground-gate branch build (ClickUp 86d4ab04a).
+  # Revert to: s.dependency 'SCGateway', '7.2.2'
+  s.dependency 'SCGateway-fix-aswebauth-foreground-gate-1b7bef2', '7.2.2-33-release'
   s.dependency 'SCLoans', '7.5.0'
 end
