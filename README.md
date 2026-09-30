@@ -129,6 +129,17 @@ This is opt-in and fully backward compatible — existing calls to `triggerTrans
 
 **Using incognito for a different (e.g. linked/family) account:** `incognito: true` on its own does not switch which smallcase account the SDK is acting as — it only changes how that call's browser session behaves. To connect or transact on behalf of a different smallcase account than the one currently authenticated, call `SmallcaseGateway.init(sdkToken)` again with that account's own token before calling `triggerTransaction` — the same way you would for any account switch, incognito or not.
 
+## Native SDK debug mode
+
+The native Gateway and Loans SDK versions this package depends on are pinned in `native-sdk.json`, once for `release` (default) and once for `debug`. Debug builds of the native SDKs enable WebView inspection and debug logging, and are published to smallcase's internal registries only.
+
+To consume the debug builds:
+
+- Android: add `SmallcaseGateway_sdkMode=debug` to the host app's `android/gradle.properties`, then sync. Artifactory access to `SCGateway-internal` is required.
+- iOS: add `source 'git@github.com:smallcase/cocoapodspec-internal.git'` and `source 'https://cdn.cocoapods.org/'` to the host app's `Podfile`, then run `SMALLCASE_SDK_MODE=debug pod install`. Run a plain `pod install` to switch back.
+
+The build fails with an explicit error if debug mode is selected but `native-sdk.json` has no debug pin for an SDK.
+
 ## Debug / Contribution
 
 Make sure you have react native dev environment set up
