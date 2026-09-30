@@ -5,8 +5,14 @@
       "loans": "com.smallcase.loans:sdk-sourav-native-dark-theme-cb54bf9:5.1.4-92-release"
     },
     "ios": {
-      "gateway": { "name": "SCGateway-feat-incognito-mode-2d15c7b", "version": "7.2.0-28-release" },
-      "loans": { "name": "SCLoans-sourav-native-dark-theme-37c97d9", "version": "7.1.2-45-release" }
+      "gateway": {
+        "name": "SCGateway-feat-incognito-mode-2d15c7b",
+        "version": "7.2.0-28-release"
+      },
+      "loans": {
+        "name": "SCLoans-sourav-native-dark-theme-37c97d9",
+        "version": "7.1.2-45-release"
+      }
     }
   },
   "debug": {
