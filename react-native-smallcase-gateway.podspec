@@ -34,10 +34,6 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 
-  # INTERNAL TEST PIN: feat/incognito-mode branch build.
-  # Revert to: s.dependency 'SCGateway', '7.2.0'
-  s.dependency 'SCGateway-feat-incognito-mode-2d15c7b', '7.2.0-28-release'
-  # INTERNAL TEST PIN: dark-theme branch build (mirrors the android/build.gradle pin).
-  # Revert to: s.dependency 'SCLoans', '7.2.0'
-  s.dependency 'SCLoans-sourav-native-dark-theme-37c97d9', '7.1.2-45-release'
+  s.dependency 'SCGateway', '7.2.2'
+  s.dependency 'SCLoans', '7.5.0'
 end
