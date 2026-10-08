@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.7.3](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.2...v7.7.3) (2026-10-08)
+
+### Improvements
+
+* update Android Gateway SDK to 6.1.5 (Custom Tab service diagnostics, faster SDK launch)
+* update iOS Gateway SDK to 7.3.0 (ASWebAuth recovery when the host app's Face ID lock is active, ASWebAuth diagnostics, faster SDK launch)
+
 ### [7.7.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.1...v7.7.2) (2026-09-23)
 
 ### Improvements
