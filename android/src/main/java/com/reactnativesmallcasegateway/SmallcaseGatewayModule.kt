@@ -89,7 +89,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     @ReactMethod
-    fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, promise: Promise) {
+    fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, incognito: Boolean?, promise: Promise) {
 
         var safeBrokerList = listOf<String>()
 
@@ -105,6 +105,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                 activity = activity,
                 transactionId = transactionId,
                 preProvidedBrokers = safeBrokerList,
+                incognito = incognito ?: false,
                 transactionResponseListener = object : TransactionResponseListener {
                     override fun onSuccess(transactionResult: TransactionResult) {
                         val res = resultToWritableMap(transactionResult, true)

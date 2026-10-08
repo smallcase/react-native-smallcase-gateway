@@ -106,11 +106,18 @@ const init = async (sdkToken, externalMeta) => {
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
+ * @param {boolean} [incognito] - when true, opens the broker flow in a private/incognito session that leaves no local browser data behind
  * @returns {Promise<transactionRes>}
  */
-const triggerTransaction = async (transactionId, utmParams, brokerList) => {
+const triggerTransaction = async (
+  transactionId,
+  utmParams,
+  brokerList,
+  incognito
+) => {
   const safeUtm = safeObject(utmParams);
   const safeId = typeof transactionId === 'string' ? transactionId : '';
+  const safeIncognito = typeof incognito === 'boolean' ? incognito : false;
 
   let safeBrokerList = sanitizeBrokerList(brokerList);
 
@@ -121,7 +128,8 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
   return SmallcaseGatewayNative.triggerTransaction(
     safeId,
     safeUtm,
-    safeBrokerList
+    safeBrokerList,
+    safeIncognito
   );
 };
 
