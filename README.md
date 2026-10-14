@@ -28,6 +28,17 @@ platform :ios, '13.0'
 then run
 `cd ios; pod update`
 
+Apps using Loans KYC must also add these usage descriptions to the iOS app's `Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Camera access is required to capture your selfie during KYC.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Microphone access is required for audio during video KYC.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Location access is required to verify your location during KYC.</string>
+```
+
 ## android setup
 
 Add these lines to your project level `build.gradle`
@@ -37,12 +48,8 @@ allprojects {
     repositories {
         // .. you other repositories
         maven {
-          url "http://artifactory.smallcase.com/artifactory/gradle-dev-local"
-          credentials {
-            username "react_native_user"
-            password "reactNativeUser123"
-          }
-      }
+          url "https://artifactory.smallcase.com/artifactory/SCGateway"
+        }
     }
 }
 ```
@@ -100,6 +107,9 @@ const res = await SmallcaseGateway.triggerTransaction(transactionId);
 
 // start lead generation flow
 SmallcaseGateway.triggerLeadGen({ email: "test@gmail.com" });
+
+// launch a standalone WebView; setup/init are not required
+await SmallcaseGateway.launchScWebView("https://www.smallcase.com");
 ```
 
 ## Mutual fund orders
@@ -165,6 +175,33 @@ environment values consistent on developer machines and CI. iOS 13+ is required.
 Rebuild the native app after selecting these dependencies; a JS-only update does
 not add the native API. Calling the new method in an older app binary returns
 `NATIVE_API_UNAVAILABLE`.
+
+## Incognito Mode
+
+`triggerTransaction` accepts an optional 4th `incognito` argument (default `false`):
+
+```javascript
+// execute a transaction in incognito mode
+const res = await SmallcaseGateway.triggerTransaction(
+  transactionId,
+  utmParams,
+  brokerList,
+  true // incognito
+);
+```
+
+When `true`, the broker flow opens in a private/ephemeral browsing session:
+
+- No cookies, cache, or login state from the flow persist on the device once it closes.
+- Native broker app login (e.g. Kite/Zerodha app-to-app login) is skipped in favor of the in-app web login, even if the broker app is installed and would normally be used.
+
+This is opt-in and fully backward compatible — existing calls to `triggerTransaction(transactionId)`, `triggerTransaction(transactionId, utmParams)`, or `triggerTransaction(transactionId, utmParams, brokerList)` are unaffected and continue to run in normal (non-incognito) mode.
+
+**Known limitations:** incognito prevents local browser data from persisting, but it does not (and cannot) override OS-level Password AutoFill suggestions already saved to the device's keychain, and it does not affect the smallcase account's own broker-connection state — once a broker is connected (incognito or not), subsequent transactions for that same account will correctly recognize it as already connected, since that state lives on smallcase's backend, not in local browser storage.
+
+**Requires:** `com.smallcase.gateway:sdk` (Android) and `SCGateway` (iOS) versions with incognito support. Check with the platform SDK release notes for the minimum version once released.
+
+**Using incognito for a different (e.g. linked/family) account:** `incognito: true` on its own does not switch which smallcase account the SDK is acting as — it only changes how that call's browser session behaves. To connect or transact on behalf of a different smallcase account than the one currently authenticated, call `SmallcaseGateway.init(sdkToken)` again with that account's own token before calling `triggerTransaction` — the same way you would for any account switch, incognito or not.
 
 ## Debug / Contribution
 

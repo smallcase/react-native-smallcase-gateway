@@ -86,6 +86,7 @@ declare namespace SmallcaseGateway {
     export { launchMutualFundOrder };
     export { triggerMfTransaction };
     export { setConfigEnvironment };
+    export { launchScWebView };
     export { launchSmallplug };
     export { launchSmallplugWithBranding };
     export { getSdkVersion };
@@ -143,9 +144,10 @@ declare function archiveSmallcase(iscid: string): unknown;
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
+ * @param {boolean} [incognito] - when true, opens the broker flow in a private/incognito session that leaves no local browser data behind
  * @returns {Promise<transactionRes>}
  */
-declare function triggerTransaction(transactionId: string, utmParams?: any, brokerList?: Array<string>): Promise<transactionRes>;
+declare function triggerTransaction(transactionId: string, utmParams?: any, brokerList?: Array<string>, incognito?: boolean): Promise<transactionRes>;
 /**
  * triggers a transaction with a transaction id
  *
@@ -158,6 +160,11 @@ declare function triggerMfTransaction(transactionId: string): Promise<transactio
  * @param {envConfig} envConfig
  */
 declare function setConfigEnvironment(envConfig: envConfig): any;
+/**
+ * Launches a standalone native WebView for an absolute HTTP(S) URL.
+ * Gateway setup and initialization are not required.
+ */
+declare function launchScWebView(url: string): Promise<boolean>;
 /**
  * launches smallcases module
  *

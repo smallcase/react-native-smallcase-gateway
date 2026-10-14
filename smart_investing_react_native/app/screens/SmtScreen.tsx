@@ -1,9 +1,14 @@
 import React from 'react';
-import {Button, TextInput, View} from 'react-native';
+import {Button, ScrollView, TextInput} from 'react-native';
 import {launchSmallPlug} from '../apis/Functions';
-import {SCGatewayEventManager} from 'react-native-smallcase-gateway';
+import SmallcaseGateway, {
+  SCGatewayEventManager,
+} from 'react-native-smallcase-gateway';
 
 const SmtScreen = () => {
+  const [webViewUrl, onChangeWebViewUrl] = React.useState(
+    'https://www.smallcase.com',
+  );
   const [targetEndpoint, onChangeTargetEndpoint] = React.useState<
     string | null
   >(null);
@@ -21,7 +26,7 @@ const SmtScreen = () => {
     string | null
   >(null);
   return (
-    <View>
+    <ScrollView>
       <TextInput
         placeholder="Enter target end point"
         onChange={event => {
@@ -99,7 +104,24 @@ const SmtScreen = () => {
         title={'SmallPlug'}
         accessibilityLabel="Learn more about this purple button"
       />
-    </View>
+      <TextInput
+        value={webViewUrl}
+        placeholder="Enter WebView URL"
+        autoCapitalize="none"
+        keyboardType="url"
+        onChangeText={onChangeWebViewUrl}
+      />
+      <Button
+        title="Launch SC WebView"
+        onPress={async () => {
+          try {
+            await SmallcaseGateway.launchScWebView(webViewUrl);
+          } catch (error) {
+            console.error('SC WebView launch failed:', error);
+          }
+        }}
+      />
+    </ScrollView>
   );
 };
 

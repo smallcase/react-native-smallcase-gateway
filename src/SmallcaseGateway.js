@@ -107,11 +107,18 @@ const init = async (sdkToken, externalMeta) => {
  * @param {string} transactionId
  * @param {Object} [utmParams]
  * @param {Array<string>} [brokerList]
+ * @param {boolean} [incognito] - when true, opens the broker flow in a private/incognito session that leaves no local browser data behind
  * @returns {Promise<transactionRes>}
  */
-const triggerTransaction = async (transactionId, utmParams, brokerList) => {
+const triggerTransaction = async (
+  transactionId,
+  utmParams,
+  brokerList,
+  incognito
+) => {
   const safeUtm = safeObject(utmParams);
   const safeId = typeof transactionId === 'string' ? transactionId : '';
+  const safeIncognito = typeof incognito === 'boolean' ? incognito : false;
 
   let safeBrokerList = sanitizeBrokerList(brokerList);
 
@@ -122,7 +129,8 @@ const triggerTransaction = async (transactionId, utmParams, brokerList) => {
   return SmallcaseGatewayNative.triggerTransaction(
     safeId,
     safeUtm,
-    safeBrokerList
+    safeBrokerList,
+    safeIncognito
   );
 };
 
@@ -156,6 +164,22 @@ const launchSmallplug = async (targetEndpoint, params) => {
   const safeParams = typeof params === 'string' ? params : '';
 
   return SmallcaseGatewayNative.launchSmallplug(safeEndpoint, safeParams);
+};
+
+/**
+ * Launches a standalone native WebView for an absolute HTTP(S) URL.
+ * Gateway setup and initialization are not required.
+ *
+ * @param {string} url
+ * @returns {Promise<boolean>} resolves when the WebView launch is accepted
+ */
+const launchScWebView = async (url) => {
+  const safeUrl = typeof url === 'string' ? url.trim() : '';
+  if (!/^https?:\/\/.+/i.test(safeUrl)) {
+    throw new TypeError('A valid absolute HTTP(S) URL is required');
+  }
+
+  return SmallcaseGatewayNative.launchScWebView(safeUrl);
 };
 
 /**
@@ -304,6 +328,7 @@ const SmallcaseGateway = {
   launchMutualFundOrder,
   triggerMfTransaction,
   setConfigEnvironment,
+  launchScWebView,
   launchSmallplug,
   launchSmallplugWithBranding,
   getSdkVersion,

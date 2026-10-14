@@ -1,5 +1,6 @@
 package com.reactnativesmallcasegateway
 
+import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
@@ -198,7 +199,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     @ReactMethod
-    fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, promise: Promise) {
+    fun triggerTransaction(transactionId: String, utmParams: ReadableMap?, brokerList: ReadableArray?, incognito: Boolean?, promise: Promise) {
 
         var safeBrokerList = listOf<String>()
 
@@ -214,6 +215,7 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                 activity = activity,
                 transactionId = transactionId,
                 preProvidedBrokers = safeBrokerList,
+                incognito = incognito ?: false,
                 transactionResponseListener = object : TransactionResponseListener {
                     override fun onSuccess(transactionResult: TransactionResult) {
                         val res = resultToWritableMap(transactionResult, true)
@@ -270,6 +272,28 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
                     promise.reject("error", err)
                 }
             })
+        }
+    }
+
+    @ReactMethod
+    fun launchScWebView(url: String, promise: Promise) {
+        val activity = reactApplicationContext.currentActivity ?: run {
+            promise.reject("no_activity", "No active Android activity")
+            return
+        }
+        val uri = Uri.parse(url)
+        if (uri.scheme?.lowercase() !in setOf("http", "https") || uri.host.isNullOrBlank()) {
+            promise.reject("invalid_url", "A valid absolute HTTP(S) URL is required")
+            return
+        }
+
+        activity.runOnUiThread {
+            try {
+                SmallcaseGatewaySdk.launchScWebView(activity, url)
+                promise.resolve(true)
+            } catch (error: Exception) {
+                promise.reject("launch_failed", error)
+            }
         }
     }
 
@@ -672,4 +696,3 @@ class SmallcaseGatewayModule(reactContext: ReactApplicationContext) : ReactConte
   }
 
 }
-
