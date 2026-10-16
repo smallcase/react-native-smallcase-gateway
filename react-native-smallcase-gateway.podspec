@@ -4,7 +4,7 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 # iOS SDK versions: SPM release tags, vendored by scripts/fetch-ios-sdks.sh. Edited by CI only (scripts/apply-native-pins.sh).
 IOS_SDKS = {
   'SCGateway' => '7.3.0', # native-sdk: ios-scg
-  'Loans' => '7.5.0', # native-sdk: ios-loans
+  'Loans' => '7.6.0', # native-sdk: ios-loans
 }
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
