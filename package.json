@@ -30,14 +30,12 @@
     "format": "prettier --write \"**/*.{js,ts,tsx,json}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json}\"",
     "prepare": "bob build",
-    "release": "release-it",
     "example": "yarn --cwd example",
     "bootstrap": "yarn example && yarn && yarn example pods",
     "commit": "yarn cz",
-    "release:minor": "standard-version --release-as minor",
-    "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major",
-    "release:major:rc": "standard-version --release-as major --prerelease rc"
+    "prepack": "scripts/fetch-ios-sdks.sh",
+    "fetch-ios-sdks": "scripts/fetch-ios-sdks.sh",
+    "test:pins": "scripts/test-native-pins.sh"
   },
   "keywords": [
     "react-native",
@@ -61,7 +59,6 @@
     "@babel/preset-react": "^7.28.5",
     "@commitlint/config-conventional": "^17.0.2",
     "@react-native-community/eslint-config": "^3.0.2",
-    "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
     "@types/react": "~17.0.21",
     "@types/react-native": "0.68.0",
@@ -73,8 +70,6 @@
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
     "react-native-builder-bob": "^0.18.3",
-    "release-it": "^15.0.0",
-    "standard-version": "^9.5.0",
     "typescript": "^4.5.2"
   },
   "resolutions": {
@@ -97,23 +92,6 @@
       "@commitlint/config-conventional"
     ]
   },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "github": {
-      "release": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular"
-      }
-    }
-  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -127,9 +105,6 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "standard-version": "^9.5.0"
   },
   "volta": {
     "node": "25.4.0",
