@@ -1,0 +1,58 @@
+name: Staging promotion PR
+
+# Keeps one open development -> staging PR whenever development has commits staging doesn't. The body lists the
+# included PRs with their ClickUp tickets for QA. Merging it starts the release-please staging flow.
+on:
+  push:
+    branches: [development]
+  workflow_dispatch:
+
+concurrency:
+  group: staging-promotion
+  cancel-in-progress: true
+
+env:
+  REVIEWERS: AmalJossy,isouravganguly
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+      - name: Open or update the development -> staging PR
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          git fetch origin staging development
+          [ "$(git rev-list --count origin/staging..origin/development)" -gt 0 ] || { echo 'staging is up to date'; exit 0; }
+
+          {
+            echo 'Promotes `development` to `staging`. After merge, release-please opens the `chore: release staging` PR.'
+            echo
+            echo '**Merge with a merge commit, not squash.** release-please reads the individual commits.'
+            echo
+            echo '| Commit | ClickUp |'
+            echo '|---|---|'
+            git log --first-parent --format='%s' origin/staging..origin/development | while IFS= read -r subject; do
+              pr=$(grep -oE '#[0-9]+' <<<"$subject" | tail -1 | tr -d '#')
+              tickets=''
+              [ -n "$pr" ] && tickets=$(gh pr view "$pr" --json title,body -q '.title + " " + .body' \
+                | grep -oE 'https://app\.clickup\.com/t/[A-Za-z0-9/_-]+' | sort -u | sed 's/.*/[&](&)/' | paste -sd ' ' -)
+              echo "| ${subject//|/\\|} | ${tickets:-none} |"
+            done
+          } > body.md
+
+          pr=$(gh pr list --base staging --head development --state open --json number -q '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --body-file body.md
+          else
+            gh pr create --base staging --head development --title 'Staging release' --body-file body.md --reviewer "$REVIEWERS"
+          fi

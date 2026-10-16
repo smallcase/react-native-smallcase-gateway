@@ -4,8 +4,9 @@ on:
   pull_request:
   push:
     branches:
-      - prod
       - development
+      - staging
+      - production
 
 jobs:
   lockfile-check:

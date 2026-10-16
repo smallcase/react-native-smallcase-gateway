@@ -1,0 +1,96 @@
+name: PR checks
+
+# Checks for PRs into development: a ClickUp link, and a Conventional Commit title that release-please
+# versions from (labelled with its release impact). PRs from core branches (backmerges) and bots pass through.
+# Every PR: the sample app compiles on Android (the Android pins resolve). PRs into production: the pin guard.
+on:
+  pull_request:
+    branches: [development, staging, production]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  PR: ${{ github.event.pull_request.number }}
+  PR_TITLE: ${{ github.event.pull_request.title }}
+  PR_BODY: ${{ github.event.pull_request.body }}
+  SKIP: ${{ github.base_ref != 'development' || contains(fromJSON('["staging","production"]'), github.head_ref) || github.event.pull_request.user.type == 'Bot' }}
+
+jobs:
+  clickup:
+    name: ClickUp ticket
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a ClickUp link in the PR
+        run: |
+          [ "$SKIP" = true ] && exit 0
+          grep -qE 'app\.clickup\.com/t/|CU-[0-9a-z]+' <<<"$PR_TITLE $PR_BODY" && exit 0
+          echo '::error::Add the ClickUp ticket link (https://app.clickup.com/t/...) to the PR description.'
+          exit 1
+
+  release-type:
+    name: Release type
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the title and label the release impact
+        run: |
+          [ "$SKIP" = true ] && exit 0
+          # Squash merges use the PR title as the commit on development, and release-please versions from it.
+          types='feat|fix|perf|refactor|docs|chore|ci|build|test|style|revert'
+          if ! grep -qE "^($types)(\([^)]+\))?!?: .+" <<<"$PR_TITLE"; then
+            echo "::error::PR title must be a Conventional Commit, e.g. 'fix(android): ...' or 'feat!: ...'. Allowed types: ${types//|/, }."
+            exit 1
+          fi
+
+          rank() { # $1 = commit subject. 3 breaking, 2 feat, 1 fix/perf, 0 no release
+            if grep -qE '^[a-z]+(\([^)]+\))?!:|BREAKING CHANGE:' <<<"$1"; then echo 3
+            elif grep -qE '^feat(\([^)]+\))?:' <<<"$1"; then echo 2
+            elif grep -qE '^(fix|perf)(\([^)]+\))?:' <<<"$1"; then echo 1
+            else echo 0; fi
+          }
+          # A BREAKING CHANGE footer in the description counts too (it lands in the squash commit body).
+          breaking=''
+          if grep -q 'BREAKING CHANGE:' <<<"$PR_BODY"; then breaking=' BREAKING CHANGE:'; fi
+          title_rank=$(rank "$PR_TITLE$breaking")
+
+          labels=('release: none' 'release: patch' 'release: minor' 'release: major')
+          label=${labels[$title_rank]}
+          for l in "${labels[@]}"; do
+            if [ "$l" != "$label" ]; then gh pr edit "$PR" --remove-label "$l" >/dev/null 2>&1 || true; fi
+          done
+          gh label create "$label" --color ededed --description 'SDK version bump this PR causes (release-please)' --force >/dev/null
+          gh pr edit "$PR" --add-label "$label"
+          echo "Release impact: $label" >> "$GITHUB_STEP_SUMMARY"
+
+  pin-guard:
+    name: Production native pins
+    if: github.base_ref == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/pin-guard.sh
+
+  android:
+    name: Android compile
+    if: github.event.action != 'edited'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
+        working-directory: smart_investing_react_native
+      - run: ./gradlew assembleDebug --no-daemon
+        working-directory: smart_investing_react_native/android

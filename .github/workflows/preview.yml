@@ -1,0 +1,58 @@
+name: Preview
+
+# Publishes the selected branch to GitHub Packages as <version>-preview.<run>, optionally with other native SDK
+# versions. Commits nothing. The job summary has the install line.
+on:
+  workflow_dispatch:
+    inputs:
+      android_scg:
+        description: Android SCGateway version (empty = branch pin)
+        required: false
+      android_loans:
+        description: Android Loans version (empty = branch pin)
+        required: false
+      ios_scg:
+        description: iOS SCGateway SPM tag (empty = branch pin)
+        required: false
+      ios_loans:
+        description: iOS Loans SPM tag (empty = branch pin)
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+          owner: smallcase
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
+        with:
+          registry-url: https://npm.pkg.github.com
+      - uses: volta-cli/action@v4
+      - run: yarn install --frozen-lockfile
+
+      - name: Publish the preview
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          ANDROID_SCG: ${{ inputs.android_scg }}
+          ANDROID_LOANS: ${{ inputs.android_loans }}
+          IOS_SCG: ${{ inputs.ios_scg }}
+          IOS_LOANS: ${{ inputs.ios_loans }}
+        run: |
+          pins=()
+          [ -z "$ANDROID_SCG" ] || pins+=("android-scg=$ANDROID_SCG")
+          [ -z "$ANDROID_LOANS" ] || pins+=("android-loans=$ANDROID_LOANS")
+          [ -z "$IOS_SCG" ] || pins+=("ios-scg=$IOS_SCG")
+          [ -z "$IOS_LOANS" ] || pins+=("ios-loans=$IOS_LOANS")
+          base=$(node -p 'require("./package.json").version.split("-")[0]')
+          echo "Branch \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Inputs: ${pins[*]:-none}" >>"$GITHUB_STEP_SUMMARY"
+          scripts/publish-github-package.sh "$base-preview.$GITHUB_RUN_NUMBER" preview "${pins[@]}"

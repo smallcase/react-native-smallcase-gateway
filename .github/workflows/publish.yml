@@ -1,23 +1,127 @@
-name: publish to npm
+name: 🚀 Production Release
 
-on: [workflow_dispatch]
+# On every push to production, release-please keeps the "chore(production): release" PR up to date.
+# Merging it tags vX.Y.Z, then: pin guard -> npm X.Y.Z (latest) -> GitHub Packages X.Y.Z-debug (debug pins) ->
+# backmerge PR into development. The only npm publish; keep this file name, npm trusted publishing is bound to it.
+on:
+  push:
+    branches: [production]
 
-permissions:
-  id-token: write  # Required for OIDC
-  contents: read
+concurrency:
+  group: production-release
+  cancel-in-progress: false
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
-      # Setup .npmrc file to publish to npm
+      # A PR opened with GITHUB_TOKEN starts no workflows, so the release PR would get no checks.
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.app.outputs.token }}
+          target-branch: production
+          config-file: release-please-production.json
+          manifest-file: .release-please-manifest-production.json
+
+  npm:
+    needs: release
+    if: needs.release.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # npm trusted publishing (OIDC)
+      contents: read
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+          owner: smallcase
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+      - run: scripts/pin-guard.sh
       - uses: actions/setup-node@v6
         with:
-          registry-url: "https://registry.npmjs.org"
-
-      # Use exact Node & Yarn versions from package.json (Volta)
+          registry-url: https://registry.npmjs.org
       - uses: volta-cli/action@v4
-
       - run: yarn install --frozen-lockfile
-      - run: npm publish
+      - run: npm publish # prepack vendors the iOS SDKs
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+
+  debug:
+    needs: [release, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+          owner: smallcase
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+      - uses: actions/setup-node@v6
+        with:
+          registry-url: https://npm.pkg.github.com
+      - uses: volta-cli/action@v4
+      - run: yarn install --frozen-lockfile
+      - name: Publish debug
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
+          scripts/publish-github-package.sh "$VERSION-debug" debug "${pins[@]}"
+
+  backmerge:
+    needs: [release, npm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          ref: development
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+      - name: Open the production -> development backmerge PR
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          # production's release commit (package.json, CHANGELOG.md, manifest) flows back to development and reaches
+          # staging with the next promotion. production wins conflicts: the files are tool-managed. The staging
+          # manifest is raised to the production version, so staging never re-releases a shipped version.
+          git fetch origin production
+          git merge-base --is-ancestor "$GITHUB_SHA" HEAD && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="backmerge/production-${GITHUB_SHA::7}"
+          git switch -c "$branch"
+          git merge -X theirs --no-edit "$GITHUB_SHA"
+          jq -s 'def key: capture("^(?<v>[0-9.]+)(?<pre>-.*)?$") | [(.v | split(".") | map(tonumber)), (if .pre then 0 else 1 end)];
+            .[1] as $prod | .[0] | with_entries(if $prod[.key] and ($prod[.key] | key) > (.value | key) then .value = $prod[.key] else . end)' \
+            .release-please-manifest-staging.json .release-please-manifest-production.json >"$RUNNER_TEMP/manifest.json"
+          cp "$RUNNER_TEMP/manifest.json" .release-please-manifest-staging.json
+          git diff --quiet || git commit -am "chore: raise staging manifest to production version"
+          git push origin "$branch"
+          gh pr create --base development --head "$branch" --title "Backmerge production into development" \
+            --body "Brings production's release commit into development. Merge with a merge commit, not squash."

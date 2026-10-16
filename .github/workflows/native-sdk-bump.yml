@@ -1,0 +1,97 @@
+name: Native SDK bump
+
+# A native staging or production release (gw-mob-android, gw-mob-ios) sends `native-sdk-released`. This opens or
+# updates one PR per native SDK into development: `release` edits the marker line, `debug` edits native-sdk-debug.json.
+# Run it by hand to repeat a bump or to pin a version that sent no event.
+on:
+  repository_dispatch:
+    types: [native-sdk-released]
+  workflow_dispatch:
+    inputs:
+      platform:
+        type: choice
+        options: [android, ios]
+      sdk:
+        type: choice
+        options: [scg, loans]
+      variant:
+        type: choice
+        options: [release, debug]
+      version:
+        description: Exact native version (Maven version or SPM tag)
+        required: true
+      source_url:
+        description: Release link for the PR body
+        required: false
+
+concurrency:
+  group: native-sdk-${{ github.event.client_payload.platform || inputs.platform }}-${{ github.event.client_payload.sdk || inputs.sdk }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    env:
+      # The payload comes from other repos: only ever read it through env, after validation.
+      PLATFORM: ${{ github.event.client_payload.platform || inputs.platform }}
+      SDK: ${{ github.event.client_payload.sdk || inputs.sdk }}
+      VARIANT: ${{ github.event.client_payload.variant || inputs.variant }}
+      VERSION: ${{ github.event.client_payload.version || inputs.version }}
+      SOURCE_URL: ${{ github.event.client_payload.source_url || inputs.source_url }}
+    steps:
+      - name: Validate the payload
+        run: |
+          [[ $PLATFORM =~ ^(android|ios)$ && $SDK =~ ^(scg|loans)$ && $VARIANT =~ ^(release|debug)$ ]] || { echo "::error::bad platform/sdk/variant"; exit 1; }
+          [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]] || { echo "::error::bad version"; exit 1; }
+          [[ -z $SOURCE_URL || $SOURCE_URL =~ ^https://github\.com/smallcase/[A-Za-z0-9._/-]+$ ]] || SOURCE_URL=''
+          {
+            echo "SOURCE_URL=$SOURCE_URL"
+            echo "KEY=$PLATFORM-$SDK"
+            echo "BRANCH=native-sdk/$PLATFORM-$SDK"
+          } >>"$GITHUB_ENV"
+
+      # A PR opened with GITHUB_TOKEN starts no workflows, so it would get no checks.
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
+          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          ref: development
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Pin and open or update the PR
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # The release and debug events of one native release land in the same open PR.
+          pr=$(gh pr list --base development --head "$BRANCH" --state open --json number -q '.[0].number')
+          if [ -n "$pr" ]; then git switch "$BRANCH"; else git switch -C "$BRANCH"; fi
+
+          if [ "$VARIANT" = release ]; then
+            scripts/apply-native-pins.sh "$KEY=$VERSION"
+          else
+            jq --sort-keys --arg k "$KEY" --arg v "$VERSION" '.[$k] = $v' native-sdk-debug.json >"$RUNNER_TEMP/debug.json"
+            mv "$RUNNER_TEMP/debug.json" native-sdk-debug.json
+          fi
+          git diff --quiet && { echo "$KEY $VARIANT is already $VERSION"; exit 0; }
+          git commit -am "fix(deps): pin $PLATFORM $SDK $VARIANT $VERSION"
+          # No open PR: the branch may be left over from a merged one, so start it again from development.
+          if [ -n "$pr" ]; then git push origin "$BRANCH"; else git push --force origin "$BRANCH"; fi
+
+          title="fix(deps): pin $PLATFORM $SDK $VERSION"
+          line="- \`$VARIANT\`: \`$VERSION\`${SOURCE_URL:+ ([release]($SOURCE_URL))}"
+          if [ -n "$pr" ]; then
+            body=$(gh pr view "$pr" --json body -q .body)
+            if [ "$VARIANT" = release ]; then gh pr edit "$pr" --title "$title"; fi
+            gh pr edit "$pr" --body "$body"$'\n'"$line"
+          else
+            gh label create native-sdk --color 0e8a16 --description 'Native SDK pin bump' --force >/dev/null
+            gh pr create --base development --head "$BRANCH" --label native-sdk --title "$title" --body \
+              "Pins \`$KEY\` from a native release. Merge after QA; the next staging release picks it up."$'\n\n'"$line"
+          fi

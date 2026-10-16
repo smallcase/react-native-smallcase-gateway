@@ -7,3 +7,4 @@ ios/build/
 *.d.ts
 *.lock
 *.md
+ios/Frameworks/

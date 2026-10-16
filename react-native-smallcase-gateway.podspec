@@ -1,6 +1,11 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+# iOS SDK versions: SPM release tags, vendored by scripts/fetch-ios-sdks.sh. Edited by CI only (scripts/apply-native-pins.sh).
+IOS_SDKS = {
+  'SCGateway' => '7.3.0', # native-sdk: ios-scg
+  'Loans' => '7.5.0', # native-sdk: ios-loans
+}
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
 Pod::Spec.new do |s|
@@ -13,7 +18,7 @@ Pod::Spec.new do |s|
 
   s.platforms    = { :ios => "11.0" }
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
-  s.vendored_frameworks = 'SCGateway.xcframework'
+  s.vendored_frameworks = IOS_SDKS.keys.map { |m| "ios/Frameworks/#{m}.xcframework" }
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
@@ -33,7 +38,4 @@ Pod::Spec.new do |s|
     s.dependency "RCTTypeSafety"
     s.dependency "ReactCommon/turbomodule/core"
   end
-
-  s.dependency 'SCGateway', '7.3.0'
-  s.dependency 'SCLoans', '7.5.0'
 end
