@@ -1,11 +1,11 @@
 name: PR checks
 
-# Checks for PRs into development: a ClickUp link, and a Conventional Commit title that release-please
-# versions from (labelled with its release impact). PRs from core branches (backmerges) and bots pass through.
-# Every PR: the sample app compiles on Android (the Android pins resolve). PRs into production: the pin guard.
+# Checks for PRs into main: a ClickUp link, and a Conventional Commit title that release-please versions from
+# (labelled with its release impact); bots pass through. The pin guard (main always releases to npm, so no
+# prerelease native pin may land) and an Android compile of the sample app (the Android pins resolve).
 on:
   pull_request:
-    branches: [development, staging, production]
+    branches: [main]
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
 permissions:
@@ -19,7 +19,7 @@ env:
   PR: ${{ github.event.pull_request.number }}
   PR_TITLE: ${{ github.event.pull_request.title }}
   PR_BODY: ${{ github.event.pull_request.body }}
-  SKIP: ${{ github.base_ref != 'development' || contains(fromJSON('["staging","production"]'), github.head_ref) || github.event.pull_request.user.type == 'Bot' }}
+  SKIP: ${{ github.event.pull_request.user.type == 'Bot' }}
 
 jobs:
   clickup:
@@ -40,7 +40,7 @@ jobs:
       - name: Check the title and label the release impact
         run: |
           [ "$SKIP" = true ] && exit 0
-          # Squash merges use the PR title as the commit on development, and release-please versions from it.
+          # Squash merges use the PR title as the commit on main, and release-please versions from it.
           types='feat|fix|perf|refactor|docs|chore|ci|build|test|style|revert'
           if ! grep -qE "^($types)(\([^)]+\))?!?: .+" <<<"$PR_TITLE"; then
             echo "::error::PR title must be a Conventional Commit, e.g. 'fix(android): ...' or 'feat!: ...'. Allowed types: ${types//|/, }."
@@ -69,7 +69,6 @@ jobs:
 
   pin-guard:
     name: Production native pins
-    if: github.base_ref == 'production'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

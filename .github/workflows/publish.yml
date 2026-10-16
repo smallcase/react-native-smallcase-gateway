@@ -1,14 +1,14 @@
-name: 🚀 Production Release
+name: 🚀 Release
 
-# On every push to production, release-please keeps the "chore(production): release" PR up to date.
-# Merging it tags vX.Y.Z, then: pin guard -> npm X.Y.Z (latest) -> GitHub Packages X.Y.Z-debug (debug pins) ->
-# backmerge PR into development. The only npm publish; keep this file name, npm trusted publishing is bound to it.
+# On every push to main, release-please keeps the "chore(main): release X.Y.Z" PR up to date.
+# Merging it tags vX.Y.Z, then: pin guard -> npm X.Y.Z (latest) -> GitHub Packages X.Y.Z-debug (debug pins).
+# The only npm publish; keep this file name, npm trusted publishing is bound to it.
 on:
   push:
-    branches: [production]
+    branches: [main]
 
 concurrency:
-  group: production-release
+  group: release
   cancel-in-progress: false
 
 jobs:
@@ -28,9 +28,7 @@ jobs:
         id: release
         with:
           token: ${{ steps.app.outputs.token }}
-          target-branch: production
-          config-file: release-please-production.json
-          manifest-file: .release-please-manifest-production.json
+          target-branch: main
 
   npm:
     needs: release
@@ -88,40 +86,3 @@ jobs:
         run: |
           mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
           scripts/publish-github-package.sh "$VERSION-debug" debug "${pins[@]}"
-
-  backmerge:
-    needs: [release, npm]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app
-        with:
-          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
-          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
-      - uses: actions/checkout@v4
-        with:
-          ref: development
-          fetch-depth: 0
-          token: ${{ steps.app.outputs.token }}
-      - name: Open the production -> development backmerge PR
-        env:
-          GH_TOKEN: ${{ steps.app.outputs.token }}
-        run: |
-          # production's release commit (package.json, CHANGELOG.md, manifest) flows back to development and reaches
-          # staging with the next promotion. production wins conflicts: the files are tool-managed. The staging
-          # manifest is raised to the production version, so staging never re-releases a shipped version.
-          git fetch origin production
-          git merge-base --is-ancestor "$GITHUB_SHA" HEAD && exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          branch="backmerge/production-${GITHUB_SHA::7}"
-          git switch -c "$branch"
-          git merge -X theirs --no-edit "$GITHUB_SHA"
-          jq -s 'def key: capture("^(?<v>[0-9.]+)(?<pre>-.*)?$") | [(.v | split(".") | map(tonumber)), (if .pre then 0 else 1 end)];
-            .[1] as $prod | .[0] | with_entries(if $prod[.key] and ($prod[.key] | key) > (.value | key) then .value = $prod[.key] else . end)' \
-            .release-please-manifest-staging.json .release-please-manifest-production.json >"$RUNNER_TEMP/manifest.json"
-          cp "$RUNNER_TEMP/manifest.json" .release-please-manifest-staging.json
-          git diff --quiet || git commit -am "chore: raise staging manifest to production version"
-          git push origin "$branch"
-          gh pr create --base development --head "$branch" --title "Backmerge production into development" \
-            --body "Brings production's release commit into development. Merge with a merge commit, not squash."

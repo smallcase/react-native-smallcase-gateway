@@ -11,9 +11,7 @@ on:
       - "!deployment/**"
   pull_request:
     branches:
-      - "development"
-      - "staging"
-      - "production"
+      - "main"
     paths:
       - "**"
       - "!.github/**"

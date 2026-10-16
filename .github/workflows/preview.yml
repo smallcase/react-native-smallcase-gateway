@@ -1,10 +1,14 @@
 name: Preview
 
-# Publishes the selected branch to GitHub Packages as <version>-preview.<run>, optionally with other native SDK
-# versions. Commits nothing. The job summary has the install line.
+# Publishes the selected branch to GitHub Packages as <version>-preview.<run>, optionally with the debug native
+# pins (native-sdk-debug.json) or other native SDK versions. Commits nothing. The job summary has the install line.
 on:
   workflow_dispatch:
     inputs:
+      debug:
+        description: Use the debug native SDKs from native-sdk-debug.json
+        type: boolean
+        default: false
       android_scg:
         description: Android SCGateway version (empty = branch pin)
         required: false
@@ -47,12 +51,15 @@ jobs:
           ANDROID_LOANS: ${{ inputs.android_loans }}
           IOS_SCG: ${{ inputs.ios_scg }}
           IOS_LOANS: ${{ inputs.ios_loans }}
+          DEBUG: ${{ inputs.debug }}
         run: |
           pins=()
+          # Inputs come after the debug pins, so they win.
+          [ "$DEBUG" != true ] || mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
           [ -z "$ANDROID_SCG" ] || pins+=("android-scg=$ANDROID_SCG")
           [ -z "$ANDROID_LOANS" ] || pins+=("android-loans=$ANDROID_LOANS")
           [ -z "$IOS_SCG" ] || pins+=("ios-scg=$IOS_SCG")
           [ -z "$IOS_LOANS" ] || pins+=("ios-loans=$IOS_LOANS")
           base=$(node -p 'require("./package.json").version.split("-")[0]')
-          echo "Branch \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Inputs: ${pins[*]:-none}" >>"$GITHUB_STEP_SUMMARY"
+          echo "Branch \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Debug: $DEBUG. Pins: ${pins[*]:-none}" >>"$GITHUB_STEP_SUMMARY"
           scripts/publish-github-package.sh "$base-preview.$GITHUB_RUN_NUMBER" preview "${pins[@]}"
