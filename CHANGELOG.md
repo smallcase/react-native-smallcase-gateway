@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0-rc.0](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.6.1...v8.0.0-rc.0) (2026-10-16)
+
 ### [7.7.2](https://github.com/smallcase/react-native-smallcase-gateway/compare/v7.7.1...v7.7.2) (2026-09-23)
 
 ### Improvements
