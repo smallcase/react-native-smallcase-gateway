@@ -5,10 +5,12 @@ name: Native SDK bump
 #   { "platform": "ios", "channel": "staging",
 #     "pins": { "scg": { "release": "7.3.1-rc.1645", "debug": "7.3.1-rc-debug.1644" }, "loans": { ... } },
 #     "source_url": "https://github.com/smallcase/..." }
-# Release pins go on the marker lines, debug pins in native-sdk-debug.json.
-# - staging: new branch prerelease/<platform>-<sdk>-<version>[_<sdk>-<version>] from main. No PR.
-# - preview: new branch preview/<platform>-<sdk>-<version>[...] from main. No PR.
-# - production: one PR per platform into main (release/<platform>), so SDKs released together merge together.
+# Pins go on the marker lines. The release and the debug variant each get their own branch from main, named after
+# their versions: <prefix>/<platform>-<sdk>-<version>[_<sdk>-<version>].
+# - staging: prerelease/ branches. No PR.
+# - preview: preview/ branches. No PR.
+# - production: release pins in one PR per platform into main (release/<platform>), so SDKs released together
+#   merge together; debug pins on a prerelease/ branch (they can never reach main).
 # Run Preview on a branch to get a package. Run this workflow by hand to repeat an event.
 on:
   repository_dispatch:
@@ -60,35 +62,24 @@ jobs:
           platform=$(jq -r .platform <<<"$PAYLOAD") channel=$(jq -r .channel <<<"$PAYLOAD")
           [[ $platform =~ ^(android|ios)$ && $channel =~ ^(staging|production|preview)$ ]] || { echo '::error::bad platform/channel'; exit 1; }
 
-          release=() debug=() parts=()
+          declare -A pins names
           while read -r sdk variant version; do
             [[ $sdk =~ ^(scg|loans)$ && $variant =~ ^(release|debug)$ ]] || { echo "::error::bad pin $sdk $variant"; exit 1; }
             [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]] || { echo "::error::bad version for $sdk $variant"; exit 1; }
-            if [ "$variant" = release ]; then release+=("$platform-$sdk=$version"); else debug+=("$platform-$sdk=$version"); fi
-          done < <(jq -r '.pins | to_entries[] | .key as $s | .value | objects | to_entries[] | "\($s) \(.key) \(.value)"' <<<"$PAYLOAD")
-          [ $((${#release[@]} + ${#debug[@]})) -gt 0 ] || { echo '::error::no pins'; exit 1; }
-
-          # Branch name: each released SDK with its release version (debug version if it only has one).
-          for sdk in scg loans; do
-            v=$(jq -r --arg s "$sdk" '.pins[$s] | objects | .release // .debug // empty' <<<"$PAYLOAD")
-            [ -z "$v" ] || parts+=("$sdk-$v")
-          done
-          name="$platform-$(IFS=_; echo "${parts[*]}")"
-          case $channel in
-            staging) branch="prerelease/$name" ;;
-            preview) branch="preview/$name" ;;
-            production) branch="release/$platform" ;;
-          esac
+            pins[$variant]+="$platform-$sdk=$version "
+            names[$variant]+="${names[$variant]:+_}$sdk-$version"
+          done < <(jq -r '.pins | to_entries | sort_by(.key != "scg")[] | .key as $s | .value | objects | to_entries[] | "\($s) \(.key) \(.value)"' <<<"$PAYLOAD")
+          [ -n "${pins[release]}${pins[debug]}" ] || { echo '::error::no pins'; exit 1; }
 
           source_url=$(jq -r '.source_url // empty' <<<"$PAYLOAD")
           [[ -z $source_url || $source_url =~ ^https://github\.com/smallcase/[A-Za-z0-9._/-]+$ ]] || source_url=''
           {
             echo "PLATFORM=$platform"
             echo "CHANNEL=$channel"
-            echo "NAME=$name"
-            echo "BRANCH=$branch"
-            echo "RELEASE_PINS=${release[*]}"
-            echo "DEBUG_PINS=${debug[*]}"
+            echo "RELEASE_PINS=${pins[release]% }"
+            echo "DEBUG_PINS=${pins[debug]% }"
+            echo "RELEASE_NAME=${names[release]:+$platform-${names[release]}}"
+            echo "DEBUG_NAME=${names[debug]:+$platform-${names[debug]}}"
             echo "SOURCE_URL=$source_url"
           } >>"$GITHUB_ENV"
 
@@ -104,34 +95,45 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app.outputs.token }}
 
-      - name: Pin on the branch
+      - name: Pin on branches
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          link=${SOURCE_URL:+ ([release]($SOURCE_URL))}
 
-          pr=''
-          if [ "$CHANNEL" = production ]; then
-            # SDKs of one platform collect in one open PR, so a shared-module change ships as a whole.
-            pr=$(gh pr list --base main --head "$BRANCH" --state open --json number -q '.[0].number')
-          elif git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
-            echo "\`$BRANCH\` already exists; nothing to do." >>"$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          if [ -n "$pr" ]; then git switch "$BRANCH"; else git switch -C "$BRANCH"; fi
+          # New branch from main with these pins. Branches are named after their versions, so an existing one is
+          # the same event again.
+          branch_with() { # $1 branch, $2 space-separated key=version pins
+            if git ls-remote --exit-code --heads origin "$1" >/dev/null; then
+              echo "\`$1\` already exists." >>"$GITHUB_STEP_SUMMARY"
+              return
+            fi
+            git switch -q -C "$1" origin/main
+            # shellcheck disable=SC2086 # validated key=version list
+            scripts/apply-native-pins.sh $2
+            git commit -qam "fix(deps): pin $2"
+            git push -q origin "$1"
+            echo "Pushed \`$1\`: \`$2\`$link. Run **Preview** on it for a package." >>"$GITHUB_STEP_SUMMARY"
+          }
 
-          # shellcheck disable=SC2086 # space-separated key=version lists, validated above
-          { [ -z "$RELEASE_PINS" ] || scripts/apply-native-pins.sh $RELEASE_PINS
-            [ -z "$DEBUG_PINS" ] || scripts/apply-native-pins.sh --debug $DEBUG_PINS; }
-          git diff --quiet && { echo "Pins already applied." >>"$GITHUB_STEP_SUMMARY"; exit 0; }
-          git commit -am "fix(deps): pin $CHANNEL $NAME" -m "release: ${RELEASE_PINS:-none}" -m "debug: ${DEBUG_PINS:-none}"
-          # Production without an open PR: the branch may be left over from a merged one, so start it again from main.
-          git push --force-with-lease origin "$BRANCH"
+          prefix=prerelease
+          [ "$CHANNEL" != preview ] || prefix=preview
+          [ -z "$DEBUG_PINS" ] || branch_with "$prefix/$DEBUG_NAME" "$DEBUG_PINS"
+          [ -z "$RELEASE_PINS" ] && exit 0
+          [ "$CHANNEL" = production ] || { branch_with "$prefix/$RELEASE_NAME" "$RELEASE_PINS"; exit 0; }
 
-          line="- \`$CHANNEL\` release: \`${RELEASE_PINS:-none}\`, debug: \`${DEBUG_PINS:-none}\`${SOURCE_URL:+ ([release]($SOURCE_URL))}"
-          echo "Pushed \`$BRANCH\`"$'\n\n'"$line" >>"$GITHUB_STEP_SUMMARY"
-          [ "$CHANNEL" = production ] || { echo 'Run **Preview** on it for a package.' >>"$GITHUB_STEP_SUMMARY"; exit 0; }
+          # Production: SDKs of one platform collect in one open PR, so a shared-module change ships as a whole.
+          branch="release/$PLATFORM"
+          pr=$(gh pr list --base main --head "$branch" --state open --json number -q '.[0].number')
+          if [ -n "$pr" ]; then git switch -q "$branch"; else git switch -q -C "$branch" origin/main; fi
+          # shellcheck disable=SC2086 # validated key=version list
+          scripts/apply-native-pins.sh $RELEASE_PINS
+          git diff --quiet && { echo "\`$branch\` already has $RELEASE_PINS." >>"$GITHUB_STEP_SUMMARY"; exit 0; }
+          git commit -qam "fix(deps): pin $RELEASE_PINS"
+          # No open PR: the branch may be left over from a merged one, so it starts again from main.
+          git push -q --force-with-lease origin "$branch"
 
           # Title: every release pin of this platform that differs from main.
           case $PLATFORM in android) file=android/build.gradle ;; ios) file=react-native-smallcase-gateway.podspec ;; esac
@@ -141,14 +143,16 @@ jobs:
             v=$(pin HEAD "$sdk")
             [ "$v" = "$(pin origin/main "$sdk")" ] || changes+=("$sdk $v")
           done
-          joined=$(IFS=,; echo "${changes[*]:-debug SDKs}")
+          joined=$(IFS=,; echo "${changes[*]}")
           title="fix(deps): pin $PLATFORM ${joined//,/, }"
+          line="- \`$RELEASE_PINS\`$link"
+          echo "Updated \`$branch\`: $line" >>"$GITHUB_STEP_SUMMARY"
 
           if [ -n "$pr" ]; then
             body=$(gh pr view "$pr" --json body -q .body)
             gh pr edit "$pr" --title "$title" --body "$body"$'\n'"$line"
           else
             gh label create native-sdk --color 0e8a16 --description 'Native SDK pin bump' --force >/dev/null
-            gh pr create --base main --head "$BRANCH" --label native-sdk --title "$title" --body \
+            gh pr create --base main --head "$branch" --label native-sdk --title "$title" --body \
               "Native $PLATFORM production releases. SDKs released together (shared modules) collect here; merge once all have arrived."$'\n\n'"$line"
           fi

@@ -1,7 +1,7 @@
 name: 🚀 Release
 
 # On every push to main, release-please keeps the "chore(main): release X.Y.Z" PR up to date.
-# Merging it tags vX.Y.Z, then: pin guard -> npm X.Y.Z (latest) -> GitHub Packages X.Y.Z-debug (debug pins).
+# Merging it tags vX.Y.Z, then: pin guard -> npm X.Y.Z (latest).
 # The only npm publish; keep this file name, npm trusted publishing is bound to it.
 on:
   push:
@@ -57,32 +57,3 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
 
-  debug:
-    needs: [release, npm]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app
-        with:
-          app-id: ${{ vars.CASE_CI_RELEASE_APP_ID }}
-          private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
-          owner: smallcase
-      - uses: actions/checkout@v4
-        with:
-          ref: v${{ needs.release.outputs.version }}
-      - uses: actions/setup-node@v6
-        with:
-          registry-url: https://npm.pkg.github.com
-      - uses: volta-cli/action@v4
-      - run: yarn install --frozen-lockfile
-      - name: Publish debug
-        env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ steps.app.outputs.token }}
-          VERSION: ${{ needs.release.outputs.version }}
-        run: |
-          mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
-          scripts/publish-github-package.sh "$VERSION-debug" debug "${pins[@]}"

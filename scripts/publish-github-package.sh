@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
-# Publishes an internal build (rc, rc-debug, debug, preview) to GitHub Packages. Pins and name change are made in the
-# workspace only, never committed.
-# Usage: scripts/publish-github-package.sh <version> <dist-tag> [pin-key=version ...]
+# Publishes an internal build (preview) to GitHub Packages. The name change is made in the workspace only, never
+# committed.
+# Usage: scripts/publish-github-package.sh <version> <dist-tag>
 # Env: NODE_AUTH_TOKEN (packages: write), GH_TOKEN (read access to the iOS SPM repos).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 version=$1 tag=$2
-shift 2
-[ $# -eq 0 ] || scripts/apply-native-pins.sh "$@"
 
 # GitHub Packages only accepts names in the owner's scope. Consumers install it with an npm alias.
 npm pkg set name=@smallcase/react-native-smallcase-gateway version="$version"

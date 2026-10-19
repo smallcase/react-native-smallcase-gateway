@@ -1,8 +1,8 @@
 name: Preview
 
-# Publishes the selected branch to GitHub Packages as <version>-preview.<run>. With native SDK versions as inputs,
-# it first commits them on a new branch preview/<ios-...>__<android-...> (from the selected branch), so the
-# combination stays visible and reproducible. `debug` uses the debug native pins (native-sdk-debug.json).
+# Publishes the selected branch to GitHub Packages as <version>-preview.<run>. With native SDK versions as inputs
+# (release or debug builds), it first commits them on a new branch preview/<ios-...>__<android-...> (from the
+# selected branch), so the combination stays visible and reproducible.
 on:
   workflow_dispatch:
     inputs:
@@ -18,10 +18,6 @@ on:
       android_loans:
         description: Android Loans version (empty = branch pin)
         required: false
-      debug:
-        description: Use the debug native SDKs from native-sdk-debug.json
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -47,7 +43,6 @@ jobs:
           IOS_LOANS: ${{ inputs.ios_loans }}
           ANDROID_SCG: ${{ inputs.android_scg }}
           ANDROID_LOANS: ${{ inputs.android_loans }}
-          DEBUG: ${{ inputs.debug }}
         run: |
           pins=() names=()
           for platform in ios android; do
@@ -62,8 +57,6 @@ jobs:
           [ ${#pins[@]} -gt 0 ] || exit 0
 
           scripts/apply-native-pins.sh "${pins[@]}" # validates every input
-          # With debug, the inputs are debug builds: they must win over native-sdk-debug.json too.
-          [ "$DEBUG" != true ] || scripts/apply-native-pins.sh --debug "${pins[@]}"
           branch=$(printf '%s__' "${names[@]}")
           branch="preview/${branch%__}"
           git config user.name "github-actions[bot]"
@@ -83,10 +76,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ steps.app.outputs.token }}
-          DEBUG: ${{ inputs.debug }}
         run: |
-          pins=()
-          [ "$DEBUG" != true ] || mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
           base=$(node -p 'require("./package.json").version.split("-")[0]')
-          echo "Debug native SDKs: $DEBUG" >>"$GITHUB_STEP_SUMMARY"
-          scripts/publish-github-package.sh "$base-preview.$GITHUB_RUN_NUMBER" preview "${pins[@]}"
+          scripts/publish-github-package.sh "$base-preview.$GITHUB_RUN_NUMBER" preview
