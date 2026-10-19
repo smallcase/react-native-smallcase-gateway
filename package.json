@@ -34,8 +34,7 @@
     "bootstrap": "yarn example && yarn && yarn example pods",
     "commit": "yarn cz",
     "prepack": "scripts/fetch-ios-sdks.sh",
-    "fetch-ios-sdks": "scripts/fetch-ios-sdks.sh",
-    "test:pins": "scripts/test-native-pins.sh"
+    "fetch-ios-sdks": "scripts/fetch-ios-sdks.sh"
   },
   "keywords": [
     "react-native",
