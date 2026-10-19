@@ -8,7 +8,7 @@ name: Native SDK bump
 # Release pins go on the marker lines, debug pins in native-sdk-debug.json.
 # - staging: new branch prerelease/<platform>-<sdk>-<version>[_<sdk>-<version>] from main. No PR.
 # - preview: new branch preview/<platform>-<sdk>-<version>[...] from main. No PR.
-# - production: one PR per platform into main (native-sdk/<platform>), so SDKs released together merge together.
+# - production: one PR per platform into main (release/<platform>), so SDKs released together merge together.
 # Run Preview on a branch to get a package. Run this workflow by hand to repeat an event.
 on:
   repository_dispatch:
@@ -77,7 +77,7 @@ jobs:
           case $channel in
             staging) branch="prerelease/$name" ;;
             preview) branch="preview/$name" ;;
-            production) branch="native-sdk/$platform" ;;
+            production) branch="release/$platform" ;;
           esac
 
           source_url=$(jq -r '.source_url // empty' <<<"$PAYLOAD")

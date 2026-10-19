@@ -84,7 +84,7 @@ Releases are automatic; do not edit `version` in `package.json` or publish by ha
 - Native SDK pins are on `native-sdk:` marker lines (`android/build.gradle`, the podspec) and in `native-sdk-debug.json`. Each native release sends one event (`native-sdk-bump.yml`, also runnable by hand):
   - staging → new branch `prerelease/<platform>-<sdk>-<version>[_<sdk>-<version>]`
   - native preview → new branch `preview/<platform>-<sdk>-<version>[...]`
-  - production → one PR per platform into `main` (`native-sdk/<platform>`); SDKs released together are merged together.
+  - production → one PR per platform into `main` (`release/<platform>`); SDKs released together are merged together.
   PRs into `main` and the npm publish fail if a marker line has a prerelease pin.
 - To test a branch, run the `Preview` workflow. With native versions as inputs it also pushes `preview/<ios-...>__<android-...>`; `debug` uses the debug native SDKs. Do not commit internal pins to test.
 - iOS SDKs are vendored from their SPM releases into `ios/Frameworks` (`yarn fetch-ios-sdks`, needs `gh auth login`). Run it before `pod install` in the sample app.
