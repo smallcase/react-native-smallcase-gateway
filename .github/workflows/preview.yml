@@ -1,26 +1,27 @@
 name: Preview
 
-# Publishes the selected branch to GitHub Packages as <version>-preview.<run>, optionally with the debug native
-# pins (native-sdk-debug.json) or other native SDK versions. Commits nothing. The job summary has the install line.
+# Publishes the selected branch to GitHub Packages as <version>-preview.<run>. With native SDK versions as inputs,
+# it first commits them on a new branch preview/<ios-...>__<android-...> (from the selected branch), so the
+# combination stays visible and reproducible. `debug` uses the debug native pins (native-sdk-debug.json).
 on:
   workflow_dispatch:
     inputs:
-      debug:
-        description: Use the debug native SDKs from native-sdk-debug.json
-        type: boolean
-        default: false
-      android_scg:
-        description: Android SCGateway version (empty = branch pin)
-        required: false
-      android_loans:
-        description: Android Loans version (empty = branch pin)
-        required: false
       ios_scg:
         description: iOS SCGateway SPM tag (empty = branch pin)
         required: false
       ios_loans:
         description: iOS Loans SPM tag (empty = branch pin)
         required: false
+      android_scg:
+        description: Android SCGateway version (empty = branch pin)
+        required: false
+      android_loans:
+        description: Android Loans version (empty = branch pin)
+        required: false
+      debug:
+        description: Use the debug native SDKs from native-sdk-debug.json
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -37,6 +38,41 @@ jobs:
           private-key: ${{ secrets.CASE_CI_RELEASE_APP_PRI_KEY }}
           owner: smallcase
       - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Commit the native versions on a preview branch
+        env:
+          IOS_SCG: ${{ inputs.ios_scg }}
+          IOS_LOANS: ${{ inputs.ios_loans }}
+          ANDROID_SCG: ${{ inputs.android_scg }}
+          ANDROID_LOANS: ${{ inputs.android_loans }}
+          DEBUG: ${{ inputs.debug }}
+        run: |
+          pins=() names=()
+          for platform in ios android; do
+            parts=()
+            for sdk in scg loans; do
+              var="${platform^^}_${sdk^^}" v=${!var}
+              [ -z "$v" ] || { pins+=("$platform-$sdk=$v"); parts+=("$sdk-$v"); }
+            done
+            [ ${#parts[@]} -eq 0 ] || names+=("$platform-$(IFS=_; echo "${parts[*]}")")
+          done
+          echo "Branch \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`." >>"$GITHUB_STEP_SUMMARY"
+          [ ${#pins[@]} -gt 0 ] || exit 0
+
+          scripts/apply-native-pins.sh "${pins[@]}" # validates every input
+          # With debug, the inputs are debug builds: they must win over native-sdk-debug.json too.
+          [ "$DEBUG" != true ] || scripts/apply-native-pins.sh --debug "${pins[@]}"
+          branch=$(printf '%s__' "${names[@]}")
+          branch="preview/${branch%__}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git commit -am "chore: preview ${pins[*]}"
+          git push --force origin "$branch" # same versions again: the latest run wins
+          echo "Pushed \`$branch\` with ${pins[*]}." >>"$GITHUB_STEP_SUMMARY"
+
       - uses: actions/setup-node@v6
         with:
           registry-url: https://npm.pkg.github.com
@@ -47,19 +83,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ steps.app.outputs.token }}
-          ANDROID_SCG: ${{ inputs.android_scg }}
-          ANDROID_LOANS: ${{ inputs.android_loans }}
-          IOS_SCG: ${{ inputs.ios_scg }}
-          IOS_LOANS: ${{ inputs.ios_loans }}
           DEBUG: ${{ inputs.debug }}
         run: |
           pins=()
-          # Inputs come after the debug pins, so they win.
           [ "$DEBUG" != true ] || mapfile -t pins < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' native-sdk-debug.json)
-          [ -z "$ANDROID_SCG" ] || pins+=("android-scg=$ANDROID_SCG")
-          [ -z "$ANDROID_LOANS" ] || pins+=("android-loans=$ANDROID_LOANS")
-          [ -z "$IOS_SCG" ] || pins+=("ios-scg=$IOS_SCG")
-          [ -z "$IOS_LOANS" ] || pins+=("ios-loans=$IOS_LOANS")
           base=$(node -p 'require("./package.json").version.split("-")[0]')
-          echo "Branch \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Debug: $DEBUG. Pins: ${pins[*]:-none}" >>"$GITHUB_STEP_SUMMARY"
+          echo "Debug native SDKs: $DEBUG" >>"$GITHUB_STEP_SUMMARY"
           scripts/publish-github-package.sh "$base-preview.$GITHUB_RUN_NUMBER" preview "${pins[@]}"

@@ -1,10 +1,15 @@
 name: Native SDK bump
 
-# A native staging or production release (gw-mob-android, gw-mob-ios) sends `native-sdk-released`.
-# `release` edits the marker line, `debug` edits native-sdk-debug.json.
-# - production (version without -rc): one PR per native SDK into main, updated by later events.
-# - staging (-rc / -rc-debug): only a branch native-sdk/staging/<platform>-<sdk>/<X.Y.Z> for QA; run Preview on it.
-# Run it by hand to repeat a bump or to pin a version that sent no event.
+# A native release (gw-mob-android, gw-mob-ios) sends one `native-sdk-released` event once all its builds are
+# published, with every SDK and variant it released:
+#   { "platform": "ios", "channel": "staging",
+#     "pins": { "scg": { "release": "7.3.1-rc.1645", "debug": "7.3.1-rc-debug.1644" }, "loans": { ... } },
+#     "source_url": "https://github.com/smallcase/..." }
+# Release pins go on the marker lines, debug pins in native-sdk-debug.json.
+# - staging: new branch prerelease/<platform>-<sdk>-<version>[_<sdk>-<version>] from main. No PR.
+# - preview: new branch preview/<platform>-<sdk>-<version>[...] from main. No PR.
+# - production: one PR per platform into main (native-sdk/<platform>), so SDKs released together merge together.
+# Run Preview on a branch to get a package. Run this workflow by hand to repeat an event.
 on:
   repository_dispatch:
     types: [native-sdk-released]
@@ -13,49 +18,78 @@ on:
       platform:
         type: choice
         options: [android, ios]
-      sdk:
+      channel:
         type: choice
-        options: [scg, loans]
-      variant:
-        type: choice
-        options: [release, debug]
-      version:
-        description: Exact native version (Maven version or SPM tag)
-        required: true
+        options: [staging, production, preview]
+      scg_release:
+        description: SCGateway release version (Maven version or SPM tag)
+        required: false
+      scg_debug:
+        description: SCGateway debug version
+        required: false
+      loans_release:
+        description: Loans release version
+        required: false
+      loans_debug:
+        description: Loans debug version
+        required: false
       source_url:
         description: Release link for the PR body
         required: false
 
 concurrency:
-  group: native-sdk-${{ github.event.client_payload.platform || inputs.platform }}-${{ github.event.client_payload.sdk || inputs.sdk }}
+  group: native-sdk-${{ github.event.client_payload.platform || inputs.platform }}-${{ github.event.client_payload.channel || inputs.channel }}
   cancel-in-progress: false
 
 jobs:
   bump:
     runs-on: ubuntu-latest
     env:
-      # The payload comes from other repos: only ever read it through env, after validation.
-      PLATFORM: ${{ github.event.client_payload.platform || inputs.platform }}
-      SDK: ${{ github.event.client_payload.sdk || inputs.sdk }}
-      VARIANT: ${{ github.event.client_payload.variant || inputs.variant }}
-      VERSION: ${{ github.event.client_payload.version || inputs.version }}
-      SOURCE_URL: ${{ github.event.client_payload.source_url || inputs.source_url }}
+      # The payload comes from other repos: only ever read it through env and jq, and validate every value.
+      PAYLOAD: ${{ github.event_name == 'repository_dispatch' && toJSON(github.event.client_payload) || toJSON(inputs) }}
     steps:
       - name: Validate the payload
         run: |
-          [[ $PLATFORM =~ ^(android|ios)$ && $SDK =~ ^(scg|loans)$ && $VARIANT =~ ^(release|debug)$ ]] || { echo "::error::bad platform/sdk/variant"; exit 1; }
-          [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]] || { echo "::error::bad version"; exit 1; }
-          [[ -z $SOURCE_URL || $SOURCE_URL =~ ^https://github\.com/smallcase/[A-Za-z0-9._/-]+$ ]] || SOURCE_URL=''
-          # Staging builds are X.Y.Z-rc.N / X.Y.Z-rc-debug.N; production builds are X.Y.Z / X.Y.Z-debug[.N].
-          if [[ $VERSION == *-rc* ]]; then
-            branch="native-sdk/staging/$PLATFORM-$SDK/${VERSION%%-*}"
-          else
-            branch="native-sdk/$PLATFORM-$SDK"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            PAYLOAD=$(jq '{platform, channel, source_url,
+              pins: ({scg: {release: .scg_release, debug: .scg_debug}, loans: {release: .loans_release, debug: .loans_debug}}
+                | map_values(with_entries(select(.value != "" and .value != null))) | with_entries(select(.value != {})))}' <<<"$PAYLOAD")
           fi
+          jq -e '(.platform | type) == "string" and (.channel | type) == "string" and (.pins | type) == "object"' <<<"$PAYLOAD" >/dev/null \
+            || { echo '::error::payload needs platform, channel and pins'; exit 1; }
+          platform=$(jq -r .platform <<<"$PAYLOAD") channel=$(jq -r .channel <<<"$PAYLOAD")
+          [[ $platform =~ ^(android|ios)$ && $channel =~ ^(staging|production|preview)$ ]] || { echo '::error::bad platform/channel'; exit 1; }
+
+          release=() debug=() parts=()
+          while read -r sdk variant version; do
+            [[ $sdk =~ ^(scg|loans)$ && $variant =~ ^(release|debug)$ ]] || { echo "::error::bad pin $sdk $variant"; exit 1; }
+            [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]] || { echo "::error::bad version for $sdk $variant"; exit 1; }
+            if [ "$variant" = release ]; then release+=("$platform-$sdk=$version"); else debug+=("$platform-$sdk=$version"); fi
+          done < <(jq -r '.pins | to_entries[] | .key as $s | .value | objects | to_entries[] | "\($s) \(.key) \(.value)"' <<<"$PAYLOAD")
+          [ $((${#release[@]} + ${#debug[@]})) -gt 0 ] || { echo '::error::no pins'; exit 1; }
+
+          # Branch name: each released SDK with its release version (debug version if it only has one).
+          for sdk in scg loans; do
+            v=$(jq -r --arg s "$sdk" '.pins[$s] | objects | .release // .debug // empty' <<<"$PAYLOAD")
+            [ -z "$v" ] || parts+=("$sdk-$v")
+          done
+          name="$platform-$(IFS=_; echo "${parts[*]}")"
+          case $channel in
+            staging) branch="prerelease/$name" ;;
+            preview) branch="preview/$name" ;;
+            production) branch="native-sdk/$platform" ;;
+          esac
+
+          source_url=$(jq -r '.source_url // empty' <<<"$PAYLOAD")
+          [[ -z $source_url || $source_url =~ ^https://github\.com/smallcase/[A-Za-z0-9._/-]+$ ]] || source_url=''
           {
-            echo "SOURCE_URL=$SOURCE_URL"
-            echo "KEY=$PLATFORM-$SDK"
+            echo "PLATFORM=$platform"
+            echo "CHANNEL=$channel"
+            echo "NAME=$name"
             echo "BRANCH=$branch"
+            echo "RELEASE_PINS=${release[*]}"
+            echo "DEBUG_PINS=${debug[*]}"
+            echo "SOURCE_URL=$source_url"
           } >>"$GITHUB_ENV"
 
       # A PR opened with GITHUB_TOKEN starts no workflows, so it would get no checks.
@@ -77,40 +111,44 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Continue an open production PR or an existing staging branch, so the release and debug events of one
-          # native release land together. Otherwise start from main (a leftover production branch is reset).
           pr=''
-          [[ $BRANCH == native-sdk/staging/* ]] || pr=$(gh pr list --base main --head "$BRANCH" --state open --json number -q '.[0].number')
-          if [[ -n $pr || ($BRANCH == native-sdk/staging/* && -n $(git ls-remote --heads origin "$BRANCH")) ]]; then
-            git switch "$BRANCH"
-          else
-            git switch -C "$BRANCH"
-          fi
-
-          if [ "$VARIANT" = release ]; then
-            scripts/apply-native-pins.sh "$KEY=$VERSION"
-          else
-            jq --sort-keys --arg k "$KEY" --arg v "$VERSION" '.[$k] = $v' native-sdk-debug.json >"$RUNNER_TEMP/debug.json"
-            mv "$RUNNER_TEMP/debug.json" native-sdk-debug.json
-          fi
-          git diff --quiet && { echo "$KEY $VARIANT is already $VERSION"; exit 0; }
-          git commit -am "fix(deps): pin $PLATFORM $SDK $VARIANT $VERSION"
-          git push --force-with-lease origin "$BRANCH"
-          echo "Pinned \`$KEY\` $VARIANT \`$VERSION\` on \`$BRANCH\`." >>"$GITHUB_STEP_SUMMARY"
-
-          if [[ $BRANCH == native-sdk/staging/* ]]; then
-            echo "Staging build: no PR. Run **Preview** on \`$BRANCH\` to test it." >>"$GITHUB_STEP_SUMMARY"
+          if [ "$CHANNEL" = production ]; then
+            # SDKs of one platform collect in one open PR, so a shared-module change ships as a whole.
+            pr=$(gh pr list --base main --head "$BRANCH" --state open --json number -q '.[0].number')
+          elif git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+            echo "\`$BRANCH\` already exists; nothing to do." >>"$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          if [ -n "$pr" ]; then git switch "$BRANCH"; else git switch -C "$BRANCH"; fi
 
-          title="fix(deps): pin $PLATFORM $SDK $VERSION"
-          line="- \`$VARIANT\`: \`$VERSION\`${SOURCE_URL:+ ([release]($SOURCE_URL))}"
+          # shellcheck disable=SC2086 # space-separated key=version lists, validated above
+          { [ -z "$RELEASE_PINS" ] || scripts/apply-native-pins.sh $RELEASE_PINS
+            [ -z "$DEBUG_PINS" ] || scripts/apply-native-pins.sh --debug $DEBUG_PINS; }
+          git diff --quiet && { echo "Pins already applied." >>"$GITHUB_STEP_SUMMARY"; exit 0; }
+          git commit -am "fix(deps): pin $CHANNEL $NAME" -m "release: ${RELEASE_PINS:-none}" -m "debug: ${DEBUG_PINS:-none}"
+          # Production without an open PR: the branch may be left over from a merged one, so start it again from main.
+          git push --force-with-lease origin "$BRANCH"
+
+          line="- \`$CHANNEL\` release: \`${RELEASE_PINS:-none}\`, debug: \`${DEBUG_PINS:-none}\`${SOURCE_URL:+ ([release]($SOURCE_URL))}"
+          echo "Pushed \`$BRANCH\`"$'\n\n'"$line" >>"$GITHUB_STEP_SUMMARY"
+          [ "$CHANNEL" = production ] || { echo 'Run **Preview** on it for a package.' >>"$GITHUB_STEP_SUMMARY"; exit 0; }
+
+          # Title: every release pin of this platform that differs from main.
+          case $PLATFORM in android) file=android/build.gradle ;; ios) file=react-native-smallcase-gateway.podspec ;; esac
+          pin() { git show "$1:$file" | grep "native-sdk: $PLATFORM-$2\$" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+[-.0-9A-Za-z]*'" | tr -d "'"; }
+          changes=()
+          for sdk in scg loans; do
+            v=$(pin HEAD "$sdk")
+            [ "$v" = "$(pin origin/main "$sdk")" ] || changes+=("$sdk $v")
+          done
+          joined=$(IFS=,; echo "${changes[*]:-debug SDKs}")
+          title="fix(deps): pin $PLATFORM ${joined//,/, }"
+
           if [ -n "$pr" ]; then
             body=$(gh pr view "$pr" --json body -q .body)
-            if [ "$VARIANT" = release ]; then gh pr edit "$pr" --title "$title"; fi
-            gh pr edit "$pr" --body "$body"$'\n'"$line"
+            gh pr edit "$pr" --title "$title" --body "$body"$'\n'"$line"
           else
             gh label create native-sdk --color 0e8a16 --description 'Native SDK pin bump' --force >/dev/null
             gh pr create --base main --head "$BRANCH" --label native-sdk --title "$title" --body \
-              "Pins \`$KEY\` from a native production release. Merging it includes the pin in the next release."$'\n\n'"$line"
+              "Native $PLATFORM production releases. SDKs released together (shared modules) collect here; merge once all have arrived."$'\n\n'"$line"
           fi

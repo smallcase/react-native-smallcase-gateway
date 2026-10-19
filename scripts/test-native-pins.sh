@@ -2,8 +2,8 @@
 # Self-check for apply-native-pins.sh and pin-guard.sh. Restores the pin files on exit.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-cp android/build.gradle /tmp/rnsg-gradle.$$ && cp react-native-smallcase-gateway.podspec /tmp/rnsg-podspec.$$
-trap 'mv /tmp/rnsg-gradle.$$ android/build.gradle; mv /tmp/rnsg-podspec.$$ react-native-smallcase-gateway.podspec' EXIT
+cp android/build.gradle /tmp/rnsg-gradle.$$ && cp react-native-smallcase-gateway.podspec /tmp/rnsg-podspec.$$ && cp native-sdk-debug.json /tmp/rnsg-debug.$$
+trap 'mv /tmp/rnsg-gradle.$$ android/build.gradle; mv /tmp/rnsg-podspec.$$ react-native-smallcase-gateway.podspec; mv /tmp/rnsg-debug.$$ native-sdk-debug.json' EXIT
 
 fail() { echo "FAIL: $*"; exit 1; }
 run() { scripts/apply-native-pins.sh "$@" >/dev/null 2>&1; }
@@ -20,4 +20,8 @@ scripts/pin-guard.sh >/dev/null 2>&1 && fail 'guard accepts a prerelease pin'
 run bogus=1.0.0 && fail 'unknown key accepted'
 run android-loans='1.0.0;rm -rf /' && fail 'bad version accepted'
 run android-loans=latest && fail 'non-semver accepted'
+run --debug ios-scg=7.3.1-rc-debug.1644 || fail 'debug pin'
+[ "$(jq -r '."ios-scg"' native-sdk-debug.json)" = 7.3.1-rc-debug.1644 ] || fail 'debug pin not written'
+grep -q "rc-debug" react-native-smallcase-gateway.podspec && fail 'debug pin touched a marker line'
+run --debug bogus=1.0.0 && fail 'unknown debug key accepted'
 echo 'native pin checks passed'
