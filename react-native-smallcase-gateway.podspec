@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "11.0" }
   s.source       = { :git => "https://github.com/smallcase/react-native-smallcase-gateway.git", :tag => "#{s.version}" }
   s.vendored_frameworks = IOS_SDKS.keys.map { |m| "ios/Frameworks/#{m}.xcframework" }
-  s.source_files = "ios/**/*.{h,m,mm,swift}"
+  s.source_files = "ios/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
 
