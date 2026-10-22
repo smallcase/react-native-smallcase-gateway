@@ -77,13 +77,17 @@ Our pre-commit hooks verify that the linter and tests pass when committing.
 
 ### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+Releases are automatic; do not edit `version` in `package.json` or publish by hand.
 
-To publish new versions, run the following:
-
-```sh
-yarn release
-```
+- Trunk-based: PRs go to `main` with a Conventional Commit title (squash merge).
+- release-please keeps a `chore(main): release X.Y.Z` PR open on `main`. Merging it publishes `X.Y.Z` to npm (`publish.yml`).
+- Native SDK pins are on `native-sdk:` marker lines (`android/build.gradle`, the podspec). Each native release sends one event (`native-sdk-bump.yml`, also runnable by hand). The release and the debug builds each get a branch named after their versions:
+  - staging → `prerelease/<platform>-<sdk>-<version>[_<sdk>-<version>]`, e.g. `prerelease/ios-scg-7.3.1-rc.1645` and `prerelease/ios-scg-7.3.1-rc-debug.1644`
+  - native preview → `preview/<platform>-<sdk>-<version>[...]`
+  - production → release builds in one PR per platform into `main` (`release/<platform>`), so SDKs released together are merged together; debug builds on a `prerelease/` branch.
+  PRs into `main` and the npm publish fail if a marker line has a prerelease pin.
+- To test a branch, run the `Preview` workflow. With native versions as inputs (release or debug builds) it also pushes `preview/<ios-...>__<android-...>`. Do not commit internal pins to test.
+- iOS SDKs are vendored from their SPM releases into `ios/Frameworks` (`yarn fetch-ios-sdks`, needs `gh auth login`). Run it before `pod install` in the sample app.
 
 ### Scripts
 
